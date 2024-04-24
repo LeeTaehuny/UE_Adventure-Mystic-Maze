@@ -10,3 +10,12 @@ First_Dungeon_Manager::First_Dungeon_Manager()
 First_Dungeon_Manager::~First_Dungeon_Manager()
 {
 }
+
+void First_Dungeon_Manager::BeginPlay()
+{
+	Super::BeginPlay();
+
+	UE_LOG(LogTemp, Display, TEXT("This Play"));
+
+
+}
