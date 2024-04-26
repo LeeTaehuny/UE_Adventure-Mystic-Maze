@@ -45,31 +45,61 @@ protected:
 	// Basic
 	void BasicMove(const FInputActionValue& Value);
 	void BasicLook(const FInputActionValue& Value);
+	void BasicAttack();
 
 	// 공용
-	UPROPERTY(VisibleAnywhere, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_Dash;
 
-	UPROPERTY(VisibleAnywhere, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_Roll;
 
 	// Basic Input
-	UPROPERTY(VisibleAnywhere, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, Category = BaseInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputMappingContext> IMC_Basic;
 
-	UPROPERTY(VisibleAnywhere, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, Category = BaseInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_BasicMove;
 
-	UPROPERTY(VisibleAnywhere, Category = Input, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, Category = BaseInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_BasicLook;
+
+	UPROPERTY(VisibleAnywhere, Category = BaseInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_BasicAttack;
 
 // Montage
 protected:
 	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> RollMontage;
 
+	// TODO : 무기가 추가된 이후 여러 종류의 공격이 존재할 경우 TMap으로 관리하기(현재 상태 - 콤보 몽타주)
+	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> BasicComboMontage;
+
+// ComboData
+protected:
+	UPROPERTY(EditAnywhere, Category = ComboData, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UMMComboActionData> BasicComboData;
+
+protected:
+	void ComboStart();
+	void ComboEnd(class UAnimMontage* Montage, bool IsEnded);
+	void ComboCheck();
+	void SetComboTimer();
+
+	// 콤보에 사용될 타이머 변수
+	FTimerHandle ComboTimerHandle;
+	// 현재 콤보 진행 수
+	int32 CurrentComboCount;
+	// 콤보 입력 판별
+	uint8 bHasComboInput : 1;
+
 // Member Variable
 protected:
 	uint8 bIsDash : 1;
 	uint8 bIsRoll : 1;
+	uint8 bIsAttacking : 1;
+
+	float WalkSpeed;
+	float RunSpeed;
 };
