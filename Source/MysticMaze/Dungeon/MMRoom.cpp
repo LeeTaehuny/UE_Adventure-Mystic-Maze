@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Dungeon/Dungeon_block_base.h"
+#include "Dungeon/MMRoom.h"
 
 // Sets default values
-ADungeon_block_base::ADungeon_block_base()
+AMMRoom::AMMRoom()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -12,14 +12,14 @@ ADungeon_block_base::ADungeon_block_base()
 }
 
 // Called when the game starts or when spawned
-void ADungeon_block_base::BeginPlay()
+void AMMRoom::BeginPlay()
 {
 	Super::BeginPlay();
 	
 }
 
 // Called every frame
-void ADungeon_block_base::Tick(float DeltaTime)
+void AMMRoom::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 

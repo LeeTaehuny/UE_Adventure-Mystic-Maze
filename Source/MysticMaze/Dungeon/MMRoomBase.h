@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Dungeon_block_base.generated.h"
+#include "MMRoomBase.generated.h"
 
 UCLASS()
-class MYSTICMAZE_API ADungeon_block_base : public AActor
+class MYSTICMAZE_API AMMRoomBase : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	ADungeon_block_base();
+	AMMRoomBase();
 
 protected:
 	// Called when the game starts or when spawned
