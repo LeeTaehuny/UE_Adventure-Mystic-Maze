@@ -5,13 +5,14 @@
 #include "CoreMinimal.h"
 #include "Character/MMCharacterBase.h"
 #include "InputActionValue.h"
+#include "Interface/MMAnimationAttackInterface.h"
 #include "MMPlayerCharacter.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class MYSTICMAZE_API AMMPlayerCharacter : public AMMCharacterBase
+class MYSTICMAZE_API AMMPlayerCharacter : public AMMCharacterBase, public IMMAnimationAttackInterface
 {
 	GENERATED_BODY()
 	
@@ -81,6 +82,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = ComboData, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UMMComboActionData> BasicComboData;
 
+// Combo Section
 protected:
 	void ComboStart();
 	void ComboEnd(class UAnimMontage* Montage, bool IsEnded);
@@ -93,6 +95,10 @@ protected:
 	int32 CurrentComboCount;
 	// 콤보 입력 판별
 	uint8 bHasComboInput : 1;
+
+// Attack Section
+protected:
+	virtual void BaseAttackCheck() override;
 
 // Member Variable
 protected:
