@@ -2,6 +2,8 @@
 
 
 #include "Character/MMPlayerCharacter.h"
+#include "MMComboActionData.h"
+#include "Collision/MMCollision.h"
 
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
@@ -12,12 +14,16 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Animation/AnimMontage.h"
+#include "DrawDebugHelpers.h"
 
 AMMPlayerCharacter::AMMPlayerCharacter()
 {
 	// Collision 설정
 	{
 		GetCapsuleComponent()->InitCapsuleSize(35.0f, 90.0f);
+
+		// 프리셋 지정
+		GetCapsuleComponent()->SetCollisionProfileName(MMCAPSULE);
 	}
 
 	// Mesh 설정
@@ -37,6 +43,9 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 			{
 				GetMesh()->SetAnimInstanceClass(AnimInstanceClassRef.Class);
 			}
+
+			// Collision 설정
+			GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
 		}
 	}
 
@@ -52,13 +61,13 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 	// Input
 	{
 		// 공용
-		static ConstructorHelpers::FObjectFinder<UInputAction>IA_DashRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/IA_Dash.IA_Dash'"));
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_DashRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_Dash.IA_Dash'"));
 		if (IA_DashRef.Object)
 		{
 			IA_Dash = IA_DashRef.Object;
 		}
 
-		static ConstructorHelpers::FObjectFinder<UInputAction>IA_RollRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/IA_Roll.IA_Roll'"));
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_RollRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_Roll.IA_Roll'"));
 		if (IA_RollRef.Object)
 		{
 			IA_Roll = IA_RollRef.Object;
@@ -71,16 +80,22 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 			IMC_Basic = IMC_BasicRef.Object;
 		}
 
-		static ConstructorHelpers::FObjectFinder<UInputAction>IA_BasicMoveRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/IA_BaseMove.IA_BaseMove'"));
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_BasicMoveRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Basic/IA_BaseMove.IA_BaseMove'"));
 		if (IA_BasicMoveRef.Object)
 		{
 			IA_BasicMove = IA_BasicMoveRef.Object;
 		}
 
-		static ConstructorHelpers::FObjectFinder<UInputAction>IA_BasicLookRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/IA_BaseLook.IA_BaseLook'"));
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_BasicLookRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Basic/IA_BaseLook.IA_BaseLook'"));
 		if (IA_BasicLookRef.Object)
 		{
 			IA_BasicLook = IA_BasicLookRef.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_BasicAttackRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Basic/IA_BaseAttack.IA_BaseAttack'"));
+		if (IA_BasicAttackRef.Object)
+		{
+			IA_BasicAttack = IA_BasicAttackRef.Object;
 		}
 	}
 
@@ -101,10 +116,19 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 		GetCharacterMovement()->MaxWalkSpeed = 230.0f;
 	}
 
+	// Combo Variable 초기화
+	{
+		CurrentComboCount = 0;
+		bHasComboInput = false;
+	}
+
 	// Member Variable 초기화
 	{
 		bIsDash = false;
 		bIsRoll = false;
+		bIsAttacking = false;
+		WalkSpeed = 230.0f;
+		RunSpeed = 600.0f;
 	}
 }
 
@@ -133,6 +157,7 @@ void AMMPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 	EnhancedInputComponent->BindAction(IA_BasicLook, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::BasicLook);
 	EnhancedInputComponent->BindAction(IA_BasicMove, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::BasicMove);
+	EnhancedInputComponent->BindAction(IA_BasicAttack, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::BasicAttack);
 	EnhancedInputComponent->BindAction(IA_Dash, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::DashStart);
 	EnhancedInputComponent->BindAction(IA_Dash, ETriggerEvent::Completed, this, &AMMPlayerCharacter::DashEnd);
 	EnhancedInputComponent->BindAction(IA_Roll, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::RollStart);
@@ -141,18 +166,19 @@ void AMMPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 void AMMPlayerCharacter::DashStart()
 {
 	bIsDash = true;
-	GetCharacterMovement()->MaxWalkSpeed = 600;
+	GetCharacterMovement()->MaxWalkSpeed = RunSpeed;
 }
 
 void AMMPlayerCharacter::DashEnd()
 {
 	bIsDash = false;
-	GetCharacterMovement()->MaxWalkSpeed = 230;
+	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 }
 
 void AMMPlayerCharacter::RollStart()
 {
 	if (bIsRoll) return;
+	if (bIsAttacking) return;
 
 	// 애님 인스턴스 가져오기
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -205,4 +231,177 @@ void AMMPlayerCharacter::BasicLook(const FInputActionValue& Value)
 	// Controller에 값 전달
 	AddControllerYawInput(LookVector.X);
 	AddControllerPitchInput(LookVector.Y);
+}
+
+void AMMPlayerCharacter::BasicAttack()
+{
+	// 구르기 상태일 때 공격 불가
+	if (bIsRoll) return;
+
+	// 콤보 시작
+	if (CurrentComboCount == 0)
+	{
+		ComboStart();
+		bIsAttacking = true;
+		return;
+	}
+
+	// 중간 입력 체크
+	// * 콤보 타이머가 종료되지 않은 상태라면 콤보 입력 체크
+	if (ComboTimerHandle.IsValid())
+	{
+		bHasComboInput = true;
+	}
+	// * 콤보 타이머가 유효하지 않은(종료) 상태라면 콤보 입력 체크 해제
+	else
+	{
+		bHasComboInput = false;
+	}
+}
+
+void AMMPlayerCharacter::ComboStart()
+{
+	// 현재 콤보 수 1로 증가
+	CurrentComboCount = 1;
+
+	// 공격 시 플레이어 이동 불가
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+
+	// TODO : 공격 속도가 추가되면 값 가져와 지정하기
+	const float AttackSpeedRate = 1.0f;
+
+
+	// 애님 인스턴스 가져오기
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance)
+	{
+		// 몽타주 재생
+		AnimInstance->Montage_Play(BasicComboMontage, AttackSpeedRate);
+
+		// 몽타주 재생 종료 바인딩
+		FOnMontageEnded EndDelegate;
+		EndDelegate.BindUObject(this, &AMMPlayerCharacter::ComboEnd);
+
+		// BasicComboMontage가 종료되면 EndDelegate에 연동된 ComboEnd함수 호출
+		AnimInstance->Montage_SetEndDelegate(EndDelegate, BasicComboMontage);
+
+		// 타이머 초기화
+		ComboTimerHandle.Invalidate();
+		// 타이머 설정
+		SetComboTimer();
+	}
+}
+
+void AMMPlayerCharacter::ComboEnd(UAnimMontage* Montage, bool IsEnded)
+{
+	// 콤보 수 초기화
+	CurrentComboCount = 0;
+
+	// 콤보 입력 판별 초기화
+	bHasComboInput = false;
+	
+	// 공격 종료
+	bIsAttacking = false;
+
+	// 플레이어 이동 가능하도록 설정
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+}
+
+void AMMPlayerCharacter::ComboCheck()
+{
+	// 타이머 핸들 초기화
+	ComboTimerHandle.Invalidate();
+
+	// 콤보에 대한 입력이 들어온 상황이라면?
+	if (bHasComboInput)
+	{
+		// 콤보 수 증가
+		CurrentComboCount = FMath::Clamp(CurrentComboCount + 1, 1, BasicComboData->MaxComboCount);
+		
+		// 애님 인스턴스 가져오기
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance)
+		{
+			// 다음 섹션의 이름 만들기
+			FName SectionName = *FString::Printf(TEXT("%s%d"), *BasicComboData->SectionPrefix, CurrentComboCount);
+
+			// 다음 섹션으로 이동하기
+			AnimInstance->Montage_JumpToSection(SectionName, BasicComboMontage);
+
+			// 타이머 재설정
+			SetComboTimer();
+			// 콤보 입력 판별 초기화
+			bHasComboInput = false;
+		}
+	}
+}
+
+void AMMPlayerCharacter::SetComboTimer()
+{
+	// 인덱스 조정
+	// * 콤보 인덱스 : 1, 2, 3, 4
+	// * 배열 인덱스 : 0, 1, 2, 3
+	int32 ComboIndex = CurrentComboCount - 1;
+
+	// 인덱스가 유효한지 체크
+	if (BasicComboData->ComboFrame.IsValidIndex(ComboIndex))
+	{
+		// TODO : 공격 속도가 추가되면 값 가져와 지정하기
+		const float AttackSpeedRate = 1.0f;
+
+		// 실제 콤보가 입력될 수 있는 시간 구하기
+		float ComboAvailableTime = (BasicComboData->ComboFrame[ComboIndex] / BasicComboData->FrameRate) / AttackSpeedRate;
+
+		// 타이머 설정하기
+		if (ComboAvailableTime > 0.0f)
+		{
+			// ComboAvailableTime시간이 지나면 ComboCheck() 함수 호출
+			GetWorld()->GetTimerManager().SetTimer(ComboTimerHandle, this, &AMMPlayerCharacter::ComboCheck, ComboAvailableTime, false);
+		}
+	}
+}
+
+void AMMPlayerCharacter::BaseAttackCheck()
+{
+	// 충돌 결과를 반환하기 위한 배열
+	TArray<FHitResult> OutHitResults;
+
+	// 공격 반경
+	float AttackRange = 100.0f;
+	// 공격 체크를 위한 구체의 반지름
+	float AttackRadius = 50.0f;
+
+	// 충돌 탐지를 위한 시작 지점 (플레이어 현재 위치 + 전방 방향 플레이어의 CapsuleComponent의 반지름 거리)
+	FVector Start = GetActorLocation() + (GetActorForwardVector() * GetCapsuleComponent()->GetScaledCapsuleRadius());
+	// 충돌 탐지 종료 지점 (시작지점 + 전방 방향의 공격 거리)
+	FVector End = Start + (GetActorForwardVector() * AttackRange);
+	// 파라미터 설정하기 (트레이스 태그 : Attack, 복잡한 충돌 처리 : false, 무시할 액터 : this) 
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
+
+	bool bHasHit = GetWorld()->SweepMultiByChannel(
+		OutHitResults,
+		Start,
+		End,
+		FQuat::Identity,
+		CHANNEL_MMACTION,
+		FCollisionShape::MakeSphere(AttackRadius),
+		Params
+	);
+
+	if (bHasHit)
+	{
+		// TODO : 데미지 전달
+		for (FHitResult Result : OutHitResults)
+		{
+			
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *Result.GetActor()->GetName());
+		}
+	}
+
+	// Capsule 모양의 디버깅 체크
+	FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
+	float CapsuleHalfHeight = AttackRange * 0.5f;
+	FColor DrawColor = bHasHit ? FColor::Green : FColor::Red;
+
+	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 3.0f);
 }
