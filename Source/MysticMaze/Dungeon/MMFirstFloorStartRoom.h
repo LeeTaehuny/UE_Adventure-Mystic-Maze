@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -24,5 +24,22 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent* mesh;
+
+	UPROPERTY(EditAnywhere)
+	TArray<UStaticMeshComponent*> Wall;
+
+	//UStaticMeshComponent* Wall1;
+	/*
+	0 = 북쪽 오른쪽
+	1 = 북쪽 왼쪽
+	2 = 동쪽 오른쪽
+	3 = 동쪽 왼쪽
+	4 = 서쪽 오른쪽
+	5 = 서쪽 왼쪽
+	6 = 남쪽 오른쪽
+	7 = 남쪽 왼쪽
+	*/
 
 };
