@@ -4,6 +4,8 @@
 #include "Character/MMPlayerCharacter.h"
 #include "MMComboActionData.h"
 #include "Collision/MMCollision.h"
+#include "Item/MMWeapon.h"
+#include "Item/MMSwordWeapon.h"
 
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
@@ -73,11 +75,17 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 			IA_Roll = IA_RollRef.Object;
 		}
 
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_ConvertWeaponRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_ConvertWeapon.IA_ConvertWeapon'"));
+		if (IA_ConvertWeaponRef.Object)
+		{
+			IA_ConvertWeapon = IA_ConvertWeaponRef.Object;
+		}
+
 		// Basic Input
 		static ConstructorHelpers::FObjectFinder<UInputMappingContext>IMC_BasicRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/MysticMaze/Player/Control/IMC_BasicPlayer.IMC_BasicPlayer'"));
 		if (IMC_BasicRef.Object)
 		{
-			IMC_Basic = IMC_BasicRef.Object;
+			IMC_Array.Add(EClassType::CT_None, IMC_BasicRef.Object);
 		}
 
 		static ConstructorHelpers::FObjectFinder<UInputAction>IA_BasicMoveRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Basic/IA_BaseMove.IA_BaseMove'"));
@@ -96,6 +104,19 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 		if (IA_BasicAttackRef.Object)
 		{
 			IA_BasicAttack = IA_BasicAttackRef.Object;
+		}
+
+		// Warrior Input
+		static ConstructorHelpers::FObjectFinder<UInputMappingContext>IMC_WarriorRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/MysticMaze/Player/Control/IMC_WarriorPlayer.IMC_WarriorPlayer'"));
+		if (IMC_WarriorRef.Object)
+		{
+			IMC_Array.Add(EClassType::CT_Warrior, IMC_WarriorRef.Object);
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_WarriorGuardRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Warrior/IA_WarriorGuard.IA_WarriorGuard'"));
+		if (IA_WarriorGuardRef.Object)
+		{
+			IA_WarriorGuard = IA_WarriorGuardRef.Object;
 		}
 	}
 
@@ -127,8 +148,13 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 		bIsDash = false;
 		bIsRoll = false;
 		bIsAttacking = false;
+		bIsGuard = false;
+		bIsEquip = false;
+		bIsChange = false;
 		WalkSpeed = 230.0f;
 		RunSpeed = 600.0f;
+
+		ClassType = EClassType::CT_None;
 	}
 }
 
@@ -136,15 +162,20 @@ void AMMPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	APlayerController* PlayerController = Cast<APlayerController>(GetController());
-	if (PlayerController && IMC_Basic)
+	//ChangeClass(EClassType::CT_Beginner);
+
+	// TEST
 	{
-		if (UEnhancedInputLocalPlayerSubsystem* SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		ChangeClass(EClassType::CT_Warrior);
+
+		if (GetWorld())
 		{
-			// 매핑 컨텍스트 연동
-			SubSystem->AddMappingContext(IMC_Basic, 0);
-			// 입력 시작
-			EnableInput(PlayerController);
+			CurrentWeapon = Cast<AMMWeapon>(GetWorld()->SpawnActor<AMMWeapon>(WeaponClass));
+			if (CurrentWeapon)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Weapon Spawned"));
+				EquipWeapon(CurrentWeapon);
+			}
 		}
 	}
 }
@@ -155,12 +186,20 @@ void AMMPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
 
+	// Basic
 	EnhancedInputComponent->BindAction(IA_BasicLook, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::BasicLook);
 	EnhancedInputComponent->BindAction(IA_BasicMove, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::BasicMove);
 	EnhancedInputComponent->BindAction(IA_BasicAttack, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::BasicAttack);
+	
+	// Common
 	EnhancedInputComponent->BindAction(IA_Dash, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::DashStart);
 	EnhancedInputComponent->BindAction(IA_Dash, ETriggerEvent::Completed, this, &AMMPlayerCharacter::DashEnd);
 	EnhancedInputComponent->BindAction(IA_Roll, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::RollStart);
+	EnhancedInputComponent->BindAction(IA_ConvertWeapon, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertWeapon);
+
+	// Warrior
+	EnhancedInputComponent->BindAction(IA_WarriorGuard, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::GuardStart);
+	EnhancedInputComponent->BindAction(IA_WarriorGuard, ETriggerEvent::Completed, this, &AMMPlayerCharacter::GuardEnd);
 }
 
 void AMMPlayerCharacter::DashStart()
@@ -237,6 +276,10 @@ void AMMPlayerCharacter::BasicAttack()
 {
 	// 구르기 상태일 때 공격 불가
 	if (bIsRoll) return;
+	// 무기 스왑중에는 공격 불가
+	if (bIsChange) return;
+	// 초보자가 아닌 직군은 무기를 장착하지 않으면 공격 불가
+	if (ClassType != EClassType::CT_Beginner && !bIsEquip) return;
 
 	// 콤보 시작
 	if (CurrentComboCount == 0)
@@ -259,6 +302,16 @@ void AMMPlayerCharacter::BasicAttack()
 	}
 }
 
+void AMMPlayerCharacter::GuardStart()
+{
+	bIsGuard = true;
+}
+
+void AMMPlayerCharacter::GuardEnd()
+{
+	bIsGuard = false;
+}
+
 void AMMPlayerCharacter::ComboStart()
 {
 	// 현재 콤보 수 1로 증가
@@ -276,14 +329,14 @@ void AMMPlayerCharacter::ComboStart()
 	if (AnimInstance)
 	{
 		// 몽타주 재생
-		AnimInstance->Montage_Play(BasicComboMontage, AttackSpeedRate);
+		AnimInstance->Montage_Play(ComboMontage[ClassType], AttackSpeedRate);
 
 		// 몽타주 재생 종료 바인딩
 		FOnMontageEnded EndDelegate;
 		EndDelegate.BindUObject(this, &AMMPlayerCharacter::ComboEnd);
 
-		// BasicComboMontage가 종료되면 EndDelegate에 연동된 ComboEnd함수 호출
-		AnimInstance->Montage_SetEndDelegate(EndDelegate, BasicComboMontage);
+		// ComboMontage가 종료되면 EndDelegate에 연동된 ComboEnd함수 호출
+		AnimInstance->Montage_SetEndDelegate(EndDelegate, ComboMontage[ClassType]);
 
 		// 타이머 초기화
 		ComboTimerHandle.Invalidate();
@@ -316,17 +369,17 @@ void AMMPlayerCharacter::ComboCheck()
 	if (bHasComboInput)
 	{
 		// 콤보 수 증가
-		CurrentComboCount = FMath::Clamp(CurrentComboCount + 1, 1, BasicComboData->MaxComboCount);
+		CurrentComboCount = FMath::Clamp(CurrentComboCount + 1, 1, ComboData[ClassType]->MaxComboCount);
 		
 		// 애님 인스턴스 가져오기
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 		if (AnimInstance)
 		{
 			// 다음 섹션의 이름 만들기
-			FName SectionName = *FString::Printf(TEXT("%s%d"), *BasicComboData->SectionPrefix, CurrentComboCount);
+			FName SectionName = *FString::Printf(TEXT("%s%d"), *ComboData[ClassType]->SectionPrefix, CurrentComboCount);
 
 			// 다음 섹션으로 이동하기
-			AnimInstance->Montage_JumpToSection(SectionName, BasicComboMontage);
+			AnimInstance->Montage_JumpToSection(SectionName, ComboMontage[ClassType]);
 
 			// 타이머 재설정
 			SetComboTimer();
@@ -344,13 +397,13 @@ void AMMPlayerCharacter::SetComboTimer()
 	int32 ComboIndex = CurrentComboCount - 1;
 
 	// 인덱스가 유효한지 체크
-	if (BasicComboData->ComboFrame.IsValidIndex(ComboIndex))
+	if (ComboData[ClassType]->ComboFrame.IsValidIndex(ComboIndex))
 	{
 		// TODO : 공격 속도가 추가되면 값 가져와 지정하기
 		const float AttackSpeedRate = 1.0f;
 
 		// 실제 콤보가 입력될 수 있는 시간 구하기
-		float ComboAvailableTime = (BasicComboData->ComboFrame[ComboIndex] / BasicComboData->FrameRate) / AttackSpeedRate;
+		float ComboAvailableTime = (ComboData[ClassType]->ComboFrame[ComboIndex] / ComboData[ClassType]->FrameRate) / AttackSpeedRate;
 
 		// 타이머 설정하기
 		if (ComboAvailableTime > 0.0f)
@@ -404,4 +457,98 @@ void AMMPlayerCharacter::BaseAttackCheck()
 	FColor DrawColor = bHasHit ? FColor::Green : FColor::Red;
 
 	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 3.0f);
+}
+
+void AMMPlayerCharacter::ChangeClass(EClassType Class)
+{
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (PlayerController)
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			// 기존에 저장된 IMC 초기화
+			SubSystem->ClearAllMappings();
+
+			// 새로운 매핑 컨텍스트 연동
+			UInputMappingContext* NewMappingContext = IMC_Array[Class];
+			SubSystem->AddMappingContext(NewMappingContext, 0);
+		}
+
+		ClassType = Class;
+	}
+}
+
+void AMMPlayerCharacter::ConvertWeapon()
+{
+	if (bIsChange) return;
+
+	if (bIsEquip)
+	{
+		SheatheWeapon();
+	}
+	else
+	{
+		DrawWeapon();
+	}
+}
+
+void AMMPlayerCharacter::DrawWeapon()
+{
+	if (CurrentWeapon)
+	{
+		bIsChange = true;
+
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance)
+		{
+			// 몽타주 재생
+			AnimInstance->Montage_Play(DrawMontage[ClassType]);
+
+			// 몽타주 재생 종료 바인딩
+			FOnMontageEnded EndDelegate;
+			EndDelegate.BindUObject(this, &AMMPlayerCharacter::DrawEnd);
+
+			// DrawMontage가 종료되면 EndDelegate에 연동된 DrawEnd함수 호출
+			AnimInstance->Montage_SetEndDelegate(EndDelegate, DrawMontage[ClassType]);
+		}
+	}
+}
+
+void AMMPlayerCharacter::DrawEnd(UAnimMontage* Montage, bool IsEnded)
+{
+	bIsChange = false;
+	bIsEquip = true;
+}
+
+void AMMPlayerCharacter::SheatheWeapon()
+{
+	if (CurrentWeapon)
+	{
+		bIsChange = true;
+
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance)
+		{
+			// 몽타주 재생
+			AnimInstance->Montage_Play(SheatheMontage[ClassType]);
+
+			// 몽타주 재생 종료 바인딩
+			FOnMontageEnded EndDelegate;
+			EndDelegate.BindUObject(this, &AMMPlayerCharacter::SheatheEnd);
+
+			// SheatheMontage가 종료되면 EndDelegate에 연동된 SheatheEnd함수 호출
+			AnimInstance->Montage_SetEndDelegate(EndDelegate, SheatheMontage[ClassType]);
+		}
+	}
+}
+
+void AMMPlayerCharacter::SheatheEnd(UAnimMontage* Montage, bool IsEnded)
+{
+	bIsChange = false;
+	bIsEquip = false;
+}
+
+void AMMPlayerCharacter::EquipWeapon(AMMWeapon* Weapon)
+{
+	Weapon->EquipWeapon(this);
 }

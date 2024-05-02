@@ -6,13 +6,16 @@
 #include "Character/MMCharacterBase.h"
 #include "InputActionValue.h"
 #include "Interface/MMAnimationAttackInterface.h"
+#include "Interface/MMAnimationUpdateInterface.h"
+#include "Interface/MMAnimationWeaponInterface.h"
+#include "GameData/MMEnums.h"
 #include "MMPlayerCharacter.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class MYSTICMAZE_API AMMPlayerCharacter : public AMMCharacterBase, public IMMAnimationAttackInterface
+class MYSTICMAZE_API AMMPlayerCharacter : public AMMCharacterBase, public IMMAnimationAttackInterface, public IMMAnimationUpdateInterface, public IMMAnimationWeaponInterface
 {
 	GENERATED_BODY()
 	
@@ -48,6 +51,10 @@ protected:
 	void BasicLook(const FInputActionValue& Value);
 	void BasicAttack();
 
+	// Warrior
+	void GuardStart();
+	void GuardEnd();
+
 	// 공용
 	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_Dash;
@@ -55,10 +62,13 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_Roll;
 
-	// Basic Input
-	UPROPERTY(VisibleAnywhere, Category = BaseInput, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputMappingContext> IMC_Basic;
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_ConvertWeapon;
 
+	// InputMappingContext
+	TMap<EClassType, TObjectPtr<class UInputMappingContext>> IMC_Array;
+
+	// Basic Input
 	UPROPERTY(VisibleAnywhere, Category = BaseInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_BasicMove;
 
@@ -68,19 +78,28 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = BaseInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_BasicAttack;
 
+	// Input Warrior
+	UPROPERTY(VisibleAnywhere, Category = BaseInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_WarriorGuard;
+
 // Montage
 protected:
 	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> RollMontage;
 
-	// TODO : 무기가 추가된 이후 여러 종류의 공격이 존재할 경우 TMap으로 관리하기(현재 상태 - 콤보 몽타주)
 	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UAnimMontage> BasicComboMontage;
+	TMap<EClassType, TObjectPtr<class UAnimMontage>> ComboMontage;
+
+	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
+	TMap<EClassType, TObjectPtr<class UAnimMontage>> DrawMontage;
+
+	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
+	TMap<EClassType, TObjectPtr<class UAnimMontage>> SheatheMontage;
 
 // ComboData
 protected:
 	UPROPERTY(EditAnywhere, Category = ComboData, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UMMComboActionData> BasicComboData;
+	TMap<EClassType, TObjectPtr<class UMMComboActionData>> ComboData;
 
 // Combo Section
 protected:
@@ -100,11 +119,42 @@ protected:
 protected:
 	virtual void BaseAttackCheck() override;
 
+// Character Class Section
+protected:
+	FORCEINLINE virtual EClassType GetClassType() override { return ClassType; };
+
+	void ChangeClass(EClassType Class);
+
+	EClassType ClassType;
+
+// Weapon Section
+protected:
+	FORCEINLINE virtual class AMMWeapon* GetWeapon() override { return CurrentWeapon; }
+	void ConvertWeapon();
+	void DrawWeapon();
+	void DrawEnd(class UAnimMontage* Montage, bool IsEnded);
+	void SheatheWeapon();
+	void SheatheEnd(class UAnimMontage* Montage, bool IsEnded);
+	void EquipWeapon(class AMMWeapon* Weapon);
+
+	// TEST
+	UPROPERTY(EditAnywhere, Category = Weapon, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class AMMWeapon> WeaponClass;
+
+	UPROPERTY(VisibleAnywhere, Category = Weapon, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class AMMWeapon> CurrentWeapon;
+
 // Member Variable
 protected:
+	FORCEINLINE virtual bool GetIsGuard() override { return bIsGuard; }
+	FORCEINLINE virtual bool GetIsEquip() override { return bIsEquip; }
+
+	uint8 bIsChange : 1;
 	uint8 bIsDash : 1;
 	uint8 bIsRoll : 1;
 	uint8 bIsAttacking : 1;
+	uint8 bIsGuard : 1;
+	uint8 bIsEquip : 1;
 
 	float WalkSpeed;
 	float RunSpeed;
