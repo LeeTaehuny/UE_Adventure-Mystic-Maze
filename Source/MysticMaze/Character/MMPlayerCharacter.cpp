@@ -173,6 +173,7 @@ void AMMPlayerCharacter::BeginPlay()
 			CurrentWeapon = Cast<AMMWeapon>(GetWorld()->SpawnActor<AMMWeapon>(WeaponClass));
 			if (CurrentWeapon)
 			{
+				CurrentWeapon->SetOwner(this);
 				UE_LOG(LogTemp, Warning, TEXT("Weapon Spawned"));
 				EquipWeapon(CurrentWeapon);
 			}
@@ -304,11 +305,16 @@ void AMMPlayerCharacter::BasicAttack()
 
 void AMMPlayerCharacter::GuardStart()
 {
+	// 방어시 플레이어 이동 불가
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+
 	bIsGuard = true;
 }
 
 void AMMPlayerCharacter::GuardEnd()
 {
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+
 	bIsGuard = false;
 }
 

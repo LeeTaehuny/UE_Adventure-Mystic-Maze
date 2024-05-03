@@ -25,14 +25,22 @@ public:
 
 public:
 	FORCEINLINE EWeaponType GetWeaponType() { return WeaponType; }
+	FORCEINLINE void SetOwner(ACharacter* Character) { Owner = Character; }
 	
 public:
 	void EquipWeapon(ACharacter* Player);
 	void DrawWeapon(USkeletalMeshComponent* Mesh);
 	void SheatheWeapon(USkeletalMeshComponent* Mesh);
 
+	void EnableCollision();
+	void DisableCollision();
+
 protected:
 	virtual void BeginPlay() override;
+	virtual void PostInitializeComponents() override;
+
+	UFUNCTION()
+	void OnBeginOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
@@ -47,4 +55,6 @@ protected:
 
 	FName BaseSocketName;
 	FName DrawSocketName;
+
+	TObjectPtr<ACharacter> Owner;
 };
