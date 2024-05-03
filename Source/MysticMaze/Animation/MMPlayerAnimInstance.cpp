@@ -23,5 +23,8 @@ void UMMPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		bIsGuard = Player->GetIsGuard();
 		ClassType = Player->GetClassType();
 		bIsEquip = Player->GetIsEquip();
+		bIsHold = Player->GetIsHold();
+
+		Direction = CalculateDirection(Velocity, TryGetPawnOwner()->GetActorRotation());
 	}
 }

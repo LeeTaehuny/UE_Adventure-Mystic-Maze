@@ -118,6 +118,19 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 		{
 			IA_WarriorGuard = IA_WarriorGuardRef.Object;
 		}
+
+		// Archer Input
+		static ConstructorHelpers::FObjectFinder<UInputMappingContext>IMC_ArcherRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/MysticMaze/Player/Control/IMC_ArcherPlayer.IMC_ArcherPlayer'"));
+		if (IMC_ArcherRef.Object)
+		{
+			IMC_Array.Add(EClassType::CT_Archer, IMC_ArcherRef.Object);
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_ArcherDrawRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Archer/IA_ArcherDraw.IA_ArcherDraw'"));
+		if (IA_ArcherDrawRef.Object)
+		{
+			IA_ArcherDraw = IA_ArcherDrawRef.Object;
+		}
 	}
 
 	// Setting
@@ -151,6 +164,7 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 		bIsGuard = false;
 		bIsEquip = false;
 		bIsChange = false;
+		bIsHold = false;
 		WalkSpeed = 230.0f;
 		RunSpeed = 600.0f;
 
@@ -166,7 +180,7 @@ void AMMPlayerCharacter::BeginPlay()
 
 	// TEST
 	{
-		ChangeClass(EClassType::CT_Warrior);
+		ChangeClass(EClassType::CT_Archer);
 
 		if (GetWorld())
 		{
@@ -201,6 +215,11 @@ void AMMPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	// Warrior
 	EnhancedInputComponent->BindAction(IA_WarriorGuard, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::GuardStart);
 	EnhancedInputComponent->BindAction(IA_WarriorGuard, ETriggerEvent::Completed, this, &AMMPlayerCharacter::GuardEnd);
+
+	// Archer
+	EnhancedInputComponent->BindAction(IA_ArcherDraw, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::DrawArrow);
+	EnhancedInputComponent->BindAction(IA_ArcherDraw, ETriggerEvent::Completed, this, &AMMPlayerCharacter::ReleaseArrow);
+
 }
 
 void AMMPlayerCharacter::DashStart()
@@ -316,6 +335,16 @@ void AMMPlayerCharacter::GuardEnd()
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 
 	bIsGuard = false;
+}
+
+void AMMPlayerCharacter::DrawArrow()
+{
+	bIsHold = true;
+}
+
+void AMMPlayerCharacter::ReleaseArrow()
+{
+	bIsHold = false;
 }
 
 void AMMPlayerCharacter::ComboStart()

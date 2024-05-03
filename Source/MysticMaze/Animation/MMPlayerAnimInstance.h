@@ -34,4 +34,10 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
 	uint8 bIsEquip : 1;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
+	uint8 bIsHold : 1;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
+	float Direction;
 };

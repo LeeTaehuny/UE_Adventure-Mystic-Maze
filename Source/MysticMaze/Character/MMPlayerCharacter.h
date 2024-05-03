@@ -55,6 +55,10 @@ protected:
 	void GuardStart();
 	void GuardEnd();
 
+	// Archer
+	void DrawArrow();
+	void ReleaseArrow();
+
 	// 공용
 	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_Dash;
@@ -79,8 +83,12 @@ protected:
 	TObjectPtr<class UInputAction> IA_BasicAttack;
 
 	// Input Warrior
-	UPROPERTY(VisibleAnywhere, Category = BaseInput, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, Category = WarriorInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_WarriorGuard;
+
+	// Input Archer
+	UPROPERTY(VisibleAnywhere, Category = ArcherInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_ArcherDraw;
 
 // Montage
 protected:
@@ -148,12 +156,14 @@ protected:
 protected:
 	FORCEINLINE virtual bool GetIsGuard() override { return bIsGuard; }
 	FORCEINLINE virtual bool GetIsEquip() override { return bIsEquip; }
+	FORCEINLINE virtual bool GetIsHold() override { return bIsHold; }
 
 	uint8 bIsChange : 1;
 	uint8 bIsDash : 1;
 	uint8 bIsRoll : 1;
 	uint8 bIsAttacking : 1;
 	uint8 bIsGuard : 1;
+	uint8 bIsHold : 1;
 	uint8 bIsEquip : 1;
 
 	float WalkSpeed;

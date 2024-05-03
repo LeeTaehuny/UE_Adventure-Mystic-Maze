@@ -28,7 +28,7 @@ public:
 	FORCEINLINE void SetOwner(ACharacter* Character) { Owner = Character; }
 	
 public:
-	void EquipWeapon(ACharacter* Player);
+	virtual void EquipWeapon(ACharacter* Player);
 	void DrawWeapon(USkeletalMeshComponent* Mesh);
 	void SheatheWeapon(USkeletalMeshComponent* Mesh);
 

@@ -26,4 +26,5 @@ public:
 	virtual EClassType GetClassType() = 0;
 	virtual bool GetIsGuard() = 0;
 	virtual bool GetIsEquip() = 0;
+	virtual bool GetIsHold() = 0;
 };
