@@ -104,6 +104,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
 	TMap<EClassType, TObjectPtr<class UAnimMontage>> SheatheMontage;
 
+	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> DrawArrowMontage;
+
+	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> ReleaseArrowMontage;
+
 // ComboData
 protected:
 	UPROPERTY(EditAnywhere, Category = ComboData, Meta = (AllowPrivateAccess = "true"))
@@ -151,6 +157,12 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = Weapon, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class AMMWeapon> CurrentWeapon;
+
+// Archer Section
+protected:
+	void DrawArrowEnd(class UAnimMontage* Montage, bool IsEnded);
+	void ReleaseArrowEnd(class UAnimMontage* Montage, bool IsEnded);
+	void ShootArrow();
 
 // Member Variable
 protected:

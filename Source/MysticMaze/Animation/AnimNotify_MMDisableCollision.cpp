@@ -3,7 +3,7 @@
 
 #include "Animation/AnimNotify_MMDisableCollision.h"
 #include "Interface/MMAnimationWeaponInterface.h"
-#include "Item/MMWeapon.h"
+#include "Item/MMSwordWeapon.h"
 
 void UAnimNotify_MMDisableCollision::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
@@ -15,7 +15,11 @@ void UAnimNotify_MMDisableCollision::Notify(USkeletalMeshComponent* MeshComp, UA
 		IMMAnimationWeaponInterface* WeaponPawn = Cast<IMMAnimationWeaponInterface>(MeshComp->GetOwner());
 		if (WeaponPawn)
 		{
-			WeaponPawn->GetWeapon()->DisableCollision();
+			AMMSwordWeapon* SwordWeapon = Cast<AMMSwordWeapon>(WeaponPawn->GetWeapon());
+			if (SwordWeapon)
+			{
+				SwordWeapon->DisableCollision();
+			}
 		}
 	}
 }

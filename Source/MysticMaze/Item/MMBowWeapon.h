@@ -17,15 +17,42 @@ class MYSTICMAZE_API AMMBowWeapon : public AMMWeapon
 public:
 	AMMBowWeapon();
 
+protected:
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
+
 public:
-	virtual void EquipWeapon(ACharacter* Player) override;
+	FORCEINLINE void SetIsHold(bool InValue) { bIsHold = InValue; }
+	virtual void EquipWeapon() override;
+
+	void SpawnArrow();
+	void ShootArrow();
+	void DestroyArrow();
 
 protected:
+	FVector GetArrowSocketLocation(USkeletalMeshComponent* Mesh);
+
 	UPROPERTY(EditAnywhere, Category = "Quiver", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AActor> QuiverClass;
+
+	UPROPERTY(VisibleAnywhere, Category = "Quiver", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AActor> ArrowClass;
+
+	UPROPERTY(EditAnywhere, Category = "BaseSocketName", meta = (AllowPrivateAccess = "true"))
+	FName StringSocketName;
 
 	UPROPERTY()
 	TObjectPtr<AActor> Quiver;
 
+	UPROPERTY()
+	TWeakObjectPtr<class AMMArrow> TempArrow; 
+
 	FName QuiverSocketName;
+	FName ArrowSocketName;
+
+private:
+	uint8 bIsHold : 1;
+	
+	FVector BaseLocation;
+	FVector StringLocation;
 };

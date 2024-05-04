@@ -6,6 +6,7 @@
 #include "Collision/MMCollision.h"
 #include "Item/MMWeapon.h"
 #include "Item/MMSwordWeapon.h"
+#include "Item/MMBowWeapon.h"
 
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
@@ -20,6 +21,21 @@
 
 AMMPlayerCharacter::AMMPlayerCharacter()
 {
+	// Member Variable 초기화
+	{
+		bIsDash = false;
+		bIsRoll = false;
+		bIsAttacking = false;
+		bIsGuard = false;
+		bIsEquip = false;
+		bIsChange = false;
+		bIsHold = false;
+		WalkSpeed = 230.0f;
+		RunSpeed = 600.0f;
+
+		ClassType = EClassType::CT_None;
+	}
+
 	// Collision 설정
 	{
 		GetCapsuleComponent()->InitCapsuleSize(35.0f, 90.0f);
@@ -55,6 +71,7 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 	{
 		SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 		SpringArm->SetupAttachment(RootComponent);
+		SpringArm->TargetArmLength = 500.0f;
 
 		Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 		Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
@@ -147,28 +164,13 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 		GetCharacterMovement()->bOrientRotationToMovement = true;
 
 		// 이동속도 조정
-		GetCharacterMovement()->MaxWalkSpeed = 230.0f;
+		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 	}
 
 	// Combo Variable 초기화
 	{
 		CurrentComboCount = 0;
 		bHasComboInput = false;
-	}
-
-	// Member Variable 초기화
-	{
-		bIsDash = false;
-		bIsRoll = false;
-		bIsAttacking = false;
-		bIsGuard = false;
-		bIsEquip = false;
-		bIsChange = false;
-		bIsHold = false;
-		WalkSpeed = 230.0f;
-		RunSpeed = 600.0f;
-
-		ClassType = EClassType::CT_None;
 	}
 }
 
@@ -187,7 +189,6 @@ void AMMPlayerCharacter::BeginPlay()
 			CurrentWeapon = Cast<AMMWeapon>(GetWorld()->SpawnActor<AMMWeapon>(WeaponClass));
 			if (CurrentWeapon)
 			{
-				CurrentWeapon->SetOwner(this);
 				UE_LOG(LogTemp, Warning, TEXT("Weapon Spawned"));
 				EquipWeapon(CurrentWeapon);
 			}
@@ -213,23 +214,27 @@ void AMMPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(IA_ConvertWeapon, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertWeapon);
 
 	// Warrior
-	EnhancedInputComponent->BindAction(IA_WarriorGuard, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::GuardStart);
+	EnhancedInputComponent->BindAction(IA_WarriorGuard, ETriggerEvent::Started, this, &AMMPlayerCharacter::GuardStart);
 	EnhancedInputComponent->BindAction(IA_WarriorGuard, ETriggerEvent::Completed, this, &AMMPlayerCharacter::GuardEnd);
 
 	// Archer
-	EnhancedInputComponent->BindAction(IA_ArcherDraw, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::DrawArrow);
+	EnhancedInputComponent->BindAction(IA_ArcherDraw, ETriggerEvent::Started, this, &AMMPlayerCharacter::DrawArrow);
 	EnhancedInputComponent->BindAction(IA_ArcherDraw, ETriggerEvent::Completed, this, &AMMPlayerCharacter::ReleaseArrow);
 
 }
 
 void AMMPlayerCharacter::DashStart()
 {
+	if (bIsHold) return;
+
 	bIsDash = true;
 	GetCharacterMovement()->MaxWalkSpeed = RunSpeed;
 }
 
 void AMMPlayerCharacter::DashEnd()
 {
+	if (bIsHold) return;
+
 	bIsDash = false;
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 }
@@ -238,6 +243,7 @@ void AMMPlayerCharacter::RollStart()
 {
 	if (bIsRoll) return;
 	if (bIsAttacking) return;
+	if (bIsHold) return;
 
 	// 애님 인스턴스 가져오기
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -300,6 +306,12 @@ void AMMPlayerCharacter::BasicAttack()
 	if (bIsChange) return;
 	// 초보자가 아닌 직군은 무기를 장착하지 않으면 공격 불가
 	if (ClassType != EClassType::CT_Beginner && !bIsEquip) return;
+	// 화살 장전 중에는 화살 발사 애니메이션 재생 후 종료
+	if (bIsHold)
+	{
+		ShootArrow();
+		return;
+	}
 
 	// 콤보 시작
 	if (CurrentComboCount == 0)
@@ -320,31 +332,6 @@ void AMMPlayerCharacter::BasicAttack()
 	{
 		bHasComboInput = false;
 	}
-}
-
-void AMMPlayerCharacter::GuardStart()
-{
-	// 방어시 플레이어 이동 불가
-	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
-
-	bIsGuard = true;
-}
-
-void AMMPlayerCharacter::GuardEnd()
-{
-	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
-
-	bIsGuard = false;
-}
-
-void AMMPlayerCharacter::DrawArrow()
-{
-	bIsHold = true;
-}
-
-void AMMPlayerCharacter::ReleaseArrow()
-{
-	bIsHold = false;
 }
 
 void AMMPlayerCharacter::ComboStart()
@@ -516,6 +503,7 @@ void AMMPlayerCharacter::ChangeClass(EClassType Class)
 void AMMPlayerCharacter::ConvertWeapon()
 {
 	if (bIsChange) return;
+	if (bIsHold) return;
 
 	if (bIsEquip)
 	{
@@ -546,6 +534,90 @@ void AMMPlayerCharacter::DrawWeapon()
 			// DrawMontage가 종료되면 EndDelegate에 연동된 DrawEnd함수 호출
 			AnimInstance->Montage_SetEndDelegate(EndDelegate, DrawMontage[ClassType]);
 		}
+	}
+}
+
+void AMMPlayerCharacter::GuardStart()
+{
+	// 방어시 플레이어 이동 불가
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+
+	bIsGuard = true;
+}
+
+void AMMPlayerCharacter::GuardEnd()
+{
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+
+	bIsGuard = false;
+}
+
+void AMMPlayerCharacter::DrawArrow()
+{
+	// 구르기중인 경우 반환
+	if (bIsRoll) return;
+	// 무기 스왑중인 경우 반환
+	if (bIsChange) return;
+	// 무기를 장착하지 않은 경우 반환
+	if (!bIsEquip) return;
+
+	if (CurrentWeapon)
+	{
+		// 장전시 플레이어 이동 불가
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+		// 플레이어 달리기 취소
+		if (bIsDash)
+		{
+			GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+			bIsDash = false;
+		}
+		
+		bIsHold = true;
+
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance)
+		{
+			// 몽타주 재생
+			AnimInstance->Montage_Play(DrawArrowMontage);
+
+			// 몽타주 재생 종료 바인딩
+			FOnMontageEnded EndDelegate;
+			EndDelegate.BindUObject(this, &AMMPlayerCharacter::DrawArrowEnd);
+
+			// DrawArrowMontage가 종료되면 EndDelegate에 연동된 DrawArrowEnd함수 호출
+			AnimInstance->Montage_SetEndDelegate(EndDelegate, DrawArrowMontage);
+		}
+	}
+
+	// 카메라 설정
+	Camera->SetRelativeLocation(FVector(0.0f, 0.0f, 50.0f));
+	float TempLength = SpringArm->TargetArmLength;
+	SpringArm->TargetArmLength = FMath::FInterpTo(TempLength, 300.0f, DrawArrowMontage->GetPlayLength(), 2.0f);
+}
+
+void AMMPlayerCharacter::ReleaseArrow()
+{
+	if (!bIsHold) return;
+	// 무기를 장착하지 않은 경우 반환
+	if (!bIsEquip) return;
+
+	bIsHold = false;
+
+	// 움직임 설정
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+
+	// 카메라 설정
+	Camera->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
+	float TempLength = SpringArm->TargetArmLength;
+	SpringArm->TargetArmLength = FMath::FInterpTo(TempLength, 500.0f, 1.0f, 2.0f);
+
+	AMMBowWeapon* BowWeapon = Cast<AMMBowWeapon>(CurrentWeapon);
+	if (BowWeapon)
+	{
+		BowWeapon->SetIsHold(false);
+		BowWeapon->DestroyArrow();
 	}
 }
 
@@ -585,5 +657,55 @@ void AMMPlayerCharacter::SheatheEnd(UAnimMontage* Montage, bool IsEnded)
 
 void AMMPlayerCharacter::EquipWeapon(AMMWeapon* Weapon)
 {
-	Weapon->EquipWeapon(this);
+	if (!CurrentWeapon) return;
+
+	CurrentWeapon->SetOwner(this);
+	Weapon->EquipWeapon();
+}
+
+void AMMPlayerCharacter::DrawArrowEnd(UAnimMontage* Montage, bool IsEnded)
+{
+	// 움직임 설정
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+	GetCharacterMovement()->bUseControllerDesiredRotation = true;
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+}
+
+void AMMPlayerCharacter::ReleaseArrowEnd(UAnimMontage* Montage, bool IsEnded)
+{
+	// 움직임 설정
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->bUseControllerDesiredRotation = false;
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+
+	// 카메라 설정
+	Camera->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
+	float TempLength = SpringArm->TargetArmLength;
+	SpringArm->TargetArmLength = FMath::FInterpTo(TempLength, 500.0f, 1.0f, 2.0f);
+}
+
+void AMMPlayerCharacter::ShootArrow()
+{
+	if (!bIsHold) return;
+	if (CurrentWeapon)
+	{
+		bIsHold = false;
+
+		// 공격 시 플레이어 이동 불가
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance)
+		{
+			// 몽타주 재생
+			AnimInstance->Montage_Play(ReleaseArrowMontage);
+
+			// 몽타주 재생 종료 바인딩
+			FOnMontageEnded EndDelegate;
+			EndDelegate.BindUObject(this, &AMMPlayerCharacter::ReleaseArrowEnd);
+
+			// ReleaseArrowMontage가 종료되면 EndDelegate에 연동된 ReleaseArrowEnd함수 호출
+			AnimInstance->Montage_SetEndDelegate(EndDelegate, ReleaseArrowMontage);
+		}
+	}
 }
