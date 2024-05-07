@@ -19,7 +19,6 @@ void UAnimNotify_MMReleaseString::Notify(USkeletalMeshComponent* MeshComp, UAnim
 			if (BowWeapon)
 			{
 				BowWeapon->SetIsHold(false);
-				BowWeapon->ShootArrow();
 			}
 		}
 	}

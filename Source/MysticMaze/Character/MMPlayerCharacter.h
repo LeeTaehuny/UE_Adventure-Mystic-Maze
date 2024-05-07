@@ -8,6 +8,7 @@
 #include "Interface/MMAnimationAttackInterface.h"
 #include "Interface/MMAnimationUpdateInterface.h"
 #include "Interface/MMAnimationWeaponInterface.h"
+#include "Interface/MMPlayerVisualInterface.h"
 #include "GameData/MMEnums.h"
 #include "MMPlayerCharacter.generated.h"
 
@@ -15,7 +16,7 @@
  * 
  */
 UCLASS()
-class MYSTICMAZE_API AMMPlayerCharacter : public AMMCharacterBase, public IMMAnimationAttackInterface, public IMMAnimationUpdateInterface, public IMMAnimationWeaponInterface
+class MYSTICMAZE_API AMMPlayerCharacter : public AMMCharacterBase, public IMMAnimationAttackInterface, public IMMAnimationUpdateInterface, public IMMAnimationWeaponInterface, public IMMPlayerVisualInterface
 {
 	GENERATED_BODY()
 	
@@ -25,6 +26,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
 
 public:
 	// Called to bind functionality to input
@@ -32,6 +34,8 @@ public:
 
 // Camera Section
 protected:
+	FORCEINLINE virtual class UCameraComponent* GetPlayerCamera() override { return Camera; }
+
 	UPROPERTY(VisibleAnywhere, Category = Camera, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USpringArmComponent> SpringArm;
 
@@ -170,13 +174,15 @@ protected:
 	FORCEINLINE virtual bool GetIsEquip() override { return bIsEquip; }
 	FORCEINLINE virtual bool GetIsHold() override { return bIsHold; }
 
-	uint8 bIsChange : 1;
-	uint8 bIsDash : 1;
-	uint8 bIsRoll : 1;
-	uint8 bIsAttacking : 1;
-	uint8 bIsGuard : 1;
-	uint8 bIsHold : 1;
-	uint8 bIsEquip : 1;
+	uint8 bIsChange : 1;		// 무기 교체
+	uint8 bIsDash : 1;			// 달리기 여부
+	uint8 bIsRoll : 1;			// 구르기 여부
+	uint8 bIsAttacking : 1;		// 공격중인지 체크
+	uint8 bIsGuard : 1;			// 방어 여부
+	uint8 bIsHold : 1;			// 활 Draw 여부
+	uint8 bCanShoot : 1;		// 화살 발사 가능 여부
+	uint8 bIsStop : 1;			// 애니메이션 스탑 여부
+	uint8 bIsEquip : 1;			// 무기 장착 여부
 
 	float WalkSpeed;
 	float RunSpeed;

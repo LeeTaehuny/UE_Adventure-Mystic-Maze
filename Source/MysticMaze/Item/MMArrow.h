@@ -16,12 +16,15 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void Tick(float DeltaSeconds) override;
+	virtual void PostInitializeComponents() override;
 
 public:
-	void Fire();
+	void Fire(FVector TargetLocation);
 
 protected:
+	UFUNCTION()
+	void OnBeginOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 	UPROPERTY(VisibleAnywhere, Category = "Arrow", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStaticMeshComponent> FeatherComponent;
 
@@ -33,4 +36,10 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Arrow", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USphereComponent> ArrowCollision;
+
+	UPROPERTY(VisibleAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UProjectileMovementComponent> MovementComponent;
+
+private:
+	float Speed = 2000.0f;
 };

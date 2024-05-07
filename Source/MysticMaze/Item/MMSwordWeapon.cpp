@@ -39,7 +39,7 @@ void AMMSwordWeapon::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor*
 {
 	if (Owner == OtherActor) return;
 
-	// TODO : Attack 로직 작성하기
+	// TODO : 데미지 전달
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *OtherActor->GetName());
 }
 

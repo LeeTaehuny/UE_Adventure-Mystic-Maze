@@ -45,7 +45,7 @@ protected:
 	TObjectPtr<AActor> Quiver;
 
 	UPROPERTY()
-	TWeakObjectPtr<class AMMArrow> TempArrow; 
+	TObjectPtr<class AMMArrow> TempArrow; 
 
 	FName QuiverSocketName;
 	FName ArrowSocketName;

@@ -3,15 +3,19 @@
 
 #include "Item/MMBowWeapon.h"
 #include "Item/MMArrow.h"
+#include "Interface/MMPlayerVisualInterface.h"
+#include "Collision/MMCollision.h"
 
 #include "GameFramework/Character.h"
 #include "Components/PoseableMeshComponent.h"
+#include "Camera/CameraComponent.h"
+#include "DrawDebugHelpers.h"
 
 AMMBowWeapon::AMMBowWeapon()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	static ConstructorHelpers::FClassFinder<AActor>ArrowRef(TEXT("/Script/Engine.Blueprint'/Game/MysticMaze/Items/Weapons/BP_Arrow.BP_Arrow_C'"));
+	static ConstructorHelpers::FClassFinder<AActor>ArrowRef(TEXT("/Script/Engine.Blueprint'/Game/MysticMaze/Items/Weapons/BP_BasicArrow.BP_BasicArrow_C'"));
 	if (ArrowRef.Succeeded())
 	{
 		ArrowClass = ArrowRef.Class;
@@ -82,12 +86,13 @@ void AMMBowWeapon::SpawnArrow()
 {
 	TempArrow = Cast<AMMArrow>(GetWorld()->SpawnActor(ArrowClass));
 
-	if (TempArrow.IsValid())
+	if (TempArrow)
 	{
 		// 화살을 화살 소켓에 부착합니다.
 		ACharacter* PlayerCharacter = Cast<ACharacter>(GetOwner());
 		if (PlayerCharacter)
 		{
+			TempArrow->SetOwner(Owner);
 			TempArrow->AttachToComponent(PlayerCharacter->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, ArrowSocketName);
 		}
 	}
@@ -95,18 +100,58 @@ void AMMBowWeapon::SpawnArrow()
 
 void AMMBowWeapon::ShootArrow()
 {
-	if (TempArrow.IsValid())
+	if (TempArrow)
 	{
-		TempArrow.Get()->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-		TempArrow.Get()->Fire();
+		// 플레이어의 카메라에서 화면의 중앙으로 LineTrace를 진행합니다.
+		IMMPlayerVisualInterface* PlayerCharacter = Cast<IMMPlayerVisualInterface>(GetOwner());
+		if (PlayerCharacter)
+		{
+			// 충돌 결과 반환용
+			FHitResult HitResult;
+			// 시작 지점 (카메라의 위치)
+			FVector Start = PlayerCharacter->GetPlayerCamera()->GetComponentLocation();
+			// 종료 지점 (카메라 위치 + 카메라 전방벡터 * 20000)
+			float Distance = 20000;
+			FVector End = Start + (PlayerCharacter->GetPlayerCamera()->GetForwardVector() * Distance);
+			// 파라미터 설정
+			FCollisionQueryParams Params(SCENE_QUERY_STAT(Shoot), false, Owner);
+		
+			// 충돌 탐지
+			bool bHasHit = GetWorld()->LineTraceSingleByChannel(
+				HitResult,
+				Start,
+				End,
+				CHANNEL_VISIBILITY,
+				Params
+			);
+			
+			// 부모 액터로부터 부착 해제
+			TempArrow.Get()->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+
+			if (bHasHit)
+			{
+				// TODO : 해당 방향으로 화살 발사
+				TempArrow.Get()->Fire(HitResult.ImpactPoint);
+				TempArrow = nullptr;
+			}
+			else
+			{
+				TempArrow.Get()->Fire(End);
+				TempArrow = nullptr;
+			}
+
+			// 디버깅
+			FColor DrawColor = bHasHit ? FColor::Green : FColor::Red;
+			DrawDebugLine(GetWorld(), Start, End, DrawColor, false, 3.0f);
+		}
 	}
 }
 
 void AMMBowWeapon::DestroyArrow()
 {
-	if (TempArrow.IsValid())
+	if (TempArrow)
 	{
-		TempArrow.Get()->Destroy();
+		TempArrow->Destroy();
 	}
 }
 
