@@ -41,5 +41,5 @@ protected:
 	TObjectPtr<class UProjectileMovementComponent> MovementComponent;
 
 private:
-	float Speed = 2000.0f;
+	float Speed = 5000.0f;
 };

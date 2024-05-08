@@ -28,7 +28,7 @@ AMMArrow::AMMArrow()
 
 	MovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("MovementComponent"));
 	MovementComponent->bRotationFollowsVelocity = true;
-	MovementComponent->InitialSpeed = 5000.0f;
+	MovementComponent->InitialSpeed = Speed;
 }
 
 void AMMArrow::BeginPlay()

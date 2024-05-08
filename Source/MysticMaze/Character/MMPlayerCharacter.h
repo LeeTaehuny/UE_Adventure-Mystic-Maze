@@ -87,12 +87,16 @@ protected:
 	TObjectPtr<class UInputAction> IA_BasicAttack;
 
 	// Input Warrior
-	UPROPERTY(VisibleAnywhere, Category = WarriorInput, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, Category = ClassInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_WarriorGuard;
 
 	// Input Archer
-	UPROPERTY(VisibleAnywhere, Category = ArcherInput, Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, Category = ClassInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_ArcherDraw;
+
+	// Input Mage
+	UPROPERTY(VisibleAnywhere, Category = ClassInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_MageSave;
 
 // Montage
 protected:

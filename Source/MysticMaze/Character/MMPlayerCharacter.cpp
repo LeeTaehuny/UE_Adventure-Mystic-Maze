@@ -78,6 +78,7 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 		SpringArm->TargetArmLength = 500.0f;
 
 		Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+		Camera->SetRelativeLocation(FVector(0.0f, 0.0f, 150.0f));
 		Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 	}
 
@@ -152,6 +153,19 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 		{
 			IA_ArcherDraw = IA_ArcherDrawRef.Object;
 		}
+
+		// Mage Input
+		static ConstructorHelpers::FObjectFinder<UInputMappingContext>IMC_MageRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/MysticMaze/Player/Control/IMC_MagePlayer.IMC_MagePlayer'"));
+		if (IMC_MageRef.Object)
+		{
+			IMC_Array.Add(EClassType::CT_Mage, IMC_MageRef.Object);
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_MageSaveRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Mage/IA_MageSave.IA_MageSave'"));
+		if (IA_MageSaveRef.Object)
+		{
+			IA_MageSave = IA_MageSaveRef.Object;
+		}
 	}
 
 	// Setting
@@ -186,7 +200,7 @@ void AMMPlayerCharacter::BeginPlay()
 
 	// TEST
 	{
-		ChangeClass(EClassType::CT_Archer);
+		ChangeClass(EClassType::CT_Mage);
 
 		if (GetWorld())
 		{
@@ -217,7 +231,6 @@ void AMMPlayerCharacter::Tick(float DeltaSeconds)
 		// Camera Position 조정
 		Camera->SetRelativeLocation(FVector(0.0f, FMath::FInterpTo(Camera->GetRelativeLocation().Y, 50.0f, DeltaSeconds, 3.0f), FMath::FInterpTo(Camera->GetRelativeLocation().Z, 100.0f, DeltaSeconds, 3.0f)));
 	}
-	
 }
 
 void AMMPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -660,7 +673,7 @@ void AMMPlayerCharacter::ReleaseArrow()
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 
 	// 카메라 설정
-	Camera->SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
+	Camera->SetRelativeLocation(FVector(0.0f, 0.0f, 150.0f));
 	SpringArm->TargetArmLength = 500.0f;
 }
 
