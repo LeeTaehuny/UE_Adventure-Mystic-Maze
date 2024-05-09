@@ -9,7 +9,6 @@
 #include "GameFramework/Character.h"
 #include "Components/PoseableMeshComponent.h"
 #include "Camera/CameraComponent.h"
-#include "DrawDebugHelpers.h"
 
 AMMBowWeapon::AMMBowWeapon()
 {
@@ -126,23 +125,22 @@ void AMMBowWeapon::ShootArrow()
 			);
 			
 			// 부모 액터로부터 부착 해제
-			TempArrow.Get()->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+			TempArrow->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 
 			if (bHasHit)
 			{
-				// TODO : 해당 방향으로 화살 발사
-				TempArrow.Get()->Fire(HitResult.ImpactPoint);
+				TempArrow->Fire(HitResult.ImpactPoint);
 				TempArrow = nullptr;
 			}
 			else
 			{
-				TempArrow.Get()->Fire(End);
+				TempArrow->Fire(End);
 				TempArrow = nullptr;
 			}
 
 			// 디버깅
-			FColor DrawColor = bHasHit ? FColor::Green : FColor::Red;
-			DrawDebugLine(GetWorld(), Start, End, DrawColor, false, 3.0f);
+			//FColor DrawColor = bHasHit ? FColor::Green : FColor::Red;
+			//DrawDebugLine(GetWorld(), Start, End, DrawColor, false, 3.0f);
 		}
 	}
 }

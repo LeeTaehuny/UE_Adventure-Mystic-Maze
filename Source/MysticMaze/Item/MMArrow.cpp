@@ -6,7 +6,6 @@
 
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
-#include "DrawDebugHelpers.h"
 
 AMMArrow::AMMArrow()
 {

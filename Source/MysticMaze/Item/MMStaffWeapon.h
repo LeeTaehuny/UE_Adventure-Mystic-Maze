@@ -19,4 +19,24 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
+
+public:
+	void SpawnEnergyBall();
+	void ShootEnergyBall();
+
+protected:
+	void SetFireLocation();
+
+	UPROPERTY(VisibleAnywhere, Category = "Quiver", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AActor> EnergyBallClass;
+
+	UPROPERTY()
+	TObjectPtr<class AMMEnergyBall> TempEnergyBall;
+
+	FName EnergyBallSocket;
+
+private:
+	FVector FireLocation;
+
 };

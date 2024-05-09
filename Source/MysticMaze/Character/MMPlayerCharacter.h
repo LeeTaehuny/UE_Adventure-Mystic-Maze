@@ -63,6 +63,10 @@ protected:
 	void DrawArrow();
 	void ReleaseArrow();
 
+	// Mage
+	void SaveStart();
+	void SaveEnd();
+
 	// 공용
 	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_Dash;
@@ -166,28 +170,50 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = Weapon, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class AMMWeapon> CurrentWeapon;
 
+// Warrior Section
+protected:
+	FORCEINLINE virtual bool GetIsGuard() override { return bIsGuard; }
+
+	uint8 bIsGuard : 1;			// 방어 여부
+
 // Archer Section
 protected:
+	FORCEINLINE virtual bool GetIsHold() override { return bIsHold; }
+
+	uint8 bIsHold : 1;			// 활 Draw 여부
+	uint8 bCanShoot : 1;		// 화살 발사 가능 여부
+
 	void DrawArrowEnd(class UAnimMontage* Montage, bool IsEnded);
 	void ReleaseArrowEnd(class UAnimMontage* Montage, bool IsEnded);
 	void ShootArrow();
 
+// Mage Section
+protected:
+	FORCEINLINE virtual bool GetIsCharge() override { return bIsCharge; }
+
+	uint8 bIsCharge : 1;		// 마나 축적 여부
+	float ChargeNum;			// 축적된 마나 량
+
+	UPROPERTY(EditAnywhere, Category = "Particle", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UParticleSystem> ChargeParticle;
+
+
 // Member Variable
 protected:
-	FORCEINLINE virtual bool GetIsGuard() override { return bIsGuard; }
 	FORCEINLINE virtual bool GetIsEquip() override { return bIsEquip; }
-	FORCEINLINE virtual bool GetIsHold() override { return bIsHold; }
 
 	uint8 bIsChange : 1;		// 무기 교체
 	uint8 bIsDash : 1;			// 달리기 여부
 	uint8 bIsRoll : 1;			// 구르기 여부
 	uint8 bIsAttacking : 1;		// 공격중인지 체크
-	uint8 bIsGuard : 1;			// 방어 여부
-	uint8 bIsHold : 1;			// 활 Draw 여부
-	uint8 bCanShoot : 1;		// 화살 발사 가능 여부
 	uint8 bIsStop : 1;			// 애니메이션 스탑 여부
 	uint8 bIsEquip : 1;			// 무기 장착 여부
 
 	float WalkSpeed;
 	float RunSpeed;
+
+// Particle Section
+protected:
+	UPROPERTY(VisibleAnywhere, Category = "Particle", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UParticleSystemComponent> ChargeParticleSystemComponent;
 };

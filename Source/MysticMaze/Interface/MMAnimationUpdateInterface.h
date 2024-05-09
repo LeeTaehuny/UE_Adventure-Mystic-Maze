@@ -27,4 +27,5 @@ public:
 	virtual bool GetIsGuard() = 0;
 	virtual bool GetIsEquip() = 0;
 	virtual bool GetIsHold() = 0;
+	virtual bool GetIsCharge() = 0;
 };

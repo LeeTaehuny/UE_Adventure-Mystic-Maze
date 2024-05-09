@@ -39,5 +39,8 @@ protected:
 	uint8 bIsHold : 1;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
+	uint8 bIsCharge : 1;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
 	float Direction;
 };

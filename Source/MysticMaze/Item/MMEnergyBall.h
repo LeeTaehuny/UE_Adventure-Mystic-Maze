@@ -25,5 +25,19 @@ protected:
 	UFUNCTION()
 	void OnBeginOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	UPROPERTY(VisibleAnywhere, Category = "Particle", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UParticleSystemComponent> EnergyBallParticleSystemComponent;
 
+	UPROPERTY(VisibleAnywhere, Category = "Particle", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UParticleSystemComponent> HitParticleSystemComponent;
+
+	UPROPERTY(VisibleAnywhere, Category = "Collision", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class USphereComponent> EnergyBallCollision;
+
+	UPROPERTY(VisibleAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UProjectileMovementComponent> MovementComponent;
+
+private:
+	float Speed = 3000.0f;
+	uint8 bIsHit : 1;
 };

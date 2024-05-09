@@ -17,6 +17,9 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Animation/AnimMontage.h"
+#include "Particles/ParticleSystem.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 
 AMMPlayerCharacter::AMMPlayerCharacter()
@@ -34,6 +37,7 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 		bIsHold = false;
 		bCanShoot = false;
 		bIsStop = false;
+		bIsCharge = false;
 		WalkSpeed = 230.0f;
 		RunSpeed = 600.0f;
 
@@ -190,6 +194,18 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 		CurrentComboCount = 0;
 		bHasComboInput = false;
 	}
+
+	// Effect
+	{
+		ChargeParticleSystemComponent = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("UParticleSystemComponent"));
+		ChargeParticleSystemComponent->SetupAttachment(RootComponent);
+		ChargeParticleSystemComponent->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f));
+		static ConstructorHelpers::FObjectFinder<UParticleSystem>ChargeParticleRef(TEXT("/Script/Engine.ParticleSystem'/Game/FXVarietyPack/Particles/P_ky_healAura.P_ky_healAura'"));
+		if (ChargeParticleRef.Object)
+		{
+			ChargeParticleSystemComponent->Template = ChargeParticleRef.Object;
+		}
+	}
 }
 
 void AMMPlayerCharacter::BeginPlay()
@@ -212,6 +228,8 @@ void AMMPlayerCharacter::BeginPlay()
 			}
 		}
 	}
+
+	ChargeParticleSystemComponent->SetActive(false);
 }
 
 void AMMPlayerCharacter::Tick(float DeltaSeconds)
@@ -230,6 +248,12 @@ void AMMPlayerCharacter::Tick(float DeltaSeconds)
 
 		// Camera Position 조정
 		Camera->SetRelativeLocation(FVector(0.0f, FMath::FInterpTo(Camera->GetRelativeLocation().Y, 50.0f, DeltaSeconds, 3.0f), FMath::FInterpTo(Camera->GetRelativeLocation().Z, 100.0f, DeltaSeconds, 3.0f)));
+	}
+
+	if (bIsCharge)
+	{
+		ChargeNum = FMath::Clamp(ChargeNum + (DeltaSeconds * 0.3f), 1.0f, 2.0f);
+		UE_LOG(LogTemp, Warning, TEXT("%f"), ChargeNum);
 	}
 }
 
@@ -258,6 +282,9 @@ void AMMPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(IA_ArcherDraw, ETriggerEvent::Started, this, &AMMPlayerCharacter::DrawArrow);
 	EnhancedInputComponent->BindAction(IA_ArcherDraw, ETriggerEvent::Completed, this, &AMMPlayerCharacter::ReleaseArrow);
 
+	// Mage
+	EnhancedInputComponent->BindAction(IA_MageSave, ETriggerEvent::Started, this, &AMMPlayerCharacter::SaveStart);
+	EnhancedInputComponent->BindAction(IA_MageSave, ETriggerEvent::Completed, this, &AMMPlayerCharacter::SaveEnd);
 }
 
 void AMMPlayerCharacter::DashStart()
@@ -580,6 +607,9 @@ void AMMPlayerCharacter::DrawWeapon()
 
 void AMMPlayerCharacter::GuardStart()
 {
+	if (!bIsEquip) return;
+	if (bIsAttacking) return;
+
 	// 방어시 플레이어 이동 불가
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 
@@ -588,6 +618,9 @@ void AMMPlayerCharacter::GuardStart()
 
 void AMMPlayerCharacter::GuardEnd()
 {
+	if (!bIsEquip) return;
+	if (bIsAttacking) return;
+
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 
 	bIsGuard = false;
@@ -675,6 +708,31 @@ void AMMPlayerCharacter::ReleaseArrow()
 	// 카메라 설정
 	Camera->SetRelativeLocation(FVector(0.0f, 0.0f, 150.0f));
 	SpringArm->TargetArmLength = 500.0f;
+}
+
+void AMMPlayerCharacter::SaveStart()
+{
+	if (!bIsEquip) return;
+	if (bIsAttacking) return;
+
+	// 플레이어 이동 불가
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+
+	FTransform ParticleTransform;
+	ParticleTransform.SetLocation(FVector(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z - 90.0f));
+	ChargeParticleSystemComponent->SetActive(true);
+
+	bIsCharge = true;
+}
+
+void AMMPlayerCharacter::SaveEnd()
+{
+	if (!bIsEquip) return;
+	if (bIsAttacking) return;
+
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+	ChargeParticleSystemComponent->SetActive(false);
+	bIsCharge = false;
 }
 
 void AMMPlayerCharacter::DrawEnd(UAnimMontage* Montage, bool IsEnded)
