@@ -7,6 +7,7 @@
 #include "Item/MMWeapon.h"
 #include "Item/MMSwordWeapon.h"
 #include "Item/MMBowWeapon.h"
+#include "Containers/Map.h"
 
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
@@ -20,6 +21,7 @@
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Item/MMItemBox.h"
 #include "DrawDebugHelpers.h"
 
 AMMPlayerCharacter::AMMPlayerCharacter()
@@ -111,7 +113,7 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 		static ConstructorHelpers::FObjectFinder<UInputMappingContext>IMC_BasicRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/MysticMaze/Player/Control/IMC_BasicPlayer.IMC_BasicPlayer'"));
 		if (IMC_BasicRef.Object)
 		{
-			IMC_Array.Add(EClassType::CT_None, IMC_BasicRef.Object);
+			IMC_Array.Add(EClassType::CT_Beginner, IMC_BasicRef.Object);
 		}
 
 		static ConstructorHelpers::FObjectFinder<UInputAction>IA_BasicMoveRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Basic/IA_BaseMove.IA_BaseMove'"));
@@ -212,24 +214,36 @@ void AMMPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//ChangeClass(EClassType::CT_Beginner);
+	ChangeClass(EClassType::CT_Beginner);
+	ChargeParticleSystemComponent->SetActive(false);
 
 	// TEST
-	{
-		ChangeClass(EClassType::CT_Mage);
+	//{
+	//	ChangeClass(EClassType::CT_Mage);
+	//
+	//	if (GetWorld())
+	//	{
+	//		CurrentWeapon = Cast<AMMWeapon>(GetWorld()->SpawnActor<AMMWeapon>(WeaponClass));
+	//		if (CurrentWeapon)
+	//		{
+	//			UE_LOG(LogTemp, Warning, TEXT("Weapon Spawned"));
+	//			EquipWeapon(CurrentWeapon);
+	//		}
+	//	}
+	//}
 
-		if (GetWorld())
-		{
-			CurrentWeapon = Cast<AMMWeapon>(GetWorld()->SpawnActor<AMMWeapon>(WeaponClass));
-			if (CurrentWeapon)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Weapon Spawned"));
-				EquipWeapon(CurrentWeapon);
-			}
-		}
-	}
-
-	ChargeParticleSystemComponent->SetActive(false);
+	// TEST
+	//AMMItemBox* ItemBox = GetWorld()->SpawnActorDeferred<AMMItemBox>(AMMItemBox::StaticClass(), GetActorTransform());
+	//if (ItemBox)
+	//{
+	//	TMap<FString, int32> ItemList;
+	//	ItemList.Add(TPair<FString, int32>(TEXT("DA_HP_Potion_Large"), 10));
+	//	ItemList.Add(TPair<FString, int32>(TEXT("DA_MP_Potion_Large"), 3));
+	//	ItemList.Add(TPair<FString, int32>(TEXT("DA_Bow_2"), 5));
+	//	ItemBox->AddItemList(ItemList);
+	//	ItemBox->AddMoney(1000);
+	//	ItemBox->FinishSpawning(GetActorTransform());
+	//}
 }
 
 void AMMPlayerCharacter::Tick(float DeltaSeconds)

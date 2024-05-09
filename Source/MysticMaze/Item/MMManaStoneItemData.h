@@ -16,4 +16,9 @@ class MYSTICMAZE_API UMMManaStoneItemData : public UMMItemData
 	
 public:
 	UMMManaStoneItemData();
+
+	virtual FPrimaryAssetId GetPrimaryAssetId() const override
+	{
+		return FPrimaryAssetId("MMItemData", GetFName());
+	}
 };

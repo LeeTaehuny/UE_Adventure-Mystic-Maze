@@ -163,10 +163,6 @@ protected:
 	void SheatheEnd(class UAnimMontage* Montage, bool IsEnded);
 	void EquipWeapon(class AMMWeapon* Weapon);
 
-	// TEST
-	UPROPERTY(EditAnywhere, Category = Weapon, meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<class AMMWeapon> WeaponClass;
-
 	UPROPERTY(VisibleAnywhere, Category = Weapon, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class AMMWeapon> CurrentWeapon;
 

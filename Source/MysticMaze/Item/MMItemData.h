@@ -24,6 +24,12 @@ class MYSTICMAZE_API UMMItemData : public UPrimaryDataAsset
 	GENERATED_BODY()
 	
 public:
+	virtual FPrimaryAssetId GetPrimaryAssetId() const override
+	{
+		return FPrimaryAssetId("MMItemData", GetFName());
+	}
+	
+public:
 	UPROPERTY(EditAnywhere, Category = Base)
 	EItemType ItemType;
 

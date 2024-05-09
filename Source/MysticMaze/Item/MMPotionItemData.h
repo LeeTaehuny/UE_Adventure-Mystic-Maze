@@ -23,6 +23,11 @@ class MYSTICMAZE_API UMMPotionItemData : public UMMItemData
 	
 public:
 	UMMPotionItemData();
+
+	virtual FPrimaryAssetId GetPrimaryAssetId() const override
+	{
+		return FPrimaryAssetId("MMItemData", GetFName());
+	}
 	
 public:
 	UPROPERTY(EditAnywhere, Category = Potion)
