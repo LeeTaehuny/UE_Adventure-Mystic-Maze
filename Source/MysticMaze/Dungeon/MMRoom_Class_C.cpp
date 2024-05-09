@@ -70,10 +70,23 @@ AMMRoom_Class_C::AMMRoom_Class_C()
 	South_1->AttachToComponent(Wall[7], FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	BoxColliders.Add(South_1);
 
-	for (int i = 0; i < 8; i++)
-	{
-		RoomOn.Add(false);
-	}
+	bNorth_Switch_0 = false;
+	bNorth_Switch_1 = false;
+	bSouth_Switch_0 = false;
+	bSouth_Switch_1 = false;
+	bWest_Switch_0 = false;
+	bWest_Switch_1 = false;
+	bEast_Switch_0 = false;
+	bEast_Switch_1 = false;
+
+	bNorth_Blocking_0 = false;
+	bNorth_Blocking_1 = false;
+	bSouth_Blocking_0 = false;
+	bSouth_Blocking_1 = false;
+	bWest_Blocking_0 = false;
+	bWest_Blocking_1 = false;
+	bEast_Blocking_0 = false;
+	bEast_Blocking_1 = false;
 }
 
 // Called when the game starts or when spawned
@@ -115,101 +128,189 @@ void AMMRoom_Class_C::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!MonsterAlive)
+	if (!bMonsterAlive)
 	{
-		Clear = true;
+		bClear = true;
 	}
 
-	if (FirstContact && MonsterAlive)
+	if (bFirstContact && bMonsterAlive)
 	{
-		North_Switch_0 = false;
-		North_Switch_1 = false;
-		East_Switch_0 = false;
-		East_Switch_1 = false;
-		West_Switch_0 = false;
-		West_Switch_1 = false;
-		South_Switch_0 = false;
-		South_Switch_1 = false;
+		bNorth_Switch_0 = false;
+		bNorth_Switch_1 = false;
+		bEast_Switch_0 = false;
+		bEast_Switch_1 = false;
+		bWest_Switch_0 = false;
+		bWest_Switch_1 = false;
+		bSouth_Switch_0 = false;
+		bSouth_Switch_1 = false;
 	}
 	
-	DoorUpDown(North_Switch_0, Wall[0]);
-	DoorUpDown(North_Switch_1, Wall[1]);
-	DoorUpDown(East_Switch_0, Wall[2]);
-	DoorUpDown(East_Switch_1, Wall[3]);
-	DoorUpDown(West_Switch_0, Wall[4]);
-	DoorUpDown(West_Switch_1, Wall[5]);
-	DoorUpDown(South_Switch_0, Wall[6]);
-	DoorUpDown(South_Switch_1, Wall[7]);
+	DoorUpDown(bNorth_Switch_0, Wall[0]);
+	DoorUpDown(bNorth_Switch_1, Wall[1]);
+	DoorUpDown(bEast_Switch_0, Wall[2]);
+	DoorUpDown(bEast_Switch_1, Wall[3]);
+	DoorUpDown(bWest_Switch_0, Wall[4]);
+	DoorUpDown(bWest_Switch_1, Wall[5]);
+	DoorUpDown(bSouth_Switch_0, Wall[6]);
+	DoorUpDown(bSouth_Switch_1, Wall[7]);
 }
 
 void AMMRoom_Class_C::NorthBeginOverlap_0(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	AMMRoomBase::DoorRule(OtherActor, North_Switch_0, RoomOn[0], 1, FVector(2000, 0, 0));
+	if (!bFirstContact)
+	{
+		bNorth_Switch_0 = true;
+		return;
+	}
+
+	if (bClear && !bNorth_Blocking_0)
+	{
+		bNorth_Switch_0 = true;
+		FVector CurLocation = this->GetActorLocation() + FVector(2000, 0, 0);
+		bNorth_Blocking_0 = SpawnNrothRoom(CurLocation);
+	}
 }
 void AMMRoom_Class_C::NorthEndOverlap_0(UPrimitiveComponent* HitComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	North_Switch_0 = false;
+	bNorth_Switch_0 = false;
 }
 
 void AMMRoom_Class_C::NorthBeginOverlap_1(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	AMMRoomBase::DoorRule(OtherActor, North_Switch_1, RoomOn[1], 1, FVector(-2000, 0, 0));
+	if (!bFirstContact)
+	{
+		bNorth_Switch_1 = true;
+		return;
+	}
+
+	if (bClear && !bNorth_Blocking_1)
+	{
+		bNorth_Switch_1 = true;
+		FVector CurLocation = this->GetActorLocation() + FVector(-2000, 0, 0);
+		bNorth_Blocking_1 = SpawnNrothRoom(CurLocation);
+	}
 }
 void AMMRoom_Class_C::NorthEndOverlap_1(UPrimitiveComponent* HitComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	North_Switch_1 = false;
+	bNorth_Switch_1 = false;
 }
 
 void AMMRoom_Class_C::SouthBeginOverlap_0(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	AMMRoomBase::DoorRule(OtherActor, South_Switch_0, RoomOn[2], 4, FVector(2000, 0, 0));
+	if (!bFirstContact)
+	{
+		bSouth_Switch_0 = true;
+		return;
+	}
+
+	if (bClear && !bSouth_Blocking_0)
+	{
+		bSouth_Switch_0 = true;
+		FVector CurLocation = this->GetActorLocation() + FVector(2000, 0, 0);
+		bSouth_Blocking_0 = SpawnNrothRoom(CurLocation);
+	}
 }
 void AMMRoom_Class_C::SouthEndOverlap_0(UPrimitiveComponent* HitComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	South_Switch_0 = false;
+	bSouth_Switch_0 = false;
 }
 
 void AMMRoom_Class_C::SouthBeginOverlap_1(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	AMMRoomBase::DoorRule(OtherActor, South_Switch_1, RoomOn[3], 4, FVector(-2000, -4000, 0));
+	if (!bFirstContact)
+	{
+		bSouth_Switch_1 = true;
+		return;
+	}
+
+	if (bClear && !bSouth_Blocking_1)
+	{
+		bSouth_Switch_1 = true;
+		FVector CurLocation = this->GetActorLocation() + FVector(-2000, -4000, 0);
+		bSouth_Blocking_1 = SpawnNrothRoom(CurLocation);
+	}
 }
 void AMMRoom_Class_C::SouthEndOverlap_1(UPrimitiveComponent* HitComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	South_Switch_1 = false;
+	bSouth_Switch_1 = false;
 }
 
 void AMMRoom_Class_C::WastBeginOverlap_0(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	AMMRoomBase::DoorRule(OtherActor, West_Switch_0, RoomOn[4], 2, FVector(2000, 0, 0));
+	if (!bFirstContact)
+	{
+		bWest_Switch_0 = true;
+		return;
+	}
+
+	if (bClear && !bWest_Blocking_0)
+	{
+		bWest_Switch_0 = true;
+		FVector CurLocation = this->GetActorLocation() + FVector(2000, 0, 0);
+		bWest_Blocking_0 = SpawnNrothRoom(CurLocation);
+	}
 }
 void AMMRoom_Class_C::WastEndOverlap_0(UPrimitiveComponent* HitComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	West_Switch_0 = false;
+	bWest_Switch_0 = false;
 }
 
 void AMMRoom_Class_C::WastBeginOverlap_1(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	AMMRoomBase::DoorRule(OtherActor, West_Switch_1, RoomOn[5], 2, FVector(-2000, -4000, 0));
+	if (!bFirstContact)
+	{
+		bWest_Switch_1 = true;
+		return;
+	}
+
+	if (bClear && !bWest_Blocking_1)
+	{
+		bWest_Switch_1 = true;
+		FVector CurLocation = this->GetActorLocation() + FVector(-2000, -4000, 0);
+		bWest_Blocking_1 = SpawnNrothRoom(CurLocation);
+	}
 }
 void AMMRoom_Class_C::WastEndOverlap_1(UPrimitiveComponent* HitComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	West_Switch_1 = false;
+	bWest_Switch_1 = false;
 }
 
 void AMMRoom_Class_C::EastBeginOverlap_0(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	AMMRoomBase::DoorRule(OtherActor, East_Switch_0, RoomOn[6], 3, FVector(-2000, 0, 0));
+	if (!bFirstContact)
+	{
+		bEast_Switch_0 = true;
+		return;
+	}
+
+	if (bClear && !bEast_Blocking_0)
+	{
+		bEast_Switch_0 = true;
+		FVector CurLocation = this->GetActorLocation() + FVector(-2000, 0, 0);
+		bEast_Blocking_0 = SpawnNrothRoom(CurLocation);
+	}
 }
 void AMMRoom_Class_C::EastEndOverlap_0(UPrimitiveComponent* HitComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	East_Switch_0 = false;
+	bEast_Switch_0 = false;
 }
 
 void AMMRoom_Class_C::EastBeginOverlap_1(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	AMMRoomBase::DoorRule(OtherActor, East_Switch_1, RoomOn[7], 3, FVector(-2000, -4000, 0));
+	if (!bFirstContact)
+	{
+		bEast_Switch_1 = true;
+		return;
+	}
+
+	if (bClear && !bEast_Blocking_1)
+	{
+		bEast_Switch_1 = true;
+		FVector CurLocation = this->GetActorLocation() + FVector(-2000, -4000, 0);
+		bEast_Blocking_1 = SpawnNrothRoom(CurLocation);
+	}
 }
 void AMMRoom_Class_C::EastEndOverlap_1(UPrimitiveComponent* HitComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	East_Switch_1 = false;
+	bEast_Switch_1 = false;
 }

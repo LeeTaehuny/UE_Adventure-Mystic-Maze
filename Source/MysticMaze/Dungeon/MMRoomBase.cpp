@@ -8,25 +8,15 @@ AMMRoomBase::AMMRoomBase()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	bMonsterAlive = true;
+	bClear = false;
+	bFirstContact = false;
+	bDoorRock = false;
 }
 
-void AMMRoomBase::SetCollision(UBoxComponent* InCollisoin, FName LInName, UStaticMeshComponent* InParent)
+bool AMMRoomBase::SpawnNrothRoom(FVector INCenterLocation)
 {
-	InCollisoin = CreateDefaultSubobject<UBoxComponent>(TEXT(InName));
-	if (InParent != NULL)
-	{
-		InCollisoin->AttachToComponent(InParent, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	}
-	BoxColliders.Add(InCollisoin);
-}
-
-void AMMRoomBase::SpawnNrothRoom(FVector INCenterLocation, bool& INRoomOn)
-{
-	if (INRoomOn)
-	{
-		return;
-	}
-
 	if (World)
 	{
 		FVector CheckCollision = FVector(150, 150, 500);
@@ -52,8 +42,7 @@ void AMMRoomBase::SpawnNrothRoom(FVector INCenterLocation, bool& INRoomOn)
 		// 1번 위치 충돌체크 : 해당 위치에 충돌이 발생하면 더 계산할 필요 없음
 		if (World->SweepMultiByChannel(HitResults, SweepStart, SweepEnd, FQuat::Identity, ECC_WorldStatic, CollisionShape))
 		{
-			INRoomOn = true;
-			return;
+			return true;
 		}
 
 		// 0번 위치 충돌체크
@@ -175,7 +164,7 @@ void AMMRoomBase::SpawnNrothRoom(FVector INCenterLocation, bool& INRoomOn)
 			CenterLocation = INCenterLocation + FVector(0, RoomSize, 0);
 			aa = World->SpawnActor<AActor>(ATypeData);
 			aa->SetActorLocation(CenterLocation);
-			INRoomOn = true;
+			return true;
 			break;
 
 		case 1:
@@ -200,7 +189,7 @@ void AMMRoomBase::SpawnNrothRoom(FVector INCenterLocation, bool& INRoomOn)
 			}
 			aa = World->SpawnActor<AActor>(BTypeData);
 			aa->SetActorLocation(CenterLocation);
-			INRoomOn = true;
+			return true;
 			break;
 
 		case 2:
@@ -222,7 +211,7 @@ void AMMRoomBase::SpawnNrothRoom(FVector INCenterLocation, bool& INRoomOn)
 
 			aa = World->SpawnActor<AActor>(CTypeData);
 			aa->SetActorLocation(CenterLocation);
-			INRoomOn = true;
+			return true;
 			
 			break;
 
@@ -249,23 +238,18 @@ void AMMRoomBase::SpawnNrothRoom(FVector INCenterLocation, bool& INRoomOn)
 
 			aa = World->SpawnActor<AActor>(DTypeData);
 			aa->SetActorLocation(CenterLocation);
-			INRoomOn = true;
+			return true;
 			break;
 
 		default:
 			break;
 		}
-
-		
 	}
+
+	return false;
 }
-void AMMRoomBase::SpawnSouthRoom(FVector INCenterLocation, bool& INRoomOn)
+bool AMMRoomBase::SpawnSouthRoom(FVector INCenterLocation)
 {
-	if (INRoomOn)
-	{
-		return;
-	}
-
 	if (World)
 	{
 		FVector CheckCollision = FVector(150, 150, 500);
@@ -290,8 +274,7 @@ void AMMRoomBase::SpawnSouthRoom(FVector INCenterLocation, bool& INRoomOn)
 		// 1번 위치 충돌체크 : 해당 위치에 충돌이 발생하면 더 계산할 필요 없음
 		if (World->SweepMultiByChannel(HitResults, SweepStart, SweepEnd, FQuat::Identity, ECC_WorldStatic, CollisionShape))
 		{
-			INRoomOn = true;
-			return;
+			return true;
 		}
 
 		// 0번 위치 충돌체크
@@ -418,8 +401,7 @@ void AMMRoomBase::SpawnSouthRoom(FVector INCenterLocation, bool& INRoomOn)
 			CenterLocation = INCenterLocation + FVector(0, -RoomSize, 0);
 			aa = World->SpawnActor<AActor>(ATypeData);
 			aa->SetActorLocation(CenterLocation);
-			INRoomOn = true;
-			break;
+			return true;
 
 		case 1:
 			LocationReadJust = FMath::RandRange(1, 3);
@@ -443,8 +425,7 @@ void AMMRoomBase::SpawnSouthRoom(FVector INCenterLocation, bool& INRoomOn)
 			}
 			aa = World->SpawnActor<AActor>(BTypeData);
 			aa->SetActorLocation(CenterLocation);
-			INRoomOn = true;
-			break;
+			return true;
 
 		case 2:
 			LocationReadJust = FMath::RandRange(1, 3);
@@ -471,9 +452,7 @@ void AMMRoomBase::SpawnSouthRoom(FVector INCenterLocation, bool& INRoomOn)
 
 			aa = World->SpawnActor<AActor>(CTypeData);
 			aa->SetActorLocation(CenterLocation);
-			INRoomOn = true;
-
-			break;
+			return true;
 
 		case 3:
 			LocationReadJust = FMath::RandRange(1, 3);
@@ -494,8 +473,7 @@ void AMMRoomBase::SpawnSouthRoom(FVector INCenterLocation, bool& INRoomOn)
 
 			aa = World->SpawnActor<AActor>(DTypeData);
 			aa->SetActorLocation(CenterLocation);
-			INRoomOn = true;
-			break;
+			return true;
 
 		default:
 			break;
@@ -503,14 +481,11 @@ void AMMRoomBase::SpawnSouthRoom(FVector INCenterLocation, bool& INRoomOn)
 
 
 	}
-}
-void AMMRoomBase::SpawnEastRoom(FVector INCenterLocation, bool& INRoomOn)
-{
-	if (INRoomOn)
-	{
-		return;
-	}
 
+	return false;
+}
+bool AMMRoomBase::SpawnEastRoom(FVector INCenterLocation)
+{
 	if (World)
 	{
 		FVector CheckCollision = FVector(150, 150, 500);
@@ -535,8 +510,7 @@ void AMMRoomBase::SpawnEastRoom(FVector INCenterLocation, bool& INRoomOn)
 		// 1번 위치 충돌체크 : 해당 위치에 충돌이 발생하면 더 계산할 필요 없음
 		if (World->SweepMultiByChannel(HitResults, SweepStart, SweepEnd, FQuat::Identity, ECC_WorldStatic, CollisionShape))
 		{
-			INRoomOn = true;
-			return;
+			return true;
 		}
 
 		// 0번 위치 충돌체크
@@ -652,15 +626,13 @@ void AMMRoomBase::SpawnEastRoom(FVector INCenterLocation, bool& INRoomOn)
 			CenterLocation = INCenterLocation + FVector(-RoomSize, 0, 0);
 			aa = World->SpawnActor<AActor>(ATypeData);
 			aa->SetActorLocation(CenterLocation);
-			INRoomOn = true;
-			break;
+			return true;
 
 		case 1:
 			CenterLocation = INCenterLocation + FVector(-RoomSize * 1.5f, 0, 0);
 			aa = World->SpawnActor<AActor>(BTypeData);
 			aa->SetActorLocation(CenterLocation);
-			INRoomOn = true;
-			break;
+			return true;
 
 		case 2:
 			LocationReadJust = FMath::RandRange(1, 3);
@@ -685,9 +657,7 @@ void AMMRoomBase::SpawnEastRoom(FVector INCenterLocation, bool& INRoomOn)
 
 			aa = World->SpawnActor<AActor>(CTypeData);
 			aa->SetActorLocation(CenterLocation);
-			INRoomOn = true;
-
-			break;
+			return true;
 
 		case 3:
 			LocationReadJust = FMath::RandRange(1, 3);
@@ -712,8 +682,7 @@ void AMMRoomBase::SpawnEastRoom(FVector INCenterLocation, bool& INRoomOn)
 
 			aa = World->SpawnActor<AActor>(DTypeData);
 			aa->SetActorLocation(CenterLocation);
-			INRoomOn = true;
-			break;
+			return true;
 
 		default:
 			break;
@@ -721,14 +690,11 @@ void AMMRoomBase::SpawnEastRoom(FVector INCenterLocation, bool& INRoomOn)
 
 
 	}
-}
-void AMMRoomBase::SpawnWestRoom(FVector INCenterLocation, bool& INRoomOn)
-{
-	if (INRoomOn)
-	{
-		return;
-	}
 
+	return false;
+}
+bool AMMRoomBase::SpawnWestRoom(FVector INCenterLocation)
+{
 	if (World)
 	{
 		FVector CheckCollision = FVector(150, 150, 500);
@@ -753,8 +719,7 @@ void AMMRoomBase::SpawnWestRoom(FVector INCenterLocation, bool& INRoomOn)
 		// 1번 위치 충돌체크 : 해당 위치에 충돌이 발생하면 더 계산할 필요 없음
 		if (World->SweepMultiByChannel(HitResults, SweepStart, SweepEnd, FQuat::Identity, ECC_WorldStatic, CollisionShape))
 		{
-			INRoomOn = true;
-			return;
+			return true;
 		}
 
 		// 0번 위치 충돌체크
@@ -858,25 +823,19 @@ void AMMRoomBase::SpawnWestRoom(FVector INCenterLocation, bool& INRoomOn)
 
 		AActor* aa;
 		int LocationReadJust = 0;
-		if (RoomChois != -1)
-		{
-			SpawnRoomNumber = RoomChois;
-		}
 		switch (SpawnRoomNumber)
 		{
 		case 0:
 			CenterLocation = INCenterLocation + FVector(RoomSize, 0, 0);
 			aa = World->SpawnActor<AActor>(ATypeData);
 			aa->SetActorLocation(CenterLocation);
-			INRoomOn = true;
-			break;
+			return true;
 
 		case 1:
 			CenterLocation = INCenterLocation + FVector(RoomSize * 1.5f, 0, 0);
 			aa = World->SpawnActor<AActor>(BTypeData);
 			aa->SetActorLocation(CenterLocation);
-			INRoomOn = true;
-			break;
+			return true;
 
 		case 2:
 			LocationReadJust = FMath::RandRange(1, 3);
@@ -901,9 +860,7 @@ void AMMRoomBase::SpawnWestRoom(FVector INCenterLocation, bool& INRoomOn)
 
 			aa = World->SpawnActor<AActor>(CTypeData);
 			aa->SetActorLocation(CenterLocation);
-			INRoomOn = true;
-
-			break;
+			return true;
 
 		case 3:
 			LocationReadJust = FMath::RandRange(1, 3);
@@ -928,82 +885,48 @@ void AMMRoomBase::SpawnWestRoom(FVector INCenterLocation, bool& INRoomOn)
 
 			aa = World->SpawnActor<AActor>(DTypeData);
 			aa->SetActorLocation(CenterLocation);
-			INRoomOn = true;
-			break;
+			return true;
 
 		default:
 			break;
 		}
-
-
 	}
+
+	return false;
 }
 
 void AMMRoomBase::FirstBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!FirstContact && OtherActor->ActorHasTag(FName("Player")))
+	// 처음 충돌한 것이 플레이어일 경우 bFirstContact 변수를 true로 변경
+	if (!bFirstContact && OtherActor->ActorHasTag(FName("Player")))
 	{
-		FirstContact = true;
+		bFirstContact = true;
 	}
 }
 
-void AMMRoomBase::DoorUpDown(bool INSwitch, UStaticMeshComponent* INWallData)
+void AMMRoomBase::DoorUpDown(uint8 INSwitch, UStaticMeshComponent* INWallData)
 {
-	if (INSwitch)
+	if (!bDoorRock)
 	{
-		FVector location = INWallData->GetComponentLocation();
-		INWallData->SetWorldLocation(FMath::Lerp(location, FVector(location.X, location.Y, LowZ), Alpha));
-	}
-	else
-	{
-		FVector location = INWallData->GetComponentLocation();
-		INWallData->SetWorldLocation(FMath::Lerp(location, FVector(location.X, location.Y, HighZ), Alpha));
-	}
-}
-
-void AMMRoomBase::DoorRule(AActor* Actor, bool& INSwitch, bool& INNextRoom, int INCompass, FVector INCorrect)
-{
-	if (!Actor->ActorHasTag(FName("Player")))
-	{
-		return;
-	}
-
-	if (!MonsterAlive || !FirstContact)
-	{
-		INSwitch = true;
-	}
-
-	if (Clear)
-	{
-		INSwitch = true;
-
-		if (!INNextRoom)
+		// 문을 내리기 위한 이프문
+		if (INSwitch)
 		{
-			FVector CurLocation = this->GetActorLocation() + INCorrect;
+			FVector location = INWallData->GetComponentLocation();
+			INWallData->SetWorldLocation(FMath::Lerp(location, FVector(location.X, location.Y, LowZ), Alpha));
+		}
+		// 문을 올리기 위한 이프문
+		else
+		{
+			FVector location = INWallData->GetComponentLocation();
+			INWallData->SetWorldLocation(FMath::Lerp(location, FVector(location.X, location.Y, HighZ), Alpha));
 
-			switch (INCompass)
+			if (location.Z >= HighZ && bMonsterAlive && bFirstContact)
 			{
-			case 1:
-				AMMRoomBase::SpawnNrothRoom(CurLocation, INNextRoom);
-				break;
-			case 2:
-				AMMRoomBase::SpawnWestRoom(CurLocation, INNextRoom);
-				break;
-			case 3:
-				AMMRoomBase::SpawnEastRoom(CurLocation, INNextRoom);
-				break;
-			case 4:
-				AMMRoomBase::SpawnSouthRoom(CurLocation, INNextRoom);
-				break;
+				bDoorRock = true;
 			}
 		}
 	}
 }
 
-void AMMRoomBase::DoorRock(UStaticMeshComponent* door)
-{
-	FVector location = door->GetComponentLocation();
-	door->SetWorldLocation(FMath::Lerp(location, FVector(location.X, location.Y, HighZ), Alpha));
-}
 
 

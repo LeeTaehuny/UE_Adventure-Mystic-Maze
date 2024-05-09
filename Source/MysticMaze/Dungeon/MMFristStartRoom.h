@@ -52,22 +52,28 @@ public:
 private: // 뷰포트에서 사용되는 변수들
 
 	UPROPERTY(EditAnywhere, Category = "Door", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UStaticMeshComponent> MainFloor;
+	TObjectPtr<UStaticMeshComponent> MainFloor; // 루트 컴포넌트가 되기 위한 메인 바닥
 
 	UPROPERTY(EditAnywhere, Category = "Door", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UBoxComponent> North_Collision;
+	TObjectPtr<UBoxComponent> North_Collision; // 북쪽 문을 열고 닫고 방을 스폰하기 위한 콜리전
 	UPROPERTY(EditAnywhere, Category = "Door", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UBoxComponent> Wast_Collision;
+	TObjectPtr<UBoxComponent> Wast_Collision; // 서쪽 문을 열고 닫고 방을 스폰하기 위한 콜리전
 	UPROPERTY(EditAnywhere, Category = "Door", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UBoxComponent> East_Collision;
+	TObjectPtr<UBoxComponent> East_Collision; // 동쪽 문을 열고 닫고 방을 스폰하기 위한 콜리전
 	UPROPERTY(EditAnywhere, Category = "Door", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UBoxComponent> South_Collision;
+	TObjectPtr<UBoxComponent> South_Collision; // 남쪽 문을 열고 닫고 방을 스폰하기 위한 콜리전
 
 private: // 룸 작동 변수
 
-	bool North_Switch = false;
-	bool South_Switch = false;
-	bool West_Switch = false;
-	bool East_Switch = false;
+	// 문이 열리고 닫히는지를 판별하는 변수
+	uint8 bNorth_Switch : 1;
+	uint8 bSouth_Switch : 1;
+	uint8 bWest_Switch : 1;
+	uint8 bEast_Switch : 1;
 
+	// 문 앞에 다른 룸이 있다면 룸의 생성을 막는 변수
+	uint8 bNorth_Blocking : 1;
+	uint8 bSouth_Blocking : 1;
+	uint8 bWest_Blocking : 1;
+	uint8 bEast_Blocking : 1;
 };

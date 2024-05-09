@@ -62,31 +62,36 @@ public:
 private: // 뷰포트에서 사용되는 변수들
 
 	UPROPERTY(EditAnywhere, Category = "Door", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UStaticMeshComponent> MainFloor;
+	TObjectPtr<UStaticMeshComponent> MainFloor; // 루트 컴포넌트가 되기 위한 메인 바닥
 
 	UPROPERTY(EditAnywhere, Category = "Door", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UBoxComponent> North_0;
+	TObjectPtr<UBoxComponent> North_0; // 북쪽 문을 열고 닫고 방을 스폰하기 위한 콜리전
 	UPROPERTY(EditAnywhere, Category = "Door", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UBoxComponent> North_1;
+	TObjectPtr<UBoxComponent> North_1; // 북쪽 문을 열고 닫고 방을 스폰하기 위한 콜리전
 	UPROPERTY(EditAnywhere, Category = "Door", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UBoxComponent> South_0;
+	TObjectPtr<UBoxComponent> South_0; // 남쪽 문을 열고 닫고 방을 스폰하기 위한 콜리전
 	UPROPERTY(EditAnywhere, Category = "Door", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UBoxComponent> South_1;
+	TObjectPtr<UBoxComponent> South_1; // 남쪽 문을 열고 닫고 방을 스폰하기 위한 콜리전
 	UPROPERTY(EditAnywhere, Category = "Door", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UBoxComponent> East;
+	TObjectPtr<UBoxComponent> East; // 동쪽 문을 열고 닫고 방을 스폰하기 위한 콜리전
 	UPROPERTY(EditAnywhere, Category = "Door", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UBoxComponent> Weast;
+	TObjectPtr<UBoxComponent> Weast; // 서쪽 문을 열고 닫고 방을 스폰하기 위한 콜리전
 
 private: // 룸 작동 변수
 
-	bool North_Switch_0 = false;
-	bool North_Switch_1 = false;
+	// 문이 열리고 닫히는지를 판별하는 변수
+	uint8 bNorth_Switch_0 : 1;
+	uint8 bNorth_Switch_1 : 1;
+	uint8 bSouth_Switch_0 : 1;
+	uint8 bSouth_Switch_1 : 1;
+	uint8 bWest_Switch : 1;
+	uint8 bEast_Switch : 1;
 
-	bool South_Switch_0 = false;
-	bool South_Switch_1 = false;
-
-	bool West_Switch = false;
-
-	bool East_Switch = false;
-
+	// 문 앞에 다른 룸이 있다면 룸의 생성을 막는 변수
+	uint8 bNorth_Blocking_0 : 1;
+	uint8 bNorth_Blocking_1 : 1;
+	uint8 bSouth_Blocking_0 : 1;
+	uint8 bSouth_Blocking_1 : 1;
+	uint8 bWest_Blocking : 1;
+	uint8 bEast_Blocking : 1;
 };

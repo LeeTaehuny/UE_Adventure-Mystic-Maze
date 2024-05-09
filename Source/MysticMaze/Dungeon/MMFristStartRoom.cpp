@@ -49,10 +49,15 @@ AMMFristStartRoom::AMMFristStartRoom()
 	South_Collision->AttachToComponent(Wall[3], FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	BoxColliders.Add(South_Collision);
 
-	for (int i = 0; i < 4; i++)
-	{
-		RoomOn.Add(false);
-	}
+	bNorth_Switch = false;
+	bSouth_Switch = false;
+	bWest_Switch = false;
+	bEast_Switch = false;
+
+	bNorth_Blocking = false;
+	bSouth_Blocking = false;
+	bWest_Blocking = false;
+	bEast_Blocking = false;
 }
 
 void AMMFristStartRoom::BeginPlay()
@@ -76,57 +81,97 @@ void AMMFristStartRoom::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!MonsterAlive)
+	if (!bMonsterAlive)
 	{
-		Clear = true;
+		bClear = true;
 	}
 
-	if (FirstContact && MonsterAlive)
+	if (bFirstContact && bMonsterAlive)
 	{
-		North_Switch = false;
-		West_Switch = false;
-		East_Switch = false;
-		South_Switch = false;
+		bNorth_Switch = false;
+		bWest_Switch = false;
+		bEast_Switch = false;
+		bSouth_Switch = false;
 	}
 
-	DoorUpDown(North_Switch, Wall[0]);
-	DoorUpDown(East_Switch, Wall[1]);
-	DoorUpDown(West_Switch, Wall[2]);
-	DoorUpDown(South_Switch, Wall[3]);
+	DoorUpDown(bNorth_Switch, Wall[0]);
+	DoorUpDown(bEast_Switch, Wall[1]);
+	DoorUpDown(bWest_Switch, Wall[2]);
+	DoorUpDown(bSouth_Switch, Wall[3]);
 }
 
 void AMMFristStartRoom::NorthBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	AMMRoomBase::DoorRule(OtherActor, North_Switch, RoomOn[0], 1);
+	if (!bFirstContact)
+	{
+		bNorth_Switch = true;
+		return;
+	}
+
+	if (bClear && !bNorth_Blocking)
+	{
+		bNorth_Switch = true;
+		bNorth_Blocking = SpawnNrothRoom(this->GetActorLocation());
+	}
 }
 void AMMFristStartRoom::NorthEndOverlap(UPrimitiveComponent* HitComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	North_Switch = false;
+	bNorth_Switch = false;
 }
 
 void AMMFristStartRoom::WastBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	AMMRoomBase::DoorRule(OtherActor, West_Switch, RoomOn[1], 2);
+	if (!bFirstContact)
+	{
+		bWest_Switch = true;
+		return;
+	}
+
+	if (bClear && !bWest_Blocking)
+	{
+		bWest_Switch = true;
+		bWest_Blocking = SpawnWestRoom(this->GetActorLocation());
+	}
 }
 void AMMFristStartRoom::WastEndOverlap(UPrimitiveComponent* HitComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	West_Switch = false;
+	bWest_Switch = false;
 }
 
 void AMMFristStartRoom::EastBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	AMMRoomBase::DoorRule(OtherActor, East_Switch, RoomOn[2], 3);
+	if (!bFirstContact)
+	{
+		bEast_Switch = true;
+		return;
+	}
+
+	if (bClear && !bEast_Blocking)
+	{
+		bEast_Switch = true;
+		bEast_Blocking = SpawnEastRoom(this->GetActorLocation());
+	}
 }
 void AMMFristStartRoom::EastEndOverlap(UPrimitiveComponent* HitComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	East_Switch = false;
+	bEast_Switch = false;
 }
 
 void AMMFristStartRoom::SouthBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	AMMRoomBase::DoorRule(OtherActor, South_Switch, RoomOn[3], 4);
+	if (!bFirstContact)
+	{
+		bSouth_Switch = true;
+		return;
+	}
+
+	if (bClear && !bSouth_Blocking)
+	{
+		bSouth_Switch = true;
+		bSouth_Blocking = SpawnSouthRoom(this->GetActorLocation());
+	}
 }
 void AMMFristStartRoom::SouthEndOverlap(UPrimitiveComponent* HitComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	South_Switch = false;
+	bSouth_Switch = false;
 }

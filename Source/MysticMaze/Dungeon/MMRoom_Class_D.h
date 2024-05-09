@@ -64,40 +64,48 @@ public:
 private:
 
 	UPROPERTY(EditAnywhere, Category = "Door", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UStaticMeshComponent> MainFloor1;
+	TObjectPtr<UStaticMeshComponent> MainFloor1; // 루트 컴포넌트가 되기 위한 메인 바닥
 
 	UPROPERTY(EditAnywhere, Category = "Door", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UBoxComponent> RoomCenter_1;
+	TObjectPtr<UBoxComponent> RoomCenter_1; // ㄴ자 룸을 위한 추가 센터 콜리전
 
 	UPROPERTY(EditAnywhere, Category = "Door", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UBoxComponent> North_0;
+	TObjectPtr<UBoxComponent> North_0; // 북쪽 문을 열고 닫고 방을 스폰하기 위한 콜리전
 	UPROPERTY(EditAnywhere, Category = "Door", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UBoxComponent> South_0;
+	TObjectPtr<UBoxComponent> South_0; // 남쪽 문을 열고 닫고 방을 스폰하기 위한 콜리전
 	UPROPERTY(EditAnywhere, Category = "Door", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UBoxComponent> East_0;
+	TObjectPtr<UBoxComponent> East_0; // 동쪽 문을 열고 닫고 방을 스폰하기 위한 콜리전
 	UPROPERTY(EditAnywhere, Category = "Door", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UBoxComponent> Weast_0;
+	TObjectPtr<UBoxComponent> Weast_0; // 서쪽 문을 열고 닫고 방을 스폰하기 위한 콜리전
 
 	UPROPERTY(EditAnywhere, Category = "Door", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UBoxComponent> North_1;
+	TObjectPtr<UBoxComponent> North_1; // 북쪽 문을 열고 닫고 방을 스폰하기 위한 콜리전
 	UPROPERTY(EditAnywhere, Category = "Door", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UBoxComponent> South_1;
+	TObjectPtr<UBoxComponent> South_1; // 남쪽 문을 열고 닫고 방을 스폰하기 위한 콜리전
 	UPROPERTY(EditAnywhere, Category = "Door", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UBoxComponent> East_1;
+	TObjectPtr<UBoxComponent> East_1; // 동쪽 문을 열고 닫고 방을 스폰하기 위한 콜리전
 	UPROPERTY(EditAnywhere, Category = "Door", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UBoxComponent> Weast_1;
+	TObjectPtr<UBoxComponent> Weast_1; // 서쪽 문을 열고 닫고 방을 스폰하기 위한 콜리전
 
 private: // 룸 작동 변수
 
-	bool North_Switch_0 = false;
-	bool North_Switch_1 = false;
+	// 문이 열리고 닫히는지를 판별하는 변수
+	uint8 bNorth_Switch_0 : 1;
+	uint8 bNorth_Switch_1 : 1;
+	uint8 bSouth_Switch_0 : 1;
+	uint8 bSouth_Switch_1 : 1;
+	uint8 bWest_Switch_0 : 1;
+	uint8 bWest_Switch_1 : 1;
+	uint8 bEast_Switch_0 : 1;
+	uint8 bEast_Switch_1 : 1;
 
-	bool South_Switch_0 = false;
-	bool South_Switch_1 = false;
-
-	bool West_Switch_0 = false;
-	bool West_Switch_1 = false;
-
-	bool East_Switch_0 = false;
-	bool East_Switch_1 = false;
+	// 문 앞에 다른 룸이 있다면 룸의 생성을 막는 변수
+	uint8 bNorth_Blocking_0 : 1;
+	uint8 bNorth_Blocking_1 : 1;
+	uint8 bSouth_Blocking_0 : 1;
+	uint8 bSouth_Blocking_1 : 1;
+	uint8 bWest_Blocking_0 : 1;
+	uint8 bWest_Blocking_1 : 1;
+	uint8 bEast_Blocking_0 : 1;
+	uint8 bEast_Blocking_1 : 1;
 };

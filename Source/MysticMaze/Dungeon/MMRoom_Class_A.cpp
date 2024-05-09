@@ -25,7 +25,7 @@ AMMRoom_Class_A::AMMRoom_Class_A()
 	Wall.Add(CreateDefaultSubobject<UStaticMeshComponent>(TEXT("South Door")));
 
 	if (WallMeshRef.Succeeded())
-	{
+	{	
 		for (int i = 0; i < Wall.Num(); i++)
 		{
 			Wall[i]->SetStaticMesh(WallMeshRef.Object);
@@ -49,11 +49,15 @@ AMMRoom_Class_A::AMMRoom_Class_A()
 	South->AttachToComponent(Wall[3], FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	BoxColliders.Add(South);
 
-	for (int i = 0; i < 4; i++)
-	{
-		RoomOn.Add(false);
-	}
+	bNorth_Switch = false;
+	bSouth_Switch = false;
+	bWest_Switch = false;
+	bEast_Switch = false;
 
+	bNorth_Blocking = false;
+	bSouth_Blocking = false;
+	bWest_Blocking = false;
+	bEast_Blocking = false;
 }
 
 // Called when the game starts or when spawned
@@ -79,59 +83,97 @@ void AMMRoom_Class_A::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!MonsterAlive)
+	if (!bMonsterAlive)
 	{
-		Clear = true;
+		bClear = true;
 	}
 
-	if (FirstContact && MonsterAlive)
+	if (bFirstContact && bMonsterAlive)
 	{
-		North_Switch = false;
-		West_Switch = false;
-		East_Switch = false;
-		South_Switch = false;
+		bNorth_Switch = false;
+		bWest_Switch = false;
+		bEast_Switch = false;
+		bSouth_Switch = false;
 	}
 	
-	DoorUpDown(North_Switch, Wall[0]);
-	DoorUpDown(East_Switch, Wall[1]);
-	DoorUpDown(West_Switch, Wall[2]);
-	DoorUpDown(South_Switch, Wall[3]);
+	DoorUpDown(bNorth_Switch, Wall[0]);
+	DoorUpDown(bEast_Switch, Wall[1]);
+	DoorUpDown(bWest_Switch, Wall[2]);
+	DoorUpDown(bSouth_Switch, Wall[3]);
 }
 
 void AMMRoom_Class_A::NorthBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	AMMRoomBase::DoorRule(OtherActor, North_Switch, RoomOn[0], 1);
+	if (!bFirstContact)
+	{
+		bNorth_Switch = true;
+		return;
+	}
+
+	if (bClear && !bNorth_Blocking)
+	{
+		bNorth_Switch = true;
+		bNorth_Blocking = SpawnNrothRoom(this->GetActorLocation());
+	}
 }
 void AMMRoom_Class_A::NorthEndOverlap(UPrimitiveComponent* HitComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	North_Switch = false;
+	bNorth_Switch = false;
 }
 
 void AMMRoom_Class_A::WastBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	AMMRoomBase::DoorRule(OtherActor, West_Switch, RoomOn[1], 2);
+	if (!bFirstContact)
+	{
+		bWest_Switch = true;
+		return;
+	}
+
+	if (bClear && !bWest_Blocking)
+	{
+		bWest_Switch = true;
+		bWest_Blocking = SpawnWestRoom(this->GetActorLocation());
+	}
 }
 void AMMRoom_Class_A::WastEndOverlap(UPrimitiveComponent* HitComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	West_Switch = false;
+	bWest_Switch = false;
 }
 
 void AMMRoom_Class_A::EastBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	AMMRoomBase::DoorRule(OtherActor, East_Switch, RoomOn[2], 3);
+	if (!bEast_Blocking)
+	{
+		bEast_Switch = true;
+	}
+
+	if (bClear && !bEast_Blocking)
+	{
+		bEast_Switch = true;
+		bEast_Blocking = SpawnEastRoom(this->GetActorLocation());
+	}
 }
 void AMMRoom_Class_A::EastEndOverlap(UPrimitiveComponent* HitComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	East_Switch = false;
+	bEast_Switch = false;
 }
 
 void AMMRoom_Class_A::SouthBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	AMMRoomBase::DoorRule(OtherActor, South_Switch, RoomOn[3], 4);
+	if (!bFirstContact)
+	{
+		bSouth_Switch = true;
+	}
+
+	if (bClear && !bSouth_Blocking)
+	{
+		bSouth_Switch = true;
+		bSouth_Blocking = SpawnSouthRoom(this->GetActorLocation());
+	}
 }
 void AMMRoom_Class_A::SouthEndOverlap(UPrimitiveComponent* HitComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	South_Switch = false;
+	bSouth_Switch = false;
 }
 
 
