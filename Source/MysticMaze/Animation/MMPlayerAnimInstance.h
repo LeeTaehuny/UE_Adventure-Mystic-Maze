@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/MMBaseAnimInstance.h"
+#include "GameData/MMEnums.h"
 #include "MMPlayerAnimInstance.generated.h"
 
 /**
@@ -23,4 +24,23 @@ protected:
 
 	// Update
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
+	EClassType ClassType;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
+	uint8 bIsGuard : 1;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
+	uint8 bIsEquip : 1;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
+	uint8 bIsHold : 1;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
+	uint8 bIsCharge : 1;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Player)
+	float Direction;
 };
