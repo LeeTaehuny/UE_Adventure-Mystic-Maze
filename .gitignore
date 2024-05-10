@@ -75,6 +75,10 @@ DerivedDataCache/*
 
 # Content Assets
 *Content/Pirate
+*Content/QuadrapedCreatures
+*Content/Megascans
+*Content/MSPresets
+*Content/Mutant
 *Content/Arrows
 *Content/InfinityBladeWeapons
 *Content/ThirdPerson

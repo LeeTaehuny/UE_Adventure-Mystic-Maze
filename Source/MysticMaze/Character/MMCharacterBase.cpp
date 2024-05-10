@@ -11,3 +11,23 @@ AMMCharacterBase::AMMCharacterBase()
 
 }
 
+// Called when the game starts or when spawned
+void AMMCharacterBase::BeginPlay()
+{
+	Super::BeginPlay();
+	
+}
+
+// Called every frame
+void AMMCharacterBase::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+}
+
+// Called to bind functionality to input
+void AMMCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+}
