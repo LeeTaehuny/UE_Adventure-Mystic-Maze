@@ -57,6 +57,8 @@ AMMFristStartRoom::AMMFristStartRoom()
 	bSouth_Blocking = false;
 	bWest_Blocking = false;
 	bEast_Blocking = false;
+
+	MaxDoorUp = 10;
 }
 
 void AMMFristStartRoom::BeginPlay()
@@ -73,35 +75,28 @@ void AMMFristStartRoom::BeginPlay()
 	South_Collision->OnComponentBeginOverlap.AddDynamic(this, &AMMFristStartRoom::SouthBeginOverlap);
 	South_Collision->OnComponentEndOverlap.AddDynamic(this, &AMMFristStartRoom::SouthEndOverlap);
 
-	RoomCenter->OnComponentBeginOverlap.AddDynamic(this, &AMMRoomBase::FirstBeginOverlap);
+	RoomCenter->OnComponentBeginOverlap.AddDynamic(this, &AMMRoomBase::RoomBeginOverlap);
 }
 
 void AMMFristStartRoom::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!bMonsterAlive)
+	if (!bDoorRock)
 	{
-		bClear = true;
-	}
-
-	if (bFirstContact && bMonsterAlive)
-	{
-		bNorth_Switch = false;
-		bWest_Switch = false;
-		bEast_Switch = false;
-		bSouth_Switch = false;
-	}
-
-	DoorUpDown(bNorth_Switch, Wall[0]);
-	DoorUpDown(bEast_Switch, Wall[1]);
-	DoorUpDown(bWest_Switch, Wall[2]);
-	DoorUpDown(bSouth_Switch, Wall[3]);
+		CurDoorUp = 0;
+		DoorUpDown(bNorth_Switch, Wall[0]);
+		DoorUpDown(bEast_Switch, Wall[1]);
+		DoorUpDown(bWest_Switch, Wall[2]);
+		DoorUpDown(bSouth_Switch, Wall[3]);
+	}	
 }
 
 void AMMFristStartRoom::NorthBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!bFirstContact)
+	bDoorRock = false;
+
+	if (!bFirstContact || bNorth_Blocking)
 	{
 		bNorth_Switch = true;
 		return;
@@ -120,7 +115,9 @@ void AMMFristStartRoom::NorthEndOverlap(UPrimitiveComponent* HitComp, AActor* Ot
 
 void AMMFristStartRoom::WastBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!bFirstContact)
+	bDoorRock = false;
+
+	if (!bFirstContact || bWest_Blocking)
 	{
 		bWest_Switch = true;
 		return;
@@ -139,7 +136,9 @@ void AMMFristStartRoom::WastEndOverlap(UPrimitiveComponent* HitComp, AActor* Oth
 
 void AMMFristStartRoom::EastBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!bFirstContact)
+	bDoorRock = false;
+
+	if (!bFirstContact || bEast_Blocking)
 	{
 		bEast_Switch = true;
 		return;
@@ -158,7 +157,9 @@ void AMMFristStartRoom::EastEndOverlap(UPrimitiveComponent* HitComp, AActor* Oth
 
 void AMMFristStartRoom::SouthBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!bFirstContact)
+	bDoorRock = false;
+
+	if (!bFirstContact || bSouth_Blocking)
 	{
 		bSouth_Switch = true;
 		return;

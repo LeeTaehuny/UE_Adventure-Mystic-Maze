@@ -15,9 +15,11 @@ AMMRoom_Class_A::AMMRoom_Class_A()
 	}
 	RootComponent = MainFloor;
 
+	// 룸의 중앙 콜리전 밑 부모 설정
 	RoomCenter = CreateDefaultSubobject<UBoxComponent>(TEXT("Center"));
 	RoomCenter->AttachToComponent(MainFloor, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 
+	// 문 생성
 	Wall.Add(CreateDefaultSubobject<UStaticMeshComponent>(TEXT("North Door")));
 	Wall.Add(CreateDefaultSubobject<UStaticMeshComponent>(TEXT("East Door")));
 	Wall.Add(CreateDefaultSubobject<UStaticMeshComponent>(TEXT("West Door")));
@@ -57,6 +59,11 @@ AMMRoom_Class_A::AMMRoom_Class_A()
 	bSouth_Blocking = false;
 	bWest_Blocking = false;
 	bEast_Blocking = false;
+
+	// 문의 개수
+	// 지금 닫힌 문이 맥스도어업 값과 같거나 넘는다면 문 잠금,
+	// 물론 한 번 몬스터가 스폰된 적이 있어야 함
+	MaxDoorUp = 4;
 }
 
 // Called when the game starts or when spawned
@@ -65,6 +72,7 @@ void AMMRoom_Class_A::BeginPlay()
 	Super::BeginPlay();
 	World = GetWorld();
 
+	// 콜리전들에게 이벤트 바인딩
 	North->OnComponentBeginOverlap.AddDynamic(this, &AMMRoom_Class_A::NorthBeginOverlap);
 	North->OnComponentEndOverlap.AddDynamic(this, &AMMRoom_Class_A::NorthEndOverlap);
 	East->OnComponentBeginOverlap.AddDynamic(this, &AMMRoom_Class_A::EastBeginOverlap);
@@ -74,41 +82,38 @@ void AMMRoom_Class_A::BeginPlay()
 	South->OnComponentBeginOverlap.AddDynamic(this, &AMMRoom_Class_A::SouthBeginOverlap);
 	South->OnComponentEndOverlap.AddDynamic(this, &AMMRoom_Class_A::SouthEndOverlap);
 
-	RoomCenter->OnComponentBeginOverlap.AddDynamic(this, &AMMRoomBase::FirstBeginOverlap);
+	RoomCenter->OnComponentBeginOverlap.AddDynamic(this, &AMMRoomBase::RoomBeginOverlap);
 }
 
 // Called every frame
 void AMMRoom_Class_A::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	if (!bMonsterAlive)
-	{
-		bClear = true;
-	}
-
-	if (bFirstContact && bMonsterAlive)
-	{
-		bNorth_Switch = false;
-		bWest_Switch = false;
-		bEast_Switch = false;
-		bSouth_Switch = false;
-	}
 	
-	DoorUpDown(bNorth_Switch, Wall[0]);
-	DoorUpDown(bEast_Switch, Wall[1]);
-	DoorUpDown(bWest_Switch, Wall[2]);
-	DoorUpDown(bSouth_Switch, Wall[3]);
+	// 문의 연산을 줄이기 위한 도어록 uint8 : 1 변수
+	if (!bDoorRock)
+	{
+		CurDoorUp = 0;
+		DoorUpDown(bNorth_Switch, Wall[0]);
+		DoorUpDown(bEast_Switch, Wall[1]);
+		DoorUpDown(bWest_Switch, Wall[2]);
+		DoorUpDown(bSouth_Switch, Wall[3]);
+	}
 }
 
 void AMMRoom_Class_A::NorthBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!bFirstContact)
+	// 문제의 콜리전에 충돌했을 경우 잠금 풀기
+	bDoorRock = false;
+
+	// 아직 몬스터가 스폰되지 않았다면 문 열음
+	if (!bFirstContact || bNorth_Blocking)
 	{
 		bNorth_Switch = true;
 		return;
 	}
 
+	// 해당 룸이 클리어되고 해당 방향에 다른 방이 없을 경우 문을 여는 것과 동시에 전방에 다른 룸 스폰
 	if (bClear && !bNorth_Blocking)
 	{
 		bNorth_Switch = true;
@@ -117,12 +122,15 @@ void AMMRoom_Class_A::NorthBeginOverlap(UPrimitiveComponent* HitComp, AActor* Ot
 }
 void AMMRoom_Class_A::NorthEndOverlap(UPrimitiveComponent* HitComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	// 문 닫기 잠그지는 않음
 	bNorth_Switch = false;
 }
 
 void AMMRoom_Class_A::WastBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!bFirstContact)
+	bDoorRock = false;
+
+	if (!bFirstContact || bWest_Blocking)
 	{
 		bWest_Switch = true;
 		return;
@@ -141,9 +149,12 @@ void AMMRoom_Class_A::WastEndOverlap(UPrimitiveComponent* HitComp, AActor* Other
 
 void AMMRoom_Class_A::EastBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!bEast_Blocking)
+	bDoorRock = false;
+
+	if (!bEast_Blocking || bEast_Blocking)
 	{
 		bEast_Switch = true;
+		return;
 	}
 
 	if (bClear && !bEast_Blocking)
@@ -159,9 +170,12 @@ void AMMRoom_Class_A::EastEndOverlap(UPrimitiveComponent* HitComp, AActor* Other
 
 void AMMRoom_Class_A::SouthBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!bFirstContact)
+	bDoorRock = false;
+
+	if (!bFirstContact || bSouth_Blocking)
 	{
 		bSouth_Switch = true;
+		return;
 	}
 
 	if (bClear && !bSouth_Blocking)

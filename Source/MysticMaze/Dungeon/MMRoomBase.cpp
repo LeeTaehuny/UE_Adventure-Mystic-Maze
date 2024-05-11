@@ -13,14 +13,18 @@ AMMRoomBase::AMMRoomBase()
 	bClear = false;
 	bFirstContact = false;
 	bDoorRock = false;
+
+	CurDoorUp = 0;
 }
 
 bool AMMRoomBase::SpawnNrothRoom(FVector INCenterLocation)
 {
 	if (World)
 	{
+		// 충돌 범위 설정
 		FVector CheckCollision = FVector(150, 150, 500);
 
+		// 1번 위치에 좌표 고정
 		TArray<FHitResult> HitResults;
 		FVector CenterLocation = INCenterLocation + FVector(0, RoomSize, 0);
 		FVector SweepStart = CenterLocation - CheckCollision;
@@ -32,7 +36,6 @@ bool AMMRoomBase::SpawnNrothRoom(FVector INCenterLocation)
 		0 1 2
 			6
 		*/
-
 		bool Location0 = false;
 		bool Location2 = false;
 		bool Location3 = false;
@@ -107,13 +110,21 @@ bool AMMRoomBase::SpawnNrothRoom(FVector INCenterLocation)
 		1 : 2칸 직선
 		2 : 3칸 ㄱ
 		3 : 3칸 ㄴ
+
+		3 4 5
+		0 1 2
+			6
 		*/
 		TArray<int> Excluded_Numbers;
+		// 0번과 2번 위치에 무언가가 있다면 직선 룸, ㄴ룸 스폰 불가로 제외
 		if (!Location0 && !Location2)
 		{
 			Excluded_Numbers.Add(1);
 			Excluded_Numbers.Add(3);
-			if (!Location6)
+
+			// 4번, 5번, 룸이 있을 경우 ㄱ룸 스폰 불가로 제외
+			// 6번의 경우 이미 2번이 제외되었기 때문에 검사할 필요도 없음, 어차피 스폰 불가
+			if (!Location4 || !Location5)
 			{
 				Excluded_Numbers.Add(2);
 			}
@@ -895,32 +906,34 @@ bool AMMRoomBase::SpawnWestRoom(FVector INCenterLocation)
 	return false;
 }
 
-void AMMRoomBase::FirstBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void AMMRoomBase::RoomBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	// 처음 충돌한 것이 플레이어일 경우 bFirstContact 변수를 true로 변경
-	if (!bFirstContact && OtherActor->ActorHasTag(FName("Player")))
-	{
-		bFirstContact = true;
-	}
+	// 룸에 처음 입장했을때 발동, 이곳에서 몬스터 스폰도 진행될 예정
+	bFirstContact = true;
 }
 
 void AMMRoomBase::DoorUpDown(uint8 INSwitch, UStaticMeshComponent* INWallData)
 {
-	if (!bDoorRock)
+	// 문을 내리기 위한 이프문
+	if (INSwitch)
 	{
-		// 문을 내리기 위한 이프문
-		if (INSwitch)
-		{
-			FVector location = INWallData->GetComponentLocation();
-			INWallData->SetWorldLocation(FMath::Lerp(location, FVector(location.X, location.Y, LowZ), Alpha));
-		}
-		// 문을 올리기 위한 이프문
-		else
-		{
-			FVector location = INWallData->GetComponentLocation();
-			INWallData->SetWorldLocation(FMath::Lerp(location, FVector(location.X, location.Y, HighZ), Alpha));
+		FVector location = INWallData->GetComponentLocation();
+		INWallData->SetWorldLocation(FMath::Lerp(location, FVector(location.X, location.Y, LowZ), Alpha));
+	}
+	// 문을 올리기 위한 이프문
+	else
+	{
+		FVector location = INWallData->GetComponentLocation();
+		INWallData->SetWorldLocation(FMath::Lerp(location, FVector(location.X, location.Y, HighZ), Alpha));
 
-			if (location.Z >= HighZ && bMonsterAlive && bFirstContact)
+		// 현재 문의 위치가 (최대높이 - 1) 보다 크거나 같고, 몬스터가 한 번 스폰되었다면
+		if (location.Z >= HighZ - 0.5f && bFirstContact)
+		{
+			// 현재 닫힌 문의 수를 카운트하고
+			CurDoorUp++;
+
+			// 모든 문이 닫혀있다면 문을 잠금
+			if (CurDoorUp >= MaxDoorUp)
 			{
 				bDoorRock = true;
 			}
@@ -928,5 +941,11 @@ void AMMRoomBase::DoorUpDown(uint8 INSwitch, UStaticMeshComponent* INWallData)
 	}
 }
 
-
+void AMMRoomBase::ClearSignal()
+{
+	// 몬스터가 모두 죽었을 경우, 몬스터의 생존 함수를 bool로 변경하고
+	// 클리어 했다는 것을 알림
+	bMonsterAlive = false;
+	bClear = true;
+}
 
