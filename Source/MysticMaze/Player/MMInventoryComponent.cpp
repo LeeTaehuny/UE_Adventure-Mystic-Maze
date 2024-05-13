@@ -204,11 +204,77 @@ bool UMMInventoryComponent::AddItem(FName InItemName, int32 InItemQuantity, int3
 	return bIsResult;
 }
 
+void UMMInventoryComponent::UseItem(int32 InSlotIndex, ESlotType InventoryType)
+{
+	// 해당 인벤토리 슬롯에 아이템이 존재하는지 체크하고 사용하기
+	switch (InventoryType)
+	{
+	case ESlotType::ST_InventoryEquipment:
+		// TODO : 플레이어 무기 장착
+		break;
+
+	case ESlotType::ST_InventoryConsumable:
+		if (ConsumableItems.IsValidIndex(InSlotIndex) && IsValid(ConsumableItems[InSlotIndex]))
+		{
+			// 수량을 줄여줍니다.
+			ConsumableItems[InSlotIndex]->ItemQuantity--;
+			// 아이템을 사용합니다. TODO : 플레이어에서 작업하기
+			UE_LOG(LogTemp, Warning, TEXT("ConsumableItem Use"));
+			// 수량이 0 이하라면 소멸시켜줍니다.
+			if (ConsumableItems[InSlotIndex]->ItemQuantity <= 0)
+			{
+				RemoveItem(InSlotIndex, InventoryType);
+			}
+		}
+		break;
+	}
+}
+
 void UMMInventoryComponent::AddGold(int32 InGold)
 {
 	if (InGold < 0) return;
 
 	CurrentGold += InGold;
+}
+
+void UMMInventoryComponent::SwapItem(int32 InPrevIndex, int32 InCurrentIndex, ESlotType InPrevSlotType, ESlotType InCurrentSlotType)
+{
+	// 슬롯 타입이 같은 경우 교환해주도록 합니다.
+	if (InPrevSlotType == InCurrentSlotType)
+	{
+		switch (InCurrentSlotType)
+		{
+		case ESlotType::ST_InventoryEquipment:
+			// 해당 슬롯의 아이템이 유효한지 체크합니다.
+			if (EquipmentItems.IsValidIndex(InPrevIndex) && EquipmentItems.IsValidIndex(InCurrentIndex))
+			{
+				// 교체 후 이벤트를 호출합니다.
+				EquipmentItems.Swap(InPrevIndex, InCurrentIndex);
+				OnChangeInven.Broadcast();
+			}
+			break;
+
+		case ESlotType::ST_InventoryConsumable:
+			// 해당 슬롯의 아이템이 유효한지 체크합니다.
+			if (ConsumableItems.IsValidIndex(InPrevIndex) && ConsumableItems.IsValidIndex(InCurrentIndex))
+			{
+				// 교체 후 이벤트를 호출합니다.
+				ConsumableItems.Swap(InPrevIndex, InCurrentIndex);
+				OnChangeInven.Broadcast();
+			}
+			break;
+
+		case ESlotType::ST_InventoryOther:
+			// 해당 슬롯의 아이템이 유효한지 체크합니다.
+			if (OtherItems.IsValidIndex(InPrevIndex) && OtherItems.IsValidIndex(InCurrentIndex))
+			{
+				// 교체 후 이벤트를 호출합니다.
+				OtherItems.Swap(InPrevIndex, InCurrentIndex);
+				OnChangeInven.Broadcast();
+			}
+			break;
+		}
+	}
 }
 
 void UMMInventoryComponent::InitInventory()
@@ -226,20 +292,26 @@ void UMMInventoryComponent::InitInventory()
 
 	if (Assets.Num() > 0)
 	{
-		TMap<int32, FName> InventoryWeaponArray;
+		TMap<int32, TPair<FName, int32>> InventoryEquipmentArray;
+		TMap<int32, TPair<FName, int32>> InventoryConstableArray;
 		// TODO : 세이브 파일에서 데이터 읽어오기 (현재는 테스트 용도)
 		{
-			InventoryWeaponArray.Add(1, TEXT("DA_Staff_BluntBell"));
-			InventoryWeaponArray.Add(5, TEXT("DA_Staff_BluntHellHammerCine"));
-			InventoryWeaponArray.Add(3, TEXT("DA_Bow_2"));
+			InventoryEquipmentArray.Add(1, { TEXT("DA_Staff_BluntBell"), 1 });
+			InventoryEquipmentArray.Add(0, { TEXT("DA_Staff_BluntHellHammerCine"), 1 });
+			InventoryEquipmentArray.Add(27, { TEXT("DA_Bow_2"), 1 });
+
+			InventoryConstableArray.Add(1, { TEXT("DA_HP_Potion_Large"), 10 });
+			InventoryConstableArray.Add(0, { TEXT("DA_HP_Potion_Middle"), 62 });
+			InventoryConstableArray.Add(7, { TEXT("DA_MP_Potion_Large"), 7 });
+			InventoryConstableArray.Add(27, { TEXT("DA_MP_Potion_Middle"), 1 });
 		}
 
-		for (const auto& InvItem : InventoryWeaponArray)
+		for (const auto& InvItem : InventoryEquipmentArray)
 		{
 			// 특정 아이템 키 생성
 			FPrimaryAssetId Key;
 			Key.PrimaryAssetType = TEXT("MMItemData");
-			Key.PrimaryAssetName = InvItem.Value;
+			Key.PrimaryAssetName = InvItem.Value.Key;
 
 			if (Assets.Contains(Key))
 			{
@@ -256,13 +328,71 @@ void UMMInventoryComponent::InitInventory()
 					if (ItemData)
 					{
 						NewItem->ItemData = ItemData;
-						NewItem->ItemQuantity = 1;
+						NewItem->ItemQuantity = InvItem.Value.Value;
 						// 아이템 넣기
 						EquipmentItems[InvItem.Key] = NewItem;
 					}
 				}
 			}
 		}
+
+		for (const auto& InvItem : InventoryConstableArray)
+		{
+			// 특정 아이템 키 생성
+			FPrimaryAssetId Key;
+			Key.PrimaryAssetType = TEXT("MMItemData");
+			Key.PrimaryAssetName = InvItem.Value.Key;
+
+			if (Assets.Contains(Key))
+			{
+				// 아이템 생성
+				UMMInventoryItem* NewItem = NewObject<UMMInventoryItem>();
+				if (NewItem)
+				{
+					FSoftObjectPtr AssetPtr(Manager.GetPrimaryAssetPath(Assets.FindByKey(Key)[0]));
+					if (AssetPtr.IsPending())
+					{
+						AssetPtr.LoadSynchronous();
+					}
+					UMMItemData* ItemData = Cast<UMMItemData>(AssetPtr.Get());
+					if (ItemData)
+					{
+						NewItem->ItemData = ItemData;
+						NewItem->ItemQuantity = InvItem.Value.Value;
+						// 아이템 넣기
+						ConsumableItems[InvItem.Key] = NewItem;
+					}
+				}
+			}
+		}
+	}
+}
+
+void UMMInventoryComponent::RemoveItem(int32 InSlotIndex, ESlotType InventoryType)
+{
+	// 해당 인벤토리 슬롯의 유효성을 체크하고 소멸시켜줍니다.
+	switch (InventoryType)
+	{
+	case ESlotType::ST_InventoryEquipment:
+		if (EquipmentItems.IsValidIndex(InSlotIndex) && IsValid(EquipmentItems[InSlotIndex]))
+		{
+			EquipmentItems[InSlotIndex] = nullptr;
+		}
+		break;
+
+	case ESlotType::ST_InventoryConsumable:
+		if (ConsumableItems.IsValidIndex(InSlotIndex) && IsValid(ConsumableItems[InSlotIndex]))
+		{
+			ConsumableItems[InSlotIndex] = nullptr;
+		}
+		break;
+
+	case ESlotType::ST_InventoryOther:
+		if (OtherItems.IsValidIndex(InSlotIndex) && IsValid(OtherItems[InSlotIndex]))
+		{
+			OtherItems[InSlotIndex] = nullptr;
+		}
+		break;
 	}
 }
 

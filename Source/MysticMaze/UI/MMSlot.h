@@ -29,6 +29,10 @@ class MYSTICMAZE_API UMMSlot : public UMMCustomWidget
 
 protected:
 	virtual void NativeConstruct() override;
+
+	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	virtual void NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation)override;
+	virtual bool NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)override;
 	
 public:
 	void Init();
@@ -47,6 +51,10 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Slot")
 	int32 SlotIndex;
+
+	// Drag에 사용될 WidgetClass
+	UPROPERTY(EditAnywhere, Category = "Slot")
+	TSubclassOf<UMMSlot> DragWidgetClass;
 
 protected:
 	UPROPERTY()

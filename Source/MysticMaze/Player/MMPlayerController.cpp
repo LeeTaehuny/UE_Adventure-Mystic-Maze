@@ -6,6 +6,9 @@
 #include "UI/MMInventoryWidget.h"
 #include "Player/MMInventoryComponent.h"
 
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+
 AMMPlayerController::AMMPlayerController()
 {
 	static ConstructorHelpers::FClassFinder<UMMInventoryWidget>InventoryClassRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/MysticMaze/UI/WBP_Inventory.WBP_Inventory_C'"));

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "GameData/MMEnums.h"
 #include "MMInventoryComponent.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FOnChangedInventoryDelegate);
@@ -18,7 +19,7 @@ public:
 	// Sets default values for this component's properties
 	UMMInventoryComponent();
 
-	virtual void InitializeComponent() override;;
+	virtual void InitializeComponent() override;
 
 // Delegate
 public:
@@ -35,10 +36,13 @@ public:
 	FORCEINLINE TArray<TObjectPtr<class UMMInventoryItem>> GetOtherItems() { return OtherItems; }
 
 	bool AddItem(FName InItemName, int32 InItemQuantity, int32& OutItemQuantity);
+	void UseItem(int32 InSlotIndex, ESlotType InventoryType);
 	void AddGold(int32 InGold);
+	void SwapItem(int32 InPrevIndex, int32 InCurrentIndex, ESlotType InPrevSlotType, ESlotType InCurrentSlotType);
 
 protected:
 	void InitInventory();
+	void RemoveItem(int32 InSlotIndex, ESlotType InventoryType);
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	TArray<TObjectPtr<class UMMInventoryItem>> EquipmentItems;

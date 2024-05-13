@@ -6,7 +6,11 @@
 #include "Interface/MMInventoryInterface.h"
 #include "Player/MMInventoryComponent.h"
 #include "Player/MMInventoryItem.h"
+#include "UI/MMDragSlot.h"
 
+#include "GameFramework/Character.h"
+#include "Components/SlateWrapperTypes.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
 
@@ -14,14 +18,135 @@
 void UMMSlot::NativeConstruct()
 {
 	Super::NativeConstruct();
+}
 
-	SlotUpdateActions.Add(ESlotType::ST_InventoryEquipment, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateEquipmentSlot)));
-	SlotUpdateActions.Add(ESlotType::ST_InventoryConsumable, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateConsumableSlot)));
-	SlotUpdateActions.Add(ESlotType::ST_InventoryOther, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateOtherSlot)));
+FReply UMMSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	FEventReply Reply;
+	Reply.NativeReply = Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
+
+	// 우클릭 입력이 들어온 경우
+	if (InMouseEvent.IsMouseButtonDown(EKeys::RightMouseButton))
+	{
+		// 기타 슬롯인 경우 반환
+		if (SlotType == ESlotType::ST_InventoryOther) return Reply.NativeReply;
+
+		switch (SlotType)
+		{
+		case ESlotType::ST_InventoryEquipment:
+			// TODO : 아이템 장착
+			break;
+
+		case ESlotType::ST_InventoryConsumable:
+			// 소비 아이템을 사용합니다.
+			IMMInventoryInterface* InvPlayer = Cast<IMMInventoryInterface>(OwningActor);
+			if (InvPlayer)
+			{
+				InvPlayer->GetInventoryComponent()->UseItem(SlotIndex, SlotType);
+				UpdateSlot();
+			}
+			break;
+		}
+	}
+	// 좌클릭 입력이 들어온 경우
+	else if (InMouseEvent.IsMouseButtonDown(EKeys::LeftMouseButton))
+	{
+		// 정보 체크용 변수
+		bool Success = false;
+
+		// 해당 슬롯에 아이템 정보가 존재하는지 체크합니다.
+		IMMInventoryInterface* InvPlayer = Cast<IMMInventoryInterface>(OwningActor);
+		if (InvPlayer)
+		{
+			switch (SlotType)
+			{
+			case ESlotType::ST_InventoryEquipment:
+				if (IsValid(InvPlayer->GetInventoryComponent()->GetEquipmentItems()[SlotIndex]))
+				{
+					Success = true;
+				}
+				break;
+			case ESlotType::ST_InventoryConsumable:
+				if (IsValid(InvPlayer->GetInventoryComponent()->GetConsumableItems()[SlotIndex]))
+				{
+					Success = true;
+				}
+				break;
+			case ESlotType::ST_InventoryOther:
+				if (IsValid(InvPlayer->GetInventoryComponent()->GetOtherItems()[SlotIndex]))
+				{
+					Success = true;
+				}
+				break;
+			}
+
+			if (Success)
+			{
+				Reply = UWidgetBlueprintLibrary::DetectDragIfPressed(InMouseEvent, this, EKeys::LeftMouseButton);
+			}
+		}	
+	}
+	
+	return Reply.NativeReply;
+}
+
+void UMMSlot::NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation)
+{
+	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
+
+	if (OutOperation == nullptr)
+	{
+		UMMDragSlot* Operation = NewObject<UMMDragSlot>();
+		OutOperation = Operation;
+
+		// 슬롯과 슬롯 타입을 지정합니다.
+		Operation->PrevSlotIndex = SlotIndex;
+		Operation->SlotType = SlotType;
+		
+		// Drag 위젯을 생성합니다.
+		if (DragWidgetClass)
+		{
+			UMMSlot* DragWidget = CreateWidget<UMMSlot>(GetWorld(), DragWidgetClass);
+			if (DragWidget)
+			{
+				// 생성된 위젯을 초기화해줍니다.
+				DragWidget->SlotType = SlotType;
+				DragWidget->SetOwningActor(OwningActor);
+				DragWidget->SlotIndex = SlotIndex;
+				DragWidget->Init();
+
+				Operation->DefaultDragVisual = DragWidget;
+			}
+		}
+	}
+}
+
+bool UMMSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
+{
+	Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
+
+	UMMDragSlot* Operation = Cast<UMMDragSlot>(InOperation);
+
+	// Operation에 저장된 PrevSlotIndex 위치의 아이템을 현재 SlotIndex의 아이템과 교체합니다.
+	if (Operation)
+	{
+		IMMInventoryInterface* InvPlayer = Cast<IMMInventoryInterface>(OwningActor);
+		if (InvPlayer)
+		{
+			InvPlayer->GetInventoryComponent()->SwapItem(Operation->PrevSlotIndex, SlotIndex, Operation->SlotType, SlotType);
+		}
+		return true;
+	}
+
+	return false;
 }
 
 void UMMSlot::Init()
 {
+	SlotUpdateActions.Add(ESlotType::ST_InventoryEquipment, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateEquipmentSlot)));
+	SlotUpdateActions.Add(ESlotType::ST_InventoryConsumable, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateConsumableSlot)));
+	SlotUpdateActions.Add(ESlotType::ST_InventoryOther, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateOtherSlot)));
+
 	UpdateSlot();
 }
 
