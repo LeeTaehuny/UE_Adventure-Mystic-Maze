@@ -16,9 +16,9 @@ AMMRoom_Class_D::AMMRoom_Class_D()
 	RootComponent = MainFloor1;
 
 	RoomCenter = CreateDefaultSubobject<UBoxComponent>(TEXT("Center_0"));
-	RoomCenter->AttachToComponent(MainFloor1, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	RoomCenter->SetupAttachment(MainFloor1);
 	RoomCenter_1 = CreateDefaultSubobject<UBoxComponent>(TEXT("Center_1"));
-	RoomCenter_1->AttachToComponent(MainFloor1, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	RoomCenter_1->SetupAttachment(MainFloor1);
 
 	Wall.Add(CreateDefaultSubobject<UStaticMeshComponent>(TEXT("North_0 Door")));
 	Wall.Add(CreateDefaultSubobject<UStaticMeshComponent>(TEXT("North_1 Door")));
@@ -34,40 +34,40 @@ AMMRoom_Class_D::AMMRoom_Class_D()
 		for (int i = 0; i < Wall.Num(); i++)
 		{
 			Wall[i]->SetStaticMesh(WallMeshRef.Object);
-			Wall[i]->AttachToComponent(MainFloor1, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+			Wall[i]->SetupAttachment(MainFloor1);
 		}
 	}
 
 	North_0 = CreateDefaultSubobject<UBoxComponent>(TEXT("North Collision_0"));
-	North_0->AttachToComponent(Wall[0], FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	North_0->SetupAttachment(Wall[0]);
 	BoxColliders.Add(North_0);
 
 	North_1 = CreateDefaultSubobject<UBoxComponent>(TEXT("North Collision_1"));
-	North_1->AttachToComponent(Wall[1], FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	North_1->SetupAttachment(Wall[1]);
 	BoxColliders.Add(North_1);
 
 	East_0 = CreateDefaultSubobject<UBoxComponent>(TEXT("East Collision_0"));
-	East_0->AttachToComponent(Wall[2], FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	East_0->SetupAttachment(Wall[2]);
 	BoxColliders.Add(East_0);
 
 	East_1 = CreateDefaultSubobject<UBoxComponent>(TEXT("East Collision_1"));
-	East_1->AttachToComponent(Wall[3], FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	East_1->SetupAttachment(Wall[3]);
 	BoxColliders.Add(East_1);
 
 	Weast_0 = CreateDefaultSubobject<UBoxComponent>(TEXT("West Collision_0"));
-	Weast_0->AttachToComponent(Wall[4], FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	Weast_0->SetupAttachment(Wall[4]);
 	BoxColliders.Add(Weast_0);
 
 	Weast_1 = CreateDefaultSubobject<UBoxComponent>(TEXT("West Collision_1"));
-	Weast_1->AttachToComponent(Wall[5], FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	Weast_1->SetupAttachment(Wall[5]);
 	BoxColliders.Add(Weast_1);
 
 	South_0 = CreateDefaultSubobject<UBoxComponent>(TEXT("South Collision_0"));
-	South_0->AttachToComponent(Wall[6], FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	South_0->SetupAttachment(Wall[6]);
 	BoxColliders.Add(South_0);
 
 	South_1 = CreateDefaultSubobject<UBoxComponent>(TEXT("South Collision_1"));
-	South_1->AttachToComponent(Wall[7], FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	South_1->SetupAttachment(Wall[7]);
 	BoxColliders.Add(South_1);
 
 	bNorth_Switch_0 = false;

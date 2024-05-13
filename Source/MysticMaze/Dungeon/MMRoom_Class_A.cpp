@@ -17,7 +17,7 @@ AMMRoom_Class_A::AMMRoom_Class_A()
 
 	// 룸의 중앙 콜리전 밑 부모 설정
 	RoomCenter = CreateDefaultSubobject<UBoxComponent>(TEXT("Center"));
-	RoomCenter->AttachToComponent(MainFloor, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	RoomCenter->SetupAttachment(MainFloor);
 
 	// 문 생성
 	Wall.Add(CreateDefaultSubobject<UStaticMeshComponent>(TEXT("North Door")));
@@ -30,24 +30,24 @@ AMMRoom_Class_A::AMMRoom_Class_A()
 		for (int i = 0; i < Wall.Num(); i++)
 		{
 			Wall[i]->SetStaticMesh(WallMeshRef.Object);
-			Wall[i]->AttachToComponent(MainFloor, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+			Wall[i]->SetupAttachment(MainFloor);
 		}
 	}
 
 	North = CreateDefaultSubobject<UBoxComponent>(TEXT("North Collision"));
-	North->AttachToComponent(Wall[0], FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	North->SetupAttachment(Wall[0]);
 	BoxColliders.Add(North);
 
 	East = CreateDefaultSubobject<UBoxComponent>(TEXT("East Collision"));
-	East->AttachToComponent(Wall[1], FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	East->SetupAttachment(Wall[1]);
 	BoxColliders.Add(East);
 
 	Weast = CreateDefaultSubobject<UBoxComponent>(TEXT("West Collision"));
-	Weast->AttachToComponent(Wall[2], FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	Weast->SetupAttachment(Wall[2]);
 	BoxColliders.Add(Weast);
 
 	South = CreateDefaultSubobject<UBoxComponent>(TEXT("South Collision"));
-	South->AttachToComponent(Wall[3], FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	South->SetupAttachment(Wall[3]);
 	BoxColliders.Add(South);
 
 	bNorth_Switch = false;
