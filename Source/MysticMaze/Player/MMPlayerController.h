@@ -14,4 +14,25 @@ class MYSTICMAZE_API AMMPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 	
+public:
+	AMMPlayerController();
+
+protected:
+	void BeginPlay() override;
+
+public:
+	void ToggleInventoryVisibility();
+	
+
+// Widget Section
+protected:
+	void InitInventoryWidget();
+	void SetUIInputMode();
+	void SetGameInputMode();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Widget)
+	TSubclassOf<class UMMInventoryWidget> InventoryWidgetClass;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Widget)
+	TObjectPtr<class UMMInventoryWidget> InventoryWidget;
 };

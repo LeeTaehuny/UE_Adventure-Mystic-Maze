@@ -19,8 +19,12 @@ protected:
 	virtual void PostInitializeComponents() override;
 
 public:
+	FORCEINLINE int32 GetItemQuantity() { return ItemQuantity; }
+	FORCEINLINE int32 GetGold() { return Gold; }
+	FORCEINLINE FName GetItemName() { return ItemName; }
+
 	// 아이템 박스에 아이템 데이터를 추가하기 위한 함수
-	void AddItemList(TMap<FString, int32> InItemList);
+	void AddItemQuantity(int32 InQuantity);
 	// 아이템 박스에 골드를 추가하기 위한 함수
 	void AddMoney(int32 InMoney);
 
@@ -36,9 +40,13 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = Box)
 	TObjectPtr<class UStaticMeshComponent> Mesh;
 
+private:
 	UPROPERTY(VisibleAnywhere, Category = Item)
-	TMap<TObjectPtr<class UMMItemData>, int32> Items;
+	int32 ItemQuantity;
 
 	UPROPERTY(VisibleAnywhere, Category = Item)
 	int32 Gold;
+
+	UPROPERTY(VisibleAnywhere, Category = Item)
+	FName ItemName;
 };

@@ -9,6 +9,7 @@
 #include "Interface/MMAnimationUpdateInterface.h"
 #include "Interface/MMAnimationWeaponInterface.h"
 #include "Interface/MMPlayerVisualInterface.h"
+#include "Interface/MMInventoryInterface.h"
 #include "GameData/MMEnums.h"
 #include "MMPlayerCharacter.generated.h"
 
@@ -16,7 +17,7 @@
  * 
  */
 UCLASS()
-class MYSTICMAZE_API AMMPlayerCharacter : public AMMCharacterBase, public IMMAnimationAttackInterface, public IMMAnimationUpdateInterface, public IMMAnimationWeaponInterface, public IMMPlayerVisualInterface
+class MYSTICMAZE_API AMMPlayerCharacter : public AMMCharacterBase, public IMMAnimationAttackInterface, public IMMAnimationUpdateInterface, public IMMAnimationWeaponInterface, public IMMPlayerVisualInterface, public IMMInventoryInterface
 {
 	GENERATED_BODY()
 	
@@ -49,6 +50,7 @@ protected:
 	void DashEnd();
 	void RollStart();
 	void RollEnd(class UAnimMontage* Montage, bool IsEnded);
+	void ConvertInventoryVisibility();
 
 	// Basic
 	void BasicMove(const FInputActionValue& Value);
@@ -76,6 +78,12 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_ConvertWeapon;
+
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_PickUp;
+
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_ConvertInventory;
 
 	// InputMappingContext
 	TMap<EClassType, TObjectPtr<class UInputMappingContext>> IMC_Array;
@@ -106,6 +114,9 @@ protected:
 protected:
 	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> RollMontage;
+
+	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> PickUpMontage;
 
 	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
 	TMap<EClassType, TObjectPtr<class UAnimMontage>> ComboMontage;
@@ -193,6 +204,13 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Particle", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UParticleSystem> ChargeParticle;
 
+// Inventory Section
+protected:
+	FORCEINLINE virtual class UMMInventoryComponent* GetInventoryComponent() override { return Inventory; }
+	void PickUp();
+
+	UPROPERTY(VisibleAnywhere, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UMMInventoryComponent> Inventory;
 
 // Member Variable
 protected:
