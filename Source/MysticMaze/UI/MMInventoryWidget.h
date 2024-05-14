@@ -17,6 +17,7 @@ class MYSTICMAZE_API UMMInventoryWidget : public UMMCustomWidget
 	
 protected:
 	virtual void NativeConstruct() override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 public:
 	void Init();
@@ -32,6 +33,15 @@ private:
 
 	UFUNCTION()
 	void SetOtherType();
+
+	UFUNCTION()
+	void MoveStart();
+
+	UFUNCTION()
+	void MoveEnd();
+
+	UFUNCTION()
+	void SortItem();
 
 // Main
 public:
@@ -64,5 +74,11 @@ private:
 	TArray<TObjectPtr<class UMMSlot>> Slots;
 
 	ESlotType InventorySlotType;
-	
+
+	uint8 bIsDragging;
+
+	FVector2D InitialOffset;
+	FVector2D InitialPos;
+
+	TObjectPtr<class UBorder> Border;
 };

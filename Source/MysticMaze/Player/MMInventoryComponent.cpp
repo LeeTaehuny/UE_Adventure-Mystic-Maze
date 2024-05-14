@@ -235,6 +235,7 @@ void UMMInventoryComponent::AddGold(int32 InGold)
 	if (InGold < 0) return;
 
 	CurrentGold += InGold;
+	OnChangeGold.Broadcast();
 }
 
 void UMMInventoryComponent::SwapItem(int32 InPrevIndex, int32 InCurrentIndex, ESlotType InPrevSlotType, ESlotType InCurrentSlotType)
@@ -274,6 +275,94 @@ void UMMInventoryComponent::SwapItem(int32 InPrevIndex, int32 InCurrentIndex, ES
 			}
 			break;
 		}
+	}
+}
+
+void UMMInventoryComponent::SortItem(ESlotType InSlotType)
+{
+	// 슬롯 타입에 따라 정렬합니다.
+	switch (InSlotType)
+	{
+	case ESlotType::ST_InventoryEquipment:
+		Algo::Sort(EquipmentItems,
+			[](const TObjectPtr<UMMInventoryItem>& A, const TObjectPtr<UMMInventoryItem>& B)
+			{
+				// 해당 요소가 nullptr이라면 뒤로 배치합니다
+				if (!IsValid(A) && !IsValid(B))
+					return false;
+				else if (!IsValid(A))
+					return false;
+				else if (!IsValid(B))
+					return true;
+
+				// 동일한 이름의 아이템이라면 수량 순으로 배치합니다.
+				if (A->ItemData->ItemName == B->ItemData->ItemName)
+				{
+					return A->ItemQuantity > B->ItemQuantity;
+				}
+				// 다른 이름의 아이템이라면 아이템 이름 순으로 배치합니다.
+				else
+				{
+					return A->ItemData->ItemName < B->ItemData->ItemName;
+				}
+			}
+		);
+		OnChangeInven.Broadcast();
+		break;
+	
+	case ESlotType::ST_InventoryConsumable:
+		Algo::Sort(ConsumableItems,
+			[](const TObjectPtr<UMMInventoryItem>& A, const TObjectPtr<UMMInventoryItem>& B)
+			{
+				// 해당 요소가 nullptr이라면 뒤로 배치합니다
+				if (!IsValid(A) && !IsValid(B))
+					return false;
+				else if (!IsValid(A))
+					return false;
+				else if (!IsValid(B))
+					return true;
+
+				// 동일한 이름의 아이템이라면 수량 순으로 배치합니다.
+				if (A->ItemData->ItemName == B->ItemData->ItemName)
+				{
+					return A->ItemQuantity > B->ItemQuantity;
+				}
+				// 다른 이름의 아이템이라면 아이템 이름 순으로 배치합니다.
+				else
+				{
+					return A->ItemData->ItemName < B->ItemData->ItemName;
+				}
+			}
+		);
+		OnChangeInven.Broadcast();
+		break;
+	
+	case ESlotType::ST_InventoryOther:
+		Algo::Sort(OtherItems,
+			[](const TObjectPtr<UMMInventoryItem>& A, const TObjectPtr<UMMInventoryItem>& B)
+			{
+				// 해당 요소가 nullptr이라면 뒤로 배치합니다
+				if (!IsValid(A) && !IsValid(B))
+					return false;
+				else if (!IsValid(A))
+					return false;
+				else if (!IsValid(B))
+					return true;
+
+				// 동일한 이름의 아이템이라면 수량 순으로 배치합니다.
+				if (A->ItemData->ItemName == B->ItemData->ItemName)
+				{
+					return A->ItemQuantity > B->ItemQuantity;
+				}
+				// 다른 이름의 아이템이라면 아이템 이름 순으로 배치합니다.
+				else
+				{
+					return A->ItemData->ItemName < B->ItemData->ItemName;
+				}
+			}
+		);
+		OnChangeInven.Broadcast();
+		break;
 	}
 }
 
@@ -395,4 +484,3 @@ void UMMInventoryComponent::RemoveItem(int32 InSlotIndex, ESlotType InventoryTyp
 		break;
 	}
 }
-

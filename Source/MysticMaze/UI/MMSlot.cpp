@@ -3,10 +3,15 @@
 
 #include "UI/MMSlot.h"
 #include "Item/MMItemData.h"
+#include "Item/MMWeaponItemData.h"
+#include "GameData/MMCharacterStat.h"
+#include "GameData/MMEnums.h"
 #include "Interface/MMInventoryInterface.h"
 #include "Player/MMInventoryComponent.h"
 #include "Player/MMInventoryItem.h"
 #include "UI/MMDragSlot.h"
+#include "UI/MMToolTip.h"
+#include "UI/MMEquipmentToolTip.h"
 
 #include "GameFramework/Character.h"
 #include "Components/SlateWrapperTypes.h"
@@ -18,6 +23,14 @@
 void UMMSlot::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+	for (const auto& ToolTipClass : ToolTipClassMap)
+	{
+		if (ToolTipClass.Value)
+		{
+			ToolTipMaps.Add(ToolTipClass.Key, CreateWidget<UMMToolTip>(GetWorld(), ToolTipClass.Value));
+		}
+	}
 }
 
 FReply UMMSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
@@ -179,12 +192,22 @@ void UMMSlot::UpdateEquipmentSlot()
 				// 존재하는 경우 아이템의 텍스쳐와 수량을 반영해주도록 합니다. (장비는 수량 표시 X)
 				IMG_Item->SetBrushFromTexture(InventoryItems[SlotIndex]->ItemData->ItemTexture);
 				TXT_Quantity->SetText(FText::FromString(TEXT("")));
+
+				// SetToolTip
+				if (ToolTipMaps.Contains(ESlotType::ST_InventoryEquipment) && IsValid(ToolTipMaps[SlotType]))
+				{
+					SetEquipmentToolTip(ToolTipMaps[SlotType], InventoryItems[SlotIndex]->ItemData);
+					IMG_Item->SetToolTip(ToolTipMaps[SlotType]);
+				}
 			}
 			else
 			{
 				// 존재하지 않는 경우 빈 칸으로 표시합니다.
 				IMG_Item->SetBrushFromTexture(DefaultTexture);
 				TXT_Quantity->SetText(FText::FromString(TEXT("")));
+
+				// SetToolTip
+				IMG_Item->SetToolTip(nullptr);
 			}
 		}
 	}
@@ -208,12 +231,22 @@ void UMMSlot::UpdateConsumableSlot()
 				// 존재하는 경우 아이템의 텍스쳐와 수량을 반영해주도록 합니다. (소비는 수량 표시 O)
 				IMG_Item->SetBrushFromTexture(InventoryItems[SlotIndex]->ItemData->ItemTexture);
 				TXT_Quantity->SetText(FText::FromString(FString::Printf(TEXT("%d"), InventoryItems[SlotIndex]->ItemQuantity)));
+
+				// SetToolTip
+				if (ToolTipMaps.Contains(ESlotType::ST_InventoryConsumable) && IsValid(ToolTipMaps[SlotType]))
+				{
+					ToolTipMaps[SlotType]->TXT_ItemName->SetText(FText::FromString(InventoryItems[SlotIndex]->ItemData->ItemName));
+					IMG_Item->SetToolTip(ToolTipMaps[SlotType]);
+				}
 			}
 			else
 			{
 				// 존재하지 않는 경우 빈 칸으로 표시합니다.
 				IMG_Item->SetBrushFromTexture(DefaultTexture);
 				TXT_Quantity->SetText(FText::FromString(TEXT("")));
+
+				// SetToolTip
+				IMG_Item->SetToolTip(nullptr);
 			}
 		}
 	}
@@ -237,13 +270,62 @@ void UMMSlot::UpdateOtherSlot()
 				// 존재하는 경우 아이템의 텍스쳐와 수량을 반영해주도록 합니다. (기타는 수량 표시 O)
 				IMG_Item->SetBrushFromTexture(InventoryItems[SlotIndex]->ItemData->ItemTexture);
 				TXT_Quantity->SetText(FText::FromString(FString::Printf(TEXT("%d"), InventoryItems[SlotIndex]->ItemQuantity)));
+			
+				// SetToolTip
+				if (ToolTipMaps.Contains(ESlotType::ST_InventoryOther) && IsValid(ToolTipMaps[SlotType]))
+				{
+					ToolTipMaps[SlotType]->TXT_ItemName->SetText(FText::FromString(InventoryItems[SlotIndex]->ItemData->ItemName));
+					IMG_Item->SetToolTip(ToolTipMaps[SlotType]);
+				}
 			}
 			else
 			{
 				// 존재하지 않는 경우 빈 칸으로 표시합니다.
 				IMG_Item->SetBrushFromTexture(DefaultTexture);
 				TXT_Quantity->SetText(FText::FromString(TEXT("")));
+
+				// SetToolTip
+				IMG_Item->SetToolTip(nullptr);
 			}
 		}
 	}
+}
+
+void UMMSlot::SetEquipmentToolTip(UMMToolTip* EquipmentToolTipWidget, UMMItemData* ItemData)
+{
+	UMMEquipmentToolTip* EquipmentToolTip = Cast<UMMEquipmentToolTip>(EquipmentToolTipWidget);
+	UMMWeaponItemData* WeaponItemData = Cast<UMMWeaponItemData>(ItemData);
+	if (EquipmentToolTip && WeaponItemData)
+	{
+		// 이름 및 설명
+		EquipmentToolTip->TXT_ItemName->SetText(FText::FromString(WeaponItemData->ItemName));
+		EquipmentToolTip->TXT_ItemType->SetText(FText::FromString(TEXT("무기")));
+
+		FString ClassName;
+		switch (WeaponItemData->PurchaseableClass)
+		{
+		case EClassType::CT_Warrior:
+			ClassName = TEXT("전사");
+			break;
+		case EClassType::CT_Archer:
+			ClassName = TEXT("궁수");
+			break;
+		case EClassType::CT_Mage:
+			ClassName = TEXT("마법사");
+			break;
+		}
+		EquipmentToolTip->TXT_WeaponType->SetText(FText::FromString(ClassName));
+
+		// 추가 스탯
+		EquipmentToolTip->TXT_STR->SetText(FText::FromString(FString::Printf(TEXT("%d"), WeaponItemData->WeaponStat.STR)));
+		EquipmentToolTip->TXT_DEX->SetText(FText::FromString(FString::Printf(TEXT("%d"), WeaponItemData->WeaponStat.DEX)));
+		EquipmentToolTip->TXT_CON->SetText(FText::FromString(FString::Printf(TEXT("%d"), WeaponItemData->WeaponStat.CON)));
+		EquipmentToolTip->TXT_INT->SetText(FText::FromString(FString::Printf(TEXT("%d"), WeaponItemData->WeaponStat.INT)));
+
+		// 구매 및 판매 가격
+		EquipmentToolTip->TXT_PurchasePrice->SetText(FText::FromString(FString::Printf(TEXT("%d"), WeaponItemData->ItemPurchasePrice)));
+		EquipmentToolTip->TXT_SalePrice->SetText(FText::FromString(FString::Printf(TEXT("%d"), WeaponItemData->ItemSalePrice)));
+
+		UE_LOG(LogTemp, Warning, TEXT("Setting Weapon ToolTips"));
+ 	}
 }

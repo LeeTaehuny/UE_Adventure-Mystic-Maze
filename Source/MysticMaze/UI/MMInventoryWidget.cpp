@@ -3,15 +3,39 @@
 
 #include "UI/MMInventoryWidget.h"
 #include "Interface/MMInventoryInterface.h"
+#include "Player/MMInventoryComponent.h"
 #include "Blueprint/WidgetTree.h"
 #include "UI/MMSlot.h"
 
 #include "Components/TextBlock.h"
 #include "Components/Button.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
+#include "Blueprint/WidgetTree.h"
+#include "Components/Border.h"
+#include "Components/CanvasPanel.h"
+#include "Components/CanvasPanelSlot.h"
 
 void UMMInventoryWidget::NativeConstruct()
 {
+	Super::NativeConstruct();
+
+	bIsDragging = false;
 	SetType(ESlotType::ST_InventoryEquipment);
+
+	UCanvasPanel* panel = Cast<UCanvasPanel>(WidgetTree->RootWidget);
+	{
+		TArray<UWidget*> widgets = panel->GetAllChildren();
+
+		for (UWidget* widget : widgets)
+		{
+			UBorder* border = Cast<UBorder>(widget);
+			if (border)
+			{
+				Border = border;
+				break;
+			}
+		}
+	}
 
 	if (BTN_Equipment)
 	{
@@ -26,6 +50,41 @@ void UMMInventoryWidget::NativeConstruct()
 	if (BTN_Other)
 	{
 		BTN_Other->OnClicked.AddDynamic(this, &UMMInventoryWidget::SetOtherType);
+	}
+
+	if (BTN_MainButton)
+	{
+		BTN_MainButton->OnPressed.AddDynamic(this, &UMMInventoryWidget::MoveStart);
+		BTN_MainButton->OnReleased.AddDynamic(this, &UMMInventoryWidget::MoveEnd);
+	}
+
+	if (BTN_SortItem)
+	{
+		BTN_SortItem->OnClicked.AddDynamic(this, &UMMInventoryWidget::SortItem);
+	}
+}
+
+void UMMInventoryWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	if (bIsDragging)
+	{
+		FVector2D MousePos = UWidgetLayoutLibrary::GetMousePositionOnViewport(GetWorld());
+
+		float DeltaX = InitialOffset.X - MousePos.X;
+		float DeltaY = InitialOffset.Y - MousePos.Y;
+
+		InitialPos.X += -DeltaX;
+		InitialPos.Y += -DeltaY;
+
+		InitialOffset = MousePos;
+
+		UCanvasPanelSlot* slot = UWidgetLayoutLibrary::SlotAsCanvasSlot(Border);
+		if (slot)
+		{
+			slot->SetPosition(InitialPos);
+		}
 	}
 }
 
@@ -62,6 +121,12 @@ void UMMInventoryWidget::UpdateInventorySlot()
 void UMMInventoryWidget::UpdateInventoryGold()
 {
 	UE_LOG(LogTemp, Warning, TEXT("GoldUpdate"));
+
+	IMMInventoryInterface* InvPlayer = Cast<IMMInventoryInterface>(OwningActor);
+	if (InvPlayer)
+	{
+		TXT_Gold->SetText(FText::FromString(FString::Printf(TEXT("%d"), InvPlayer->GetInventoryComponent()->GetCurrentGold())));
+	}
 }
 
 void UMMInventoryWidget::SetEquipmentType()
@@ -77,6 +142,36 @@ void UMMInventoryWidget::SetConsumableType()
 void UMMInventoryWidget::SetOtherType()
 {
 	SetType(ESlotType::ST_InventoryOther);
+}
+
+void UMMInventoryWidget::MoveStart()
+{
+	bIsDragging = true;
+
+	FVector2D WidgetPos;
+	
+	UCanvasPanelSlot* slot = UWidgetLayoutLibrary::SlotAsCanvasSlot(Border);
+	if (slot)
+	{
+		WidgetPos = slot->GetPosition();
+	}
+
+	InitialOffset = UWidgetLayoutLibrary::GetMousePositionOnViewport(this);
+	InitialPos = WidgetPos;
+}
+
+void UMMInventoryWidget::MoveEnd()
+{
+	bIsDragging = false;
+}
+
+void UMMInventoryWidget::SortItem()
+{
+	IMMInventoryInterface* InvPlayer = Cast<IMMInventoryInterface>(OwningActor);
+	if (InvPlayer)
+	{
+		InvPlayer->GetInventoryComponent()->SortItem(InventorySlotType);
+	}
 }
 
 void UMMInventoryWidget::SetType(ESlotType Type)

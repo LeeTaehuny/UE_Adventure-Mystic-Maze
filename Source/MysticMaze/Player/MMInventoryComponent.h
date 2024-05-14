@@ -34,11 +34,13 @@ public:
 	FORCEINLINE TArray<TObjectPtr<class UMMInventoryItem>> GetEquipmentItems() { return EquipmentItems; }
 	FORCEINLINE TArray<TObjectPtr<class UMMInventoryItem>> GetConsumableItems() { return ConsumableItems; }
 	FORCEINLINE TArray<TObjectPtr<class UMMInventoryItem>> GetOtherItems() { return OtherItems; }
+	FORCEINLINE int32 GetCurrentGold() { return CurrentGold; }
 
 	bool AddItem(FName InItemName, int32 InItemQuantity, int32& OutItemQuantity);
 	void UseItem(int32 InSlotIndex, ESlotType InventoryType);
 	void AddGold(int32 InGold);
 	void SwapItem(int32 InPrevIndex, int32 InCurrentIndex, ESlotType InPrevSlotType, ESlotType InCurrentSlotType);
+	void SortItem(ESlotType InSlotType);
 
 protected:
 	void InitInventory();

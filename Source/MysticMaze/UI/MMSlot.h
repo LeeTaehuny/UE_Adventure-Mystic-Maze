@@ -56,6 +56,14 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Slot")
 	TSubclassOf<UMMSlot> DragWidgetClass;
 
+// ToolTips
+public:
+	UPROPERTY(EditAnywhere, Category = "Slot")
+	TMap<ESlotType, TSubclassOf<class UMMToolTip>> ToolTipClassMap;
+
+	UPROPERTY(VisibleAnywhere, Category = "Slot")
+	TMap<ESlotType, TObjectPtr<class UMMToolTip>> ToolTipMaps;
+
 protected:
 	UPROPERTY()
 	TMap<ESlotType, FUpdateSlotDelegateWrapper> SlotUpdateActions;
@@ -63,6 +71,7 @@ protected:
 	void UpdateEquipmentSlot();
 	void UpdateConsumableSlot();
 	void UpdateOtherSlot();
+	void SetEquipmentToolTip(class UMMToolTip* EquipmentToolTipWidget, class UMMItemData* ItemData);
 
 	UPROPERTY(EditAnywhere, Category = "Slot")
 	TObjectPtr<class UTexture2D> DefaultTexture;
