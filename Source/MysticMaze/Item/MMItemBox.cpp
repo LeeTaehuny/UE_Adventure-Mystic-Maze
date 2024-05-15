@@ -4,7 +4,10 @@
 #include "Item/MMItemBox.h"
 #include "Collision/MMCollision.h"
 #include "Item/MMItemData.h"
+#include "Interface/MMInventoryInterface.h"
+#include "Player/MMInventoryComponent.h"
 
+#include "GameFramework/Character.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 
@@ -71,4 +74,37 @@ void AMMItemBox::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* Other
 	UE_LOG(LogTemp, Warning, TEXT("EndOverlap"));
 
 	// TODO : 플레이어 상호작용 불가능하도록 체크해제
+}
+
+void AMMItemBox::Interaction(ACharacter* PlayerCharacter)
+{
+	if (!PlayerCharacter) return;
+
+	// TODO : 플레이어의 줍기 애니메이션 재생하고 인벤토리에 아이템 넣어주기
+	IMMInventoryInterface* InvPlayer = Cast<IMMInventoryInterface>(PlayerCharacter);
+	if (InvPlayer)
+	{
+		// 줍기 애니메이션 실행
+		PlayerCharacter->GetMesh()->GetAnimInstance()->Montage_Play(InvPlayer->GetPickUpMontage(), 1.5f);
+	
+		// 남은 아이템의 수량을 저장하기 위한 변수
+		int32 TempItemQuantity = 0;
+
+		// 인벤토리에 추가 가능한지 여부 확인하며 인벤토리에 추가하기
+		if (InvPlayer->GetInventoryComponent()->AddItem(ItemName, ItemQuantity, TempItemQuantity))
+		{
+			// 성공적으로 추가한 경우 골드를 인벤토리에 추가하기
+			InvPlayer->GetInventoryComponent()->AddGold(Gold);
+			// 상자 소멸시키기
+			Destroy();
+		}
+		// 인벤토리 공간이 모자라서 추가하지 못한 경우
+		else
+		{
+			// 골드만 인벤토리에 추가하고 아이템 수량 재설정하기
+			InvPlayer->GetInventoryComponent()->AddGold(Gold);
+			Gold = 0;
+			ItemQuantity = TempItemQuantity;
+		}
+	}
 }

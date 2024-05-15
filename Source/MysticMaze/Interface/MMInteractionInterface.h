@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "MMInventoryInterface.generated.h"
+#include "MMInteractionInterface.generated.h"
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
-class UMMInventoryInterface : public UInterface
+class UMMInteractionInterface : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -16,12 +16,11 @@ class UMMInventoryInterface : public UInterface
 /**
  * 
  */
-class MYSTICMAZE_API IMMInventoryInterface
+class MYSTICMAZE_API IMMInteractionInterface
 {
 	GENERATED_BODY()
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual class UMMInventoryComponent* GetInventoryComponent() = 0;
-	virtual class UAnimMontage* GetPickUpMontage() = 0;
+	virtual void Interaction(ACharacter* PlayerCharacter) = 0;
 };

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UI/MMToolTip.h"
+#include "UI/ToolTip/MMToolTip.h"
 #include "MMEquipmentToolTip.generated.h"
 
 /**

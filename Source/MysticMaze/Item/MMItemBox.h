@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Interface/MMInteractionInterface.h"
 #include "MMItemBox.generated.h"
 
 UCLASS()
-class MYSTICMAZE_API AMMItemBox : public AActor
+class MYSTICMAZE_API AMMItemBox : public AActor, public IMMInteractionInterface
 {
 	GENERATED_BODY()
 	
@@ -29,6 +30,9 @@ public:
 	void AddMoney(int32 InMoney);
 
 protected:
+	// 상호작용 함수
+	virtual void Interaction(ACharacter* PlayerCharacter) override;
+
 	UFUNCTION()
 	void OnBeginOverlap(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()

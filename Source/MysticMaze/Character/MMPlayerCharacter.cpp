@@ -10,6 +10,7 @@
 #include "Item/MMBowWeapon.h"
 #include "Player/MMInventoryComponent.h"
 #include "Player/MMPlayerController.h"
+#include "Interface/MMInteractionInterface.h"
 #include "Containers/Map.h"
 
 #include "Components/CapsuleComponent.h"
@@ -112,10 +113,10 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 			IA_ConvertWeapon = IA_ConvertWeaponRef.Object;
 		}
 
-		static ConstructorHelpers::FObjectFinder<UInputAction>IA_PickUpRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_PickUp.IA_PickUp'"));
-		if (IA_PickUpRef.Object)
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_InteractionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_Interaction.IA_Interaction'"));
+		if (IA_InteractionRef.Object)
 		{
-			IA_PickUp = IA_PickUpRef.Object;
+			IA_Interaction = IA_InteractionRef.Object;
 		}
 
 		static ConstructorHelpers::FObjectFinder<UInputAction>IA_ConvertInventoryRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_ConvertInventory.IA_ConvertInventory'"));
@@ -305,7 +306,7 @@ void AMMPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(IA_Dash, ETriggerEvent::Completed, this, &AMMPlayerCharacter::DashEnd);
 	EnhancedInputComponent->BindAction(IA_Roll, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::RollStart);
 	EnhancedInputComponent->BindAction(IA_ConvertWeapon, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertWeapon);
-	EnhancedInputComponent->BindAction(IA_PickUp, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::PickUp);
+	EnhancedInputComponent->BindAction(IA_Interaction, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::Interaction);
 	EnhancedInputComponent->BindAction(IA_ConvertInventory, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertInventoryVisibility);
 	
 	// Warrior
@@ -877,7 +878,7 @@ void AMMPlayerCharacter::ShootArrow()
 	}
 }
 
-void AMMPlayerCharacter::PickUp()
+void AMMPlayerCharacter::Interaction()
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (!AnimInstance) return;
@@ -890,43 +891,27 @@ void AMMPlayerCharacter::PickUp()
 		OverlapResults,
 		GetActorLocation(),
 		FQuat::Identity,
-		CHANNEL_MMPICKUP,
-		FCollisionShape::MakeSphere(90.0f),
+		CHANNEL_MMINTERACTION,
+		FCollisionShape::MakeSphere(100.0f),
 		CollisionQueryParams
 	);
 
 	if (bHasHit)
 	{
-		// 몽타주 재생
-		AnimInstance->Montage_Play(PickUpMontage);
-
+		// 충돌한 물체들을 순회하며 상호작용 합니다.
 		for (const FOverlapResult& Result : OverlapResults)
 		{
-			// 아이템 상자 타입인지 체크하기
-			AMMItemBox* ItemBox = Cast<AMMItemBox>(Result.GetActor());
-			if (ItemBox)
-			{
-				int32 TempQuantity = 0;
-				// 인벤토리에 추가 가능한지 여부 확인하며 인벤토리에 추가하기
-				if (Inventory->AddItem(ItemBox->GetItemName(), ItemBox->GetItemQuantity(), TempQuantity))
-				{
-					// 성공적으로 추가한 경우 골드를 인벤토리에 추가하기
-					Inventory->AddGold(ItemBox->GetGold());
-					ItemBox->Destroy();
-				}
-				else
-				{
-					// 아이템이 남은 경우 골드만 인벤토리에 추가하고, 아이템박스 재설정하기
-					Inventory->AddGold(ItemBox->GetGold());
-					ItemBox->AddMoney(0);
-					ItemBox->AddItemQuantity(TempQuantity);
+			IMMInteractionInterface* InteractionActor = Cast<IMMInteractionInterface>(Result.GetActor());
 
-					// TODO : 아이템 최대치 경고 UI 출력하기
-				}
+			// 상호작용이 가능한 액터라면?
+			if (InteractionActor)
+			{
+				// 상호작용 기능을 수행합니다.
+				InteractionActor->Interaction(this);
 				break;
 			}
 		}
 	}
 
-	DrawDebugSphere(GetWorld(), GetActorLocation(), 90.0f, 16, FColor::Green, false, 1.0f);
+	DrawDebugSphere(GetWorld(), GetActorLocation(), 100.0f, 16, FColor::Green, false, 1.0f);
 }

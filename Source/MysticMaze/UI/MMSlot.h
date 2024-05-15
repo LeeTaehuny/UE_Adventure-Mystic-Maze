@@ -71,7 +71,10 @@ protected:
 	void UpdateEquipmentSlot();
 	void UpdateConsumableSlot();
 	void UpdateOtherSlot();
+	
 	void SetEquipmentToolTip(class UMMToolTip* EquipmentToolTipWidget, class UMMItemData* ItemData);
+	void SetConsumableToolTip(class UMMToolTip* ConsumableToolTipWidget, class UMMItemData* ItemData);
+	void SetOtherToolTip(class UMMToolTip* OtherToolTipWidget, class UMMItemData* ItemData);
 
 	UPROPERTY(EditAnywhere, Category = "Slot")
 	TObjectPtr<class UTexture2D> DefaultTexture;

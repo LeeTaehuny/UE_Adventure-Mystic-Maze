@@ -51,6 +51,7 @@ protected:
 	void RollStart();
 	void RollEnd(class UAnimMontage* Montage, bool IsEnded);
 	void ConvertInventoryVisibility();
+	void Interaction();
 
 	// Basic
 	void BasicMove(const FInputActionValue& Value);
@@ -80,7 +81,7 @@ protected:
 	TObjectPtr<class UInputAction> IA_ConvertWeapon;
 
 	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UInputAction> IA_PickUp;
+	TObjectPtr<class UInputAction> IA_Interaction;
 
 	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_ConvertInventory;
@@ -112,6 +113,8 @@ protected:
 
 // Montage
 protected:
+	FORCEINLINE virtual class UAnimMontage* GetPickUpMontage() override { return PickUpMontage; }
+
 	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> RollMontage;
 
@@ -207,7 +210,6 @@ protected:
 // Inventory Section
 protected:
 	FORCEINLINE virtual class UMMInventoryComponent* GetInventoryComponent() override { return Inventory; }
-	void PickUp();
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UMMInventoryComponent> Inventory;

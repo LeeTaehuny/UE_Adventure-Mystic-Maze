@@ -4,14 +4,19 @@
 #include "UI/MMSlot.h"
 #include "Item/MMItemData.h"
 #include "Item/MMWeaponItemData.h"
+#include "Item/MMPotionItemData.h"
+#include "Item/MMManaStoneItemData.h"
 #include "GameData/MMCharacterStat.h"
 #include "GameData/MMEnums.h"
 #include "Interface/MMInventoryInterface.h"
 #include "Player/MMInventoryComponent.h"
 #include "Player/MMInventoryItem.h"
 #include "UI/MMDragSlot.h"
-#include "UI/MMToolTip.h"
-#include "UI/MMEquipmentToolTip.h"
+
+#include "UI/ToolTip/MMToolTip.h"
+#include "UI/ToolTip/MMEquipmentToolTip.h"
+#include "UI/ToolTip/MMConsumableToolTip.h"
+#include "UI/ToolTip/MMOtherToolTip.h"
 
 #include "GameFramework/Character.h"
 #include "Components/SlateWrapperTypes.h"
@@ -235,7 +240,7 @@ void UMMSlot::UpdateConsumableSlot()
 				// SetToolTip
 				if (ToolTipMaps.Contains(ESlotType::ST_InventoryConsumable) && IsValid(ToolTipMaps[SlotType]))
 				{
-					ToolTipMaps[SlotType]->TXT_ItemName->SetText(FText::FromString(InventoryItems[SlotIndex]->ItemData->ItemName));
+					SetConsumableToolTip(ToolTipMaps[SlotType], InventoryItems[SlotIndex]->ItemData);
 					IMG_Item->SetToolTip(ToolTipMaps[SlotType]);
 				}
 			}
@@ -274,7 +279,7 @@ void UMMSlot::UpdateOtherSlot()
 				// SetToolTip
 				if (ToolTipMaps.Contains(ESlotType::ST_InventoryOther) && IsValid(ToolTipMaps[SlotType]))
 				{
-					ToolTipMaps[SlotType]->TXT_ItemName->SetText(FText::FromString(InventoryItems[SlotIndex]->ItemData->ItemName));
+					SetOtherToolTip(ToolTipMaps[SlotType], InventoryItems[SlotIndex]->ItemData);
 					IMG_Item->SetToolTip(ToolTipMaps[SlotType]);
 				}
 			}
@@ -325,7 +330,45 @@ void UMMSlot::SetEquipmentToolTip(UMMToolTip* EquipmentToolTipWidget, UMMItemDat
 		// 구매 및 판매 가격
 		EquipmentToolTip->TXT_PurchasePrice->SetText(FText::FromString(FString::Printf(TEXT("%d"), WeaponItemData->ItemPurchasePrice)));
 		EquipmentToolTip->TXT_SalePrice->SetText(FText::FromString(FString::Printf(TEXT("%d"), WeaponItemData->ItemSalePrice)));
-
-		UE_LOG(LogTemp, Warning, TEXT("Setting Weapon ToolTips"));
  	}
+}
+
+void UMMSlot::SetConsumableToolTip(UMMToolTip* ConsumableToolTipWidget, UMMItemData* ItemData)
+{
+	UMMConsumableToolTip* ConsumableToolTip = Cast<UMMConsumableToolTip>(ConsumableToolTipWidget);
+	UMMPotionItemData* ConsumeableItemData = Cast<UMMPotionItemData>(ItemData);
+
+	if (ConsumableToolTip && ConsumeableItemData)
+	{
+		// 이름 및 설명
+		ConsumableToolTip->TXT_ItemName->SetText(FText::FromString(ConsumeableItemData->ItemName));
+		ConsumableToolTip->TXT_ItemType->SetText(FText::FromString(TEXT("포션")));
+
+		// 사용 효과
+		switch (ConsumeableItemData->PotionType)
+		{
+		case EPotionType::PT_Hp:
+			ConsumableToolTip->TXT_HpPercent->SetText(FText::FromString(FString::Printf(TEXT("%.1f"), ConsumeableItemData->Percent)));
+			ConsumableToolTip->TXT_MpPercent->SetText(FText::FromString(TEXT("0.0")));
+			break;
+
+		case EPotionType::PT_Mp:
+			ConsumableToolTip->TXT_HpPercent->SetText(FText::FromString(TEXT("0.0")));
+			ConsumableToolTip->TXT_MpPercent->SetText(FText::FromString(FString::Printf(TEXT("%.1f"), ConsumeableItemData->Percent)));
+			break;
+		}
+	}
+}
+
+void UMMSlot::SetOtherToolTip(UMMToolTip* OtherToolTipWidget, UMMItemData* ItemData)
+{
+	UMMOtherToolTip* OtherToolTip = Cast<UMMOtherToolTip>(OtherToolTipWidget);
+	UMMManaStoneItemData* OtherItemData = Cast<UMMManaStoneItemData>(ItemData);
+
+	if (OtherToolTip && OtherItemData)
+	{
+		// 이름 및 설명
+		OtherToolTip->TXT_ItemName->SetText(FText::FromString(OtherItemData->ItemName));
+		OtherToolTip->TXT_ItemType->SetText(FText::FromString(TEXT("마나스톤")));
+	}
 }

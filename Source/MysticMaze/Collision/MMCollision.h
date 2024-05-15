@@ -7,5 +7,5 @@
 #define MMOBSTACLE TEXT("MMObstacle")
 #define MMTRIGGER TEXT("MMTrigger")
 #define CHANNEL_MMACTION ECC_GameTraceChannel2
-#define CHANNEL_MMPICKUP ECC_GameTraceChannel5
+#define CHANNEL_MMINTERACTION ECC_GameTraceChannel5
 #define CHANNEL_VISIBILITY ECollisionChannel::ECC_Visibility
