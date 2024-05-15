@@ -53,4 +53,5 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = Item)
 	FName ItemName;
+	FString HelpText;
 };

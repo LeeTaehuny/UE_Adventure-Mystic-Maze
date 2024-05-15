@@ -22,17 +22,19 @@ protected:
 
 public:
 	void ToggleInventoryVisibility();
+	void ToggleInteractionVisibility(bool InValue);
+	void InteractionWidgetHelpText(FString HelpText);
 	
-
 // Widget Section
 protected:
-	void InitInventoryWidget();
 	void SetUIInputMode();
 	void SetGameInputMode();
 
+	void InitHUDWidget();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Widget)
-	TSubclassOf<class UMMInventoryWidget> InventoryWidgetClass;
+	TSubclassOf<class UMMHUDWidget> HUDWidgetClass;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Widget)
-	TObjectPtr<class UMMInventoryWidget> InventoryWidget;
+	TObjectPtr<class UMMHUDWidget> HUDWidget;
 };

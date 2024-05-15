@@ -17,4 +17,7 @@ class MYSTICMAZE_API UMMOtherToolTip : public UMMToolTip
 public:
 	UPROPERTY(meta = (BindWidget = "true"))
 	TObjectPtr<class UTextBlock> TXT_ItemType;
+
+	UPROPERTY(meta = (BindWidget = "true"))
+	TObjectPtr<class UTextBlock> TXT_SalePrice;
 };

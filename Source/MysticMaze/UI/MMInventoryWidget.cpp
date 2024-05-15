@@ -18,50 +18,6 @@
 void UMMInventoryWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-
-	bIsDragging = false;
-	SetType(ESlotType::ST_InventoryEquipment);
-
-	UCanvasPanel* panel = Cast<UCanvasPanel>(WidgetTree->RootWidget);
-	{
-		TArray<UWidget*> widgets = panel->GetAllChildren();
-
-		for (UWidget* widget : widgets)
-		{
-			UBorder* border = Cast<UBorder>(widget);
-			if (border)
-			{
-				Border = border;
-				break;
-			}
-		}
-	}
-
-	if (BTN_Equipment)
-	{
-		BTN_Equipment->OnClicked.AddDynamic(this, &UMMInventoryWidget::SetEquipmentType);
-	}
-
-	if (BTN_Consumable)
-	{
-		BTN_Consumable->OnClicked.AddDynamic(this, &UMMInventoryWidget::SetConsumableType);
-	}
-
-	if (BTN_Other)
-	{
-		BTN_Other->OnClicked.AddDynamic(this, &UMMInventoryWidget::SetOtherType);
-	}
-
-	if (BTN_MainButton)
-	{
-		BTN_MainButton->OnPressed.AddDynamic(this, &UMMInventoryWidget::MoveStart);
-		BTN_MainButton->OnReleased.AddDynamic(this, &UMMInventoryWidget::MoveEnd);
-	}
-
-	if (BTN_SortItem)
-	{
-		BTN_SortItem->OnClicked.AddDynamic(this, &UMMInventoryWidget::SortItem);
-	}
 }
 
 void UMMInventoryWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -90,6 +46,48 @@ void UMMInventoryWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTi
 
 void UMMInventoryWidget::Init()
 {
+	bIsDragging = false;
+	SetType(ESlotType::ST_InventoryEquipment);
+
+	TArray<UWidget*> TempWidgets;
+	WidgetTree->GetAllWidgets(TempWidgets);
+
+	for (UWidget* widget : TempWidgets)
+	{
+		UBorder* border = Cast<UBorder>(widget);
+		if (border)
+		{
+			Border = border;
+			break;
+		}
+	}
+
+	if (BTN_Equipment)
+	{
+		BTN_Equipment->OnClicked.AddDynamic(this, &UMMInventoryWidget::SetEquipmentType);
+	}
+
+	if (BTN_Consumable)
+	{
+		BTN_Consumable->OnClicked.AddDynamic(this, &UMMInventoryWidget::SetConsumableType);
+	}
+
+	if (BTN_Other)
+	{
+		BTN_Other->OnClicked.AddDynamic(this, &UMMInventoryWidget::SetOtherType);
+	}
+
+	if (BTN_MainButton)
+	{
+		BTN_MainButton->OnPressed.AddDynamic(this, &UMMInventoryWidget::MoveStart);
+		BTN_MainButton->OnReleased.AddDynamic(this, &UMMInventoryWidget::MoveEnd);
+	}
+
+	if (BTN_SortItem)
+	{
+		BTN_SortItem->OnClicked.AddDynamic(this, &UMMInventoryWidget::SortItem);
+	}
+
 	Slots.Init(nullptr, 30);
 
 	TArray<UWidget*> Widgets;

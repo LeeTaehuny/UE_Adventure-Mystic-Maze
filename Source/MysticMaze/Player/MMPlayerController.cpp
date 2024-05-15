@@ -2,69 +2,76 @@
 
 
 #include "Player/MMPlayerController.h"
-#include "Interface/MMInventoryInterface.h"
 #include "UI/MMInventoryWidget.h"
 #include "Player/MMInventoryComponent.h"
-
-#include "GameFramework/Character.h"
-#include "GameFramework/CharacterMovementComponent.h"
+#include "UI/MMHUDWidget.h"
 
 AMMPlayerController::AMMPlayerController()
 {
-	static ConstructorHelpers::FClassFinder<UMMInventoryWidget>InventoryClassRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/MysticMaze/UI/WBP_Inventory.WBP_Inventory_C'"));
-	if (InventoryClassRef.Succeeded())
+	// HUD Widget Class 찾기
+	static ConstructorHelpers::FClassFinder<UMMHUDWidget>HUDWidgetClassRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/MysticMaze/UI/WBP_HUD.WBP_HUD_C'"));
+	if (HUDWidgetClassRef.Succeeded())
 	{
-		InventoryWidgetClass = InventoryClassRef.Class;
+		HUDWidgetClass = HUDWidgetClassRef.Class;
 	}
 }
 
 void AMMPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	InitInventoryWidget();
+
+	InitHUDWidget();
+}
+
+void AMMPlayerController::InitHUDWidget()
+{
+	if (HUDWidgetClass)
+	{
+		HUDWidget = CreateWidget<UMMHUDWidget>(GetWorld(), HUDWidgetClass);
+		if (HUDWidget)
+		{
+			HUDWidget->SetOwningActor(GetPawn());
+			HUDWidget->Init();
+			HUDWidget->AddToViewport();
+		}
+	}
 }
 
 void AMMPlayerController::ToggleInventoryVisibility()
 {
-	if (InventoryWidget->GetVisibility() == ESlateVisibility::Visible)
+	if (HUDWidget)
 	{
-		InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
-		SetGameInputMode();
-	}
-	else
-	{
-		InventoryWidget->SetVisibility(ESlateVisibility::Visible);
-		SetUIInputMode();
+		if (HUDWidget->ToggleInventoryWidget())
+		{
+			// 인벤토리 위젯이 보이는 경우 UI모드로 변경합니다.
+			SetUIInputMode();
+		}
+		else
+		{
+			// 인벤토리 위젯이 안보이는 경우 Game모드로 변경합니다.
+			SetGameInputMode();
+		}
 	}
 }
 
-void AMMPlayerController::InitInventoryWidget()
+void AMMPlayerController::ToggleInteractionVisibility(bool InValue)
 {
-	if (InventoryWidgetClass)
+	if (HUDWidget)
 	{
-		InventoryWidget = CreateWidget<UMMInventoryWidget>(GetWorld(), InventoryWidgetClass);
-		if (InventoryWidget)
-		{
-			IMMInventoryInterface* InventoryPawn = Cast<IMMInventoryInterface>(GetPawn());
-			if (InventoryPawn)
-			{
-				// 인벤토리의 OnChangeInven 델리게이트에 함수 연동
-				InventoryPawn->GetInventoryComponent()->OnChangeInven.AddUObject(InventoryWidget, &UMMInventoryWidget::UpdateInventorySlot);
-				InventoryPawn->GetInventoryComponent()->OnChangeGold.AddUObject(InventoryWidget, &UMMInventoryWidget::UpdateInventoryGold);
-				// 인벤토리 위젯 초기화
-				InventoryWidget->SetOwningActor(GetPawn());
-				InventoryWidget->AddToViewport();
-				InventoryWidget->Init();
-				InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
-			}
-		}
+		HUDWidget->ToggleInteractionWidget(InValue);
+	}
+}
+
+void AMMPlayerController::InteractionWidgetHelpText(FString HelpText)
+{
+	if (HUDWidget)
+	{
+		HUDWidget->InteractionWidgetHelpText(HelpText);
 	}
 }
 
 void AMMPlayerController::SetUIInputMode()
 {
-	// TODO : 더 세밀하게 변경되도록 설정 고치기
 	FInputModeGameAndUI InputModeData;
 	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 	SetInputMode(InputModeData);
@@ -77,4 +84,3 @@ void AMMPlayerController::SetGameInputMode()
 	SetInputMode(InputModeData);
 	bShowMouseCursor = false;
 }
-

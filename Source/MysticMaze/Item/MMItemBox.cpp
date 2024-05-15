@@ -6,6 +6,7 @@
 #include "Item/MMItemData.h"
 #include "Interface/MMInventoryInterface.h"
 #include "Player/MMInventoryComponent.h"
+#include "Player/MMPlayerController.h"
 
 #include "GameFramework/Character.h"
 #include "Components/BoxComponent.h"
@@ -21,7 +22,7 @@ AMMItemBox::AMMItemBox()
 	Mesh->SetupAttachment(Trigger);
 
 	Trigger->SetCollisionProfileName(MMTRIGGER);
-	Trigger->SetBoxExtent(FVector(40.0f, 42.0f, 30.0f));
+	Trigger->SetBoxExtent(FVector(50.0f, 50.0f, 50.0f));
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> BoxMeshRef(TEXT("/Script/Engine.StaticMesh'/Game/MysticMaze/Items/ItemBox/Environment/Props/SM_Env_Breakables_Box1.SM_Env_Breakables_Box1'"));
 	if (BoxMeshRef.Object)
@@ -31,13 +32,12 @@ AMMItemBox::AMMItemBox()
 	Mesh->SetCollisionProfileName(TEXT("NoCollision"));
 
 	ItemName = TEXT("DA_ManaStone");
+	HelpText = TEXT("Press 'F' to pick up the item.");
 }
 
-// Called when the game starts or when spawned
 void AMMItemBox::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void AMMItemBox::PostInitializeComponents()
@@ -64,23 +64,39 @@ void AMMItemBox::AddMoney(int32 InMoney)
 
 void AMMItemBox::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("BeginOverlap"));
+	ACharacter* PlayerCharacter = Cast<ACharacter>(OtherActor);
 
-	// TODO : 플레이어 상호작용 가능하도록 체크
+	if (PlayerCharacter)
+	{
+		// 플레이어 HUD 위젯에 접근하여 InteractionWidget을 활성화 시켜줍니다.
+		AMMPlayerController* PlayerController = Cast<AMMPlayerController>(PlayerCharacter->GetController());
+		if (PlayerController)
+		{
+			PlayerController->InteractionWidgetHelpText(HelpText);
+			PlayerController->ToggleInteractionVisibility(true);
+		}
+	}
 }
 
 void AMMItemBox::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	UE_LOG(LogTemp, Warning, TEXT("EndOverlap"));
+	ACharacter* PlayerCharacter = Cast<ACharacter>(OtherActor);
 
-	// TODO : 플레이어 상호작용 불가능하도록 체크해제
+	if (PlayerCharacter)
+	{
+		// 플레이어 HUD 위젯에 접근하여 InteractionWidget을 비활성화 시켜줍니다.
+		AMMPlayerController* PlayerController = Cast<AMMPlayerController>(PlayerCharacter->GetController());
+		if (PlayerController)
+		{
+			PlayerController->ToggleInteractionVisibility(false);
+		}
+	}
 }
 
 void AMMItemBox::Interaction(ACharacter* PlayerCharacter)
 {
 	if (!PlayerCharacter) return;
 
-	// TODO : 플레이어의 줍기 애니메이션 재생하고 인벤토리에 아이템 넣어주기
 	IMMInventoryInterface* InvPlayer = Cast<IMMInventoryInterface>(PlayerCharacter);
 	if (InvPlayer)
 	{
@@ -95,6 +111,14 @@ void AMMItemBox::Interaction(ACharacter* PlayerCharacter)
 		{
 			// 성공적으로 추가한 경우 골드를 인벤토리에 추가하기
 			InvPlayer->GetInventoryComponent()->AddGold(Gold);
+
+			// 플레이어 HUD 위젯에 접근하여 InteractionWidget을 비활성화 시켜줍니다.
+			AMMPlayerController* PlayerController = Cast<AMMPlayerController>(PlayerCharacter->GetController());
+			if (PlayerController)
+			{
+				PlayerController->ToggleInteractionVisibility(false);
+			}
+
 			// 상자 소멸시키기
 			Destroy();
 		}

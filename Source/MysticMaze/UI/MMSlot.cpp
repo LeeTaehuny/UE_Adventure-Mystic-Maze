@@ -28,14 +28,6 @@
 void UMMSlot::NativeConstruct()
 {
 	Super::NativeConstruct();
-
-	for (const auto& ToolTipClass : ToolTipClassMap)
-	{
-		if (ToolTipClass.Value)
-		{
-			ToolTipMaps.Add(ToolTipClass.Key, CreateWidget<UMMToolTip>(GetWorld(), ToolTipClass.Value));
-		}
-	}
 }
 
 FReply UMMSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
@@ -161,6 +153,14 @@ bool UMMSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& In
 
 void UMMSlot::Init()
 {
+	for (const auto& ToolTipClass : ToolTipClassMap)
+	{
+		if (ToolTipClass.Value)
+		{
+			ToolTipMaps.Add(ToolTipClass.Key, CreateWidget<UMMToolTip>(GetWorld(), ToolTipClass.Value));
+		}
+	}
+
 	SlotUpdateActions.Add(ESlotType::ST_InventoryEquipment, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateEquipmentSlot)));
 	SlotUpdateActions.Add(ESlotType::ST_InventoryConsumable, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateConsumableSlot)));
 	SlotUpdateActions.Add(ESlotType::ST_InventoryOther, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateOtherSlot)));
@@ -357,6 +357,10 @@ void UMMSlot::SetConsumableToolTip(UMMToolTip* ConsumableToolTipWidget, UMMItemD
 			ConsumableToolTip->TXT_MpPercent->SetText(FText::FromString(FString::Printf(TEXT("%.1f"), ConsumeableItemData->Percent)));
 			break;
 		}
+
+		// 구매 및 판매 가격
+		ConsumableToolTip->TXT_PurchasePrice->SetText(FText::FromString(FString::Printf(TEXT("%d"), ConsumeableItemData->ItemPurchasePrice)));
+		ConsumableToolTip->TXT_SalePrice->SetText(FText::FromString(FString::Printf(TEXT("%d"), ConsumeableItemData->ItemSalePrice)));
 	}
 }
 
@@ -370,5 +374,8 @@ void UMMSlot::SetOtherToolTip(UMMToolTip* OtherToolTipWidget, UMMItemData* ItemD
 		// 이름 및 설명
 		OtherToolTip->TXT_ItemName->SetText(FText::FromString(OtherItemData->ItemName));
 		OtherToolTip->TXT_ItemType->SetText(FText::FromString(TEXT("마나스톤")));
+
+		// 판매 가격
+		OtherToolTip->TXT_SalePrice->SetText(FText::FromString(FString::Printf(TEXT("%d"), OtherItemData->ItemSalePrice)));
 	}
 }

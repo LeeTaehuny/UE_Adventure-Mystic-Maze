@@ -23,4 +23,10 @@ public:
 
 	UPROPERTY(meta = (BindWidget = "true"))
 	TObjectPtr<class UTextBlock> TXT_MpPercent;
+
+	UPROPERTY(meta = (BindWidget = "true"))
+	TObjectPtr<class UTextBlock> TXT_PurchasePrice;
+
+	UPROPERTY(meta = (BindWidget = "true"))
+	TObjectPtr<class UTextBlock> TXT_SalePrice;
 };
