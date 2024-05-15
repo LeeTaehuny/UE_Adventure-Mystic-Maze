@@ -7,7 +7,9 @@
 #include "GameData/MMEnums.h"
 #include "MMInventoryComponent.generated.h"
 
+// 인벤토리 내용 변경 델리게이트
 DECLARE_MULTICAST_DELEGATE(FOnChangedInventoryDelegate);
+// 골드 변경 델리게이트
 DECLARE_MULTICAST_DELEGATE(FOnChangedGoldDelegate);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -16,7 +18,6 @@ class MYSTICMAZE_API UMMInventoryComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
 	UMMInventoryComponent();
 
 	virtual void InitializeComponent() override;
@@ -27,40 +28,53 @@ public:
 	FOnChangedGoldDelegate OnChangeGold;
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
 public:
+	// Getter
 	FORCEINLINE TArray<TObjectPtr<class UMMInventoryItem>> GetEquipmentItems() { return EquipmentItems; }
 	FORCEINLINE TArray<TObjectPtr<class UMMInventoryItem>> GetConsumableItems() { return ConsumableItems; }
 	FORCEINLINE TArray<TObjectPtr<class UMMInventoryItem>> GetOtherItems() { return OtherItems; }
 	FORCEINLINE int32 GetCurrentGold() { return CurrentGold; }
 
+	// 아이템 추가
 	bool AddItem(FName InItemName, int32 InItemQuantity, int32& OutItemQuantity);
+	// 아이템 사용
 	void UseItem(int32 InSlotIndex, ESlotType InventoryType);
+	// 골드 추가
 	void AddGold(int32 InGold);
+	// 슬롯 교체
 	void SwapItem(int32 InPrevIndex, int32 InCurrentIndex, ESlotType InPrevSlotType, ESlotType InCurrentSlotType);
+	// 슬롯 정렬
 	void SortItem(ESlotType InSlotType);
 
 protected:
+	// 인벤토리 초기화
 	void InitInventory();
+	// 아이템 삭제
 	void RemoveItem(int32 InSlotIndex, ESlotType InventoryType);
 
+	// 장비
 	UPROPERTY(VisibleAnywhere, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	TArray<TObjectPtr<class UMMInventoryItem>> EquipmentItems;
 
+	// 소비
 	UPROPERTY(VisibleAnywhere, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	TArray<TObjectPtr<class UMMInventoryItem>> ConsumableItems;
 
+	// 기타
 	UPROPERTY(VisibleAnywhere, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	TArray<TObjectPtr<class UMMInventoryItem>> OtherItems;
 
+	// 인벤토리 슬롯의 수
 	UPROPERTY(EditAnywhere, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	int32 MaxInventoryNum;
 
+	// 한 칸에 저장 가능한 아이템 수
 	UPROPERTY(VisibleAnywhere, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	int32 MaxItemNum;
 
+	// 현재 보유한 골드
 	UPROPERTY(EditAnywhere, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	int32 CurrentGold;
 };

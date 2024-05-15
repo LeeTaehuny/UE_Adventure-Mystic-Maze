@@ -209,10 +209,6 @@ void UMMInventoryComponent::UseItem(int32 InSlotIndex, ESlotType InventoryType)
 	// 해당 인벤토리 슬롯에 아이템이 존재하는지 체크하고 사용하기
 	switch (InventoryType)
 	{
-	case ESlotType::ST_InventoryEquipment:
-		// TODO : 플레이어 무기 장착
-		break;
-
 	case ESlotType::ST_InventoryConsumable:
 		if (ConsumableItems.IsValidIndex(InSlotIndex) && IsValid(ConsumableItems[InSlotIndex]))
 		{
@@ -225,6 +221,8 @@ void UMMInventoryComponent::UseItem(int32 InSlotIndex, ESlotType InventoryType)
 			{
 				RemoveItem(InSlotIndex, InventoryType);
 			}
+
+			OnChangeInven.Broadcast();
 		}
 		break;
 	}
