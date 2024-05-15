@@ -4,10 +4,13 @@
 #include "Item/MMItemBox.h"
 #include "Collision/MMCollision.h"
 #include "Item/MMItemData.h"
+#include "Interface/MMInventoryInterface.h"
+#include "Player/MMInventoryComponent.h"
+#include "Player/MMPlayerController.h"
 
+#include "GameFramework/Character.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "Engine/AssetManager.h"
 
 // Sets default values
 AMMItemBox::AMMItemBox()
@@ -19,22 +22,22 @@ AMMItemBox::AMMItemBox()
 	Mesh->SetupAttachment(Trigger);
 
 	Trigger->SetCollisionProfileName(MMTRIGGER);
-	Trigger->SetBoxExtent(FVector(40.0f, 42.0f, 30.0f));
+	Trigger->SetBoxExtent(FVector(50.0f, 50.0f, 50.0f));
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> BoxMeshRef(TEXT("/Script/Engine.StaticMesh'/Game/MysticMaze/Items/ItemBox/Environment/Props/SM_Env_Breakables_Box1.SM_Env_Breakables_Box1'"));
 	if (BoxMeshRef.Object)
 	{
 		Mesh->SetStaticMesh(BoxMeshRef.Object);
 	}
-	Mesh->SetRelativeLocation(FVector(0.0f, -3.5f, -30.0f));
 	Mesh->SetCollisionProfileName(TEXT("NoCollision"));
+
+	ItemName = TEXT("DA_ManaStone");
+	HelpText = TEXT("Press 'F' to pick up the item.");
 }
 
-// Called when the game starts or when spawned
 void AMMItemBox::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void AMMItemBox::PostInitializeComponents()
@@ -45,52 +48,11 @@ void AMMItemBox::PostInitializeComponents()
 	Trigger->OnComponentEndOverlap.AddDynamic(this, &AMMItemBox::OnEndOverlap);
 }
 
-void AMMItemBox::AddItemList(TMap<FString, int32> InItemList)
+void AMMItemBox::AddItemQuantity(int32 InQuantity)
 {
-	// 애셋 매니저 생성
-	UAssetManager& Manager = UAssetManager::Get();
+	if (InQuantity < 1) return;
 
-	// 애셋 아이디 리스트 받아오기
-	TArray<FPrimaryAssetId> Assets;
-	// * 태그 정보를 넘겨줘서 동일한 태그를 가진 애셋들의 목록을 배열로 반환받음
-	Manager.GetPrimaryAssetIdList(TEXT("MMItemData"), Assets);
-
-	// 받아온 목록이 존재한다면?
-	if (0 < Assets.Num())
-	{
-		// 애셋 맵 생성
-		TMap<FString, FPrimaryAssetId> AssetMap;
-		
-		// 애셋 리스트를 맵에 추가
-		for (FPrimaryAssetId AssetId : Assets)
-		{
-			FString AssetName = AssetId.PrimaryAssetName.ToString();
-			AssetMap.Add(AssetName, AssetId);
-		}
-
-		// InItemNames에 있는 애셋들을 찾아서 처리
-		for (const auto& InItem : InItemList)
-		{
-			if (AssetMap.Find(InItem.Key))
-			{
-				FSoftObjectPtr AssetPtr(Manager.GetPrimaryAssetPath(AssetMap[InItem.Key]));
-				if (AssetPtr.IsPending())
-				{
-					AssetPtr.LoadSynchronous();
-				}
-
-				if (AssetPtr.Get())
-				{
-					// 아이템 목록에 추가
-					Items.Add(TPair<UMMItemData*, int32>(Cast<UMMItemData>(AssetPtr.Get()), InItem.Value));
-				}
-				else
-				{
-					UE_LOG(LogTemp, Warning, TEXT("Item Add Error"));
-				}
-			}
-		}
-	}
+	ItemQuantity = InQuantity;
 }
 
 void AMMItemBox::AddMoney(int32 InMoney)
@@ -102,14 +64,71 @@ void AMMItemBox::AddMoney(int32 InMoney)
 
 void AMMItemBox::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("BeginOverlap"));
+	ACharacter* PlayerCharacter = Cast<ACharacter>(OtherActor);
 
-	// TODO : 플레이어 상호작용 가능하도록 체크
+	if (PlayerCharacter)
+	{
+		// 플레이어 HUD 위젯에 접근하여 InteractionWidget을 활성화 시켜줍니다.
+		AMMPlayerController* PlayerController = Cast<AMMPlayerController>(PlayerCharacter->GetController());
+		if (PlayerController)
+		{
+			PlayerController->InteractionWidgetHelpText(HelpText);
+			PlayerController->ToggleInteractionVisibility(true);
+		}
+	}
 }
 
 void AMMItemBox::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	UE_LOG(LogTemp, Warning, TEXT("EndOverlap"));
+	ACharacter* PlayerCharacter = Cast<ACharacter>(OtherActor);
 
-	// TODO : 플레이어 상호작용 불가능하도록 체크해제
+	if (PlayerCharacter)
+	{
+		// 플레이어 HUD 위젯에 접근하여 InteractionWidget을 비활성화 시켜줍니다.
+		AMMPlayerController* PlayerController = Cast<AMMPlayerController>(PlayerCharacter->GetController());
+		if (PlayerController)
+		{
+			PlayerController->ToggleInteractionVisibility(false);
+		}
+	}
+}
+
+void AMMItemBox::Interaction(ACharacter* PlayerCharacter)
+{
+	if (!PlayerCharacter) return;
+
+	IMMInventoryInterface* InvPlayer = Cast<IMMInventoryInterface>(PlayerCharacter);
+	if (InvPlayer)
+	{
+		// 줍기 애니메이션 실행
+		PlayerCharacter->GetMesh()->GetAnimInstance()->Montage_Play(InvPlayer->GetPickUpMontage(), 1.5f);
+	
+		// 남은 아이템의 수량을 저장하기 위한 변수
+		int32 TempItemQuantity = 0;
+
+		// 인벤토리에 추가 가능한지 여부 확인하며 인벤토리에 추가하기
+		if (InvPlayer->GetInventoryComponent()->AddItem(ItemName, ItemQuantity, TempItemQuantity))
+		{
+			// 성공적으로 추가한 경우 골드를 인벤토리에 추가하기
+			InvPlayer->GetInventoryComponent()->AddGold(Gold);
+
+			// 플레이어 HUD 위젯에 접근하여 InteractionWidget을 비활성화 시켜줍니다.
+			AMMPlayerController* PlayerController = Cast<AMMPlayerController>(PlayerCharacter->GetController());
+			if (PlayerController)
+			{
+				PlayerController->ToggleInteractionVisibility(false);
+			}
+
+			// 상자 소멸시키기
+			Destroy();
+		}
+		// 인벤토리 공간이 모자라서 추가하지 못한 경우
+		else
+		{
+			// 골드만 인벤토리에 추가하고 아이템 수량 재설정하기
+			InvPlayer->GetInventoryComponent()->AddGold(Gold);
+			Gold = 0;
+			ItemQuantity = TempItemQuantity;
+		}
+	}
 }

@@ -4,9 +4,13 @@
 #include "Character/MMPlayerCharacter.h"
 #include "MMComboActionData.h"
 #include "Collision/MMCollision.h"
+#include "Item/MMItemBox.h"
 #include "Item/MMWeapon.h"
 #include "Item/MMSwordWeapon.h"
 #include "Item/MMBowWeapon.h"
+#include "Player/MMInventoryComponent.h"
+#include "Player/MMPlayerController.h"
+#include "Interface/MMInteractionInterface.h"
 #include "Containers/Map.h"
 
 #include "Components/CapsuleComponent.h"
@@ -109,6 +113,18 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 			IA_ConvertWeapon = IA_ConvertWeaponRef.Object;
 		}
 
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_InteractionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_Interaction.IA_Interaction'"));
+		if (IA_InteractionRef.Object)
+		{
+			IA_Interaction = IA_InteractionRef.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_ConvertInventoryRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_ConvertInventory.IA_ConvertInventory'"));
+		if (IA_ConvertInventoryRef.Object)
+		{
+			IA_ConvertInventory = IA_ConvertInventoryRef.Object;
+		}
+
 		// Basic Input
 		static ConstructorHelpers::FObjectFinder<UInputMappingContext>IMC_BasicRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/MysticMaze/Player/Control/IMC_BasicPlayer.IMC_BasicPlayer'"));
 		if (IMC_BasicRef.Object)
@@ -208,6 +224,11 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 			ChargeParticleSystemComponent->Template = ChargeParticleRef.Object;
 		}
 	}
+
+	// etc. Component
+	{
+		Inventory = CreateDefaultSubobject<UMMInventoryComponent>(TEXT("Inventory"));
+	}
 }
 
 void AMMPlayerCharacter::BeginPlay()
@@ -233,17 +254,15 @@ void AMMPlayerCharacter::BeginPlay()
 	//}
 
 	// TEST
-	//AMMItemBox* ItemBox = GetWorld()->SpawnActorDeferred<AMMItemBox>(AMMItemBox::StaticClass(), GetActorTransform());
-	//if (ItemBox)
-	//{
-	//	TMap<FString, int32> ItemList;
-	//	ItemList.Add(TPair<FString, int32>(TEXT("DA_HP_Potion_Large"), 10));
-	//	ItemList.Add(TPair<FString, int32>(TEXT("DA_MP_Potion_Large"), 3));
-	//	ItemList.Add(TPair<FString, int32>(TEXT("DA_Bow_2"), 5));
-	//	ItemBox->AddItemList(ItemList);
-	//	ItemBox->AddMoney(1000);
-	//	ItemBox->FinishSpawning(GetActorTransform());
-	//}
+	FTransform SpawnTransform;
+	SpawnTransform.SetLocation(GetActorLocation() - GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+	AMMItemBox* ItemBox = GetWorld()->SpawnActorDeferred<AMMItemBox>(AMMItemBox::StaticClass(), SpawnTransform);
+	if (ItemBox)
+	{
+		ItemBox->AddItemQuantity(50);
+		ItemBox->AddMoney(1000);
+		ItemBox->FinishSpawning(SpawnTransform);
+	}
 }
 
 void AMMPlayerCharacter::Tick(float DeltaSeconds)
@@ -287,7 +306,9 @@ void AMMPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(IA_Dash, ETriggerEvent::Completed, this, &AMMPlayerCharacter::DashEnd);
 	EnhancedInputComponent->BindAction(IA_Roll, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::RollStart);
 	EnhancedInputComponent->BindAction(IA_ConvertWeapon, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertWeapon);
-
+	EnhancedInputComponent->BindAction(IA_Interaction, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::Interaction);
+	EnhancedInputComponent->BindAction(IA_ConvertInventory, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertInventoryVisibility);
+	
 	// Warrior
 	EnhancedInputComponent->BindAction(IA_WarriorGuard, ETriggerEvent::Started, this, &AMMPlayerCharacter::GuardStart);
 	EnhancedInputComponent->BindAction(IA_WarriorGuard, ETriggerEvent::Completed, this, &AMMPlayerCharacter::GuardEnd);
@@ -346,6 +367,16 @@ void AMMPlayerCharacter::RollEnd(class UAnimMontage* Montage, bool IsEnded)
 {
 	// Roll UnCheck
 	bIsRoll = false;
+}
+
+void AMMPlayerCharacter::ConvertInventoryVisibility()
+{
+	// 플레이어 컨트롤러의 토글 인벤토리 함수 호출
+	AMMPlayerController* PlayerController = Cast<AMMPlayerController>(GetController());
+	if (PlayerController)
+	{
+		PlayerController->ToggleInventoryVisibility();
+	}
 }
 
 void AMMPlayerCharacter::BasicMove(const FInputActionValue& Value)
@@ -845,4 +876,42 @@ void AMMPlayerCharacter::ShootArrow()
 			BowWeapon->ShootArrow();
 		}
 	}
+}
+
+void AMMPlayerCharacter::Interaction()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (!AnimInstance) return;
+	if (AnimInstance->Montage_IsPlaying(PickUpMontage)) return;
+
+	TArray<FOverlapResult> OverlapResults;
+	FCollisionQueryParams CollisionQueryParams;
+
+	bool bHasHit = GetWorld()->OverlapMultiByChannel(
+		OverlapResults,
+		GetActorLocation(),
+		FQuat::Identity,
+		CHANNEL_MMINTERACTION,
+		FCollisionShape::MakeSphere(100.0f),
+		CollisionQueryParams
+	);
+
+	if (bHasHit)
+	{
+		// 충돌한 물체들을 순회하며 상호작용 합니다.
+		for (const FOverlapResult& Result : OverlapResults)
+		{
+			IMMInteractionInterface* InteractionActor = Cast<IMMInteractionInterface>(Result.GetActor());
+
+			// 상호작용이 가능한 액터라면?
+			if (InteractionActor)
+			{
+				// 상호작용 기능을 수행합니다.
+				InteractionActor->Interaction(this);
+				break;
+			}
+		}
+	}
+
+	DrawDebugSphere(GetWorld(), GetActorLocation(), 100.0f, 16, FColor::Green, false, 1.0f);
 }

@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/MMStatComponent.h"
+#include "Player/MMStatComponent.h"
 
 // Sets default values for this component's properties
 UMMStatComponent::UMMStatComponent()
