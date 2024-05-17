@@ -8,16 +8,17 @@
 #include "Interface/MMAnimationAttackInterface.h"
 #include "Interface/MMAnimationUpdateInterface.h"
 #include "Interface/MMAnimationWeaponInterface.h"
+#include "Interface/MMPlayerClassInterface.h"
 #include "Interface/MMPlayerVisualInterface.h"
 #include "Interface/MMInventoryInterface.h"
-#include "GameData/MMEnums.h"
 #include "MMPlayerCharacter.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class MYSTICMAZE_API AMMPlayerCharacter : public AMMCharacterBase, public IMMAnimationAttackInterface, public IMMAnimationUpdateInterface, public IMMAnimationWeaponInterface, public IMMPlayerVisualInterface, public IMMInventoryInterface
+class MYSTICMAZE_API AMMPlayerCharacter : public AMMCharacterBase, public IMMAnimationAttackInterface, public IMMAnimationUpdateInterface, public IMMAnimationWeaponInterface, public IMMPlayerVisualInterface, public IMMInventoryInterface,
+	public IMMPlayerClassInterface
 {
 	GENERATED_BODY()
 	
@@ -27,6 +28,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaSeconds) override;
 
 public:
@@ -162,7 +164,7 @@ protected:
 // Character Class Section
 protected:
 	FORCEINLINE virtual EClassType GetClassType() override { return ClassType; };
-
+	FORCEINLINE virtual void SetClass(EClassType Class) override { ClassType = Class; }
 	void ChangeClass(EClassType Class);
 
 	EClassType ClassType;
@@ -213,6 +215,10 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UMMInventoryComponent> Inventory;
+
+// Stat Section
+protected:
+	void ApplyMovementSpeed(float MovementSpeed);
 
 // Member Variable
 protected:

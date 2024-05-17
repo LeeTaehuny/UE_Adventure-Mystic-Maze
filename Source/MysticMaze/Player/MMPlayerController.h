@@ -21,15 +21,14 @@ protected:
 	void BeginPlay() override;
 
 public:
-	void ToggleInventoryVisibility();
-	void ToggleInteractionVisibility(bool InValue);
-	void InteractionWidgetHelpText(FString HelpText);
-	
-// Widget Section
-protected:
+	FORCEINLINE class UMMHUDWidget* GetHUDWidget() { return HUDWidget; }
+
 	void SetUIInputMode();
 	void SetGameInputMode();
 
+	
+// Widget Section
+protected:
 	void InitHUDWidget();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Widget)

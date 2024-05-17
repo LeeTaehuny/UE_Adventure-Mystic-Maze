@@ -21,6 +21,9 @@ public:
 	UPROPERTY(meta = (BindWidget = "true"))
 	TObjectPtr<class UMMInteractionWidget> InteractionWidget;
 
+	UPROPERTY(meta = (BindWidget = "true"))
+	TObjectPtr<class UMMPlayerStatusBarWidget> PlayerStatusBarWidget;
+
 public:
 	void Init();
 

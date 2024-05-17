@@ -4,7 +4,6 @@
 #include "UI/MMInventoryWidget.h"
 #include "Interface/MMInventoryInterface.h"
 #include "Player/MMInventoryComponent.h"
-#include "Blueprint/WidgetTree.h"
 #include "UI/MMSlot.h"
 
 #include "Components/TextBlock.h"

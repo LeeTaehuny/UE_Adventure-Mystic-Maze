@@ -12,6 +12,8 @@
 #include "Player/MMPlayerController.h"
 #include "Interface/MMInteractionInterface.h"
 #include "Containers/Map.h"
+#include "UI/MMHUDWidget.h"
+#include "Player/MMStatComponent.h"
 
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
@@ -30,6 +32,7 @@
 
 AMMPlayerCharacter::AMMPlayerCharacter()
 {
+	// Tick 활성화
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Member Variable 초기화
@@ -85,10 +88,10 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 	{
 		SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 		SpringArm->SetupAttachment(RootComponent);
-		SpringArm->TargetArmLength = 500.0f;
+		SpringArm->TargetArmLength = 800.0f;
 
 		Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-		Camera->SetRelativeLocation(FVector(0.0f, 0.0f, 150.0f));
+		Camera->SetRelativeLocation(FVector(0.0f, 0.0f, 100.0f));
 		Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 	}
 
@@ -231,12 +234,23 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 	}
 }
 
+
+void AMMPlayerCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	// 델리게이트 연동
+	Stat->OnMovementSpeedChanged.AddUObject(this, &AMMPlayerCharacter::ApplyMovementSpeed);
+
+	// 파티클 비활성화
+	ChargeParticleSystemComponent->SetActive(false);
+}
+
 void AMMPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ChangeClass(EClassType::CT_Beginner);
-	ChargeParticleSystemComponent->SetActive(false);
+	ChangeClass(ClassType);
 
 	// TEST
 	//{
@@ -286,7 +300,6 @@ void AMMPlayerCharacter::Tick(float DeltaSeconds)
 	if (bIsCharge)
 	{
 		ChargeNum = FMath::Clamp(ChargeNum + (DeltaSeconds * 0.3f), 1.0f, 2.0f);
-		UE_LOG(LogTemp, Warning, TEXT("%f"), ChargeNum);
 	}
 }
 
@@ -371,11 +384,23 @@ void AMMPlayerCharacter::RollEnd(class UAnimMontage* Montage, bool IsEnded)
 
 void AMMPlayerCharacter::ConvertInventoryVisibility()
 {
-	// 플레이어 컨트롤러의 토글 인벤토리 함수 호출
+	// 인벤토리 On/Off 설정
 	AMMPlayerController* PlayerController = Cast<AMMPlayerController>(GetController());
 	if (PlayerController)
 	{
-		PlayerController->ToggleInventoryVisibility();
+		if (PlayerController->GetHUDWidget())
+		{
+			if (PlayerController->GetHUDWidget()->ToggleInventoryWidget())
+			{
+				// 인벤토리 위젯이 보이는 경우 UI모드로 변경합니다.
+				PlayerController->SetUIInputMode();
+			}
+			else
+			{
+				// 인벤토리 위젯이 안보이는 경우 Game모드로 변경합니다.
+				PlayerController->SetGameInputMode();
+			}
+		}
 	}
 }
 
@@ -751,8 +776,8 @@ void AMMPlayerCharacter::ReleaseArrow()
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 
 	// 카메라 설정
-	Camera->SetRelativeLocation(FVector(0.0f, 0.0f, 150.0f));
-	SpringArm->TargetArmLength = 500.0f;
+	Camera->SetRelativeLocation(FVector(0.0f, 0.0f, 100.0f));
+	SpringArm->TargetArmLength = 800.0f;
 }
 
 void AMMPlayerCharacter::SaveStart()
@@ -876,6 +901,25 @@ void AMMPlayerCharacter::ShootArrow()
 			BowWeapon->ShootArrow();
 		}
 	}
+}
+
+void AMMPlayerCharacter::ApplyMovementSpeed(float MovementSpeed)
+{
+	// 이동속도 설정
+	WalkSpeed += MovementSpeed - 600;
+	RunSpeed += MovementSpeed - 600;
+
+	// 이동속도 적용
+	if (bIsDash)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = RunSpeed;
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("SetSpeed, %f, %f"), WalkSpeed, RunSpeed);
 }
 
 void AMMPlayerCharacter::Interaction()

@@ -18,6 +18,7 @@ UMMInventoryComponent::UMMInventoryComponent()
 	EquipmentItems.Init(nullptr, MaxInventoryNum);
 	ConsumableItems.Init(nullptr, MaxInventoryNum);
 	OtherItems.Init(nullptr, MaxInventoryNum);
+	PotionQuickSlots.Init(nullptr, 2);
 }
 
 void UMMInventoryComponent::InitializeComponent()
@@ -223,6 +224,7 @@ void UMMInventoryComponent::UseItem(int32 InSlotIndex, ESlotType InventoryType)
 			}
 
 			OnChangeInven.Broadcast();
+			OnChangedPotionSlot.Broadcast();
 		}
 		break;
 	}
@@ -361,6 +363,18 @@ void UMMInventoryComponent::SortItem(ESlotType InSlotType)
 		);
 		OnChangeInven.Broadcast();
 		break;
+	}
+}
+
+void UMMInventoryComponent::SetQuickSlot(ESlotType InPrevSlotType, int32 InPrevIndex, int32 InCurrentIndex)
+{
+	if (InPrevSlotType == ESlotType::ST_InventoryConsumable)
+	{
+		if (ConsumableItems.IsValidIndex(InPrevIndex) && IsValid(ConsumableItems[InPrevIndex]) && PotionQuickSlots.IsValidIndex(InCurrentIndex))
+		{
+			PotionQuickSlots[InCurrentIndex] = ConsumableItems[InPrevIndex];
+			OnChangedPotionSlot.Broadcast();
+		}
 	}
 }
 

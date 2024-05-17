@@ -4,6 +4,7 @@
 #include "UI/MMHUDWidget.h"
 #include "UI/MMInventoryWidget.h"
 #include "UI/MMInteractionWidget.h"
+#include "UI/MMPlayerStatusBarWidget.h"
 #include "Interface/MMInventoryInterface.h"
 #include "Player/MMInventoryComponent.h"
 
@@ -30,7 +31,20 @@ void UMMHUDWidget::Init()
 	{
 		InteractionWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
-		
+	
+	if (PlayerStatusBarWidget)
+	{
+		IMMInventoryInterface* InventoryPawn = Cast<IMMInventoryInterface>(OwningActor);
+		if (InventoryPawn)
+		{
+			// 인벤토리의 OnChangedPotionSlot 델리게이트에 함수 연동
+			InventoryPawn->GetInventoryComponent()->OnChangedPotionSlot.AddUObject(PlayerStatusBarWidget, &UMMPlayerStatusBarWidget::UpdatePotionSlot);
+
+			// 플레이어 스테이터스바 위젯 초기화
+			PlayerStatusBarWidget->SetOwningActor(OwningActor);
+			PlayerStatusBarWidget->Init();
+		}
+	}
 }
 
 bool UMMHUDWidget::ToggleInventoryWidget()

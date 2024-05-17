@@ -11,6 +11,8 @@
 DECLARE_MULTICAST_DELEGATE(FOnChangedInventoryDelegate);
 // 골드 변경 델리게이트
 DECLARE_MULTICAST_DELEGATE(FOnChangedGoldDelegate);
+// 퀵슬롯(포션) 변경 델리게이트
+DECLARE_MULTICAST_DELEGATE(FOnChangedPotionSlotDelegate);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class MYSTICMAZE_API UMMInventoryComponent : public UActorComponent
@@ -26,6 +28,7 @@ public:
 public:
 	FOnChangedInventoryDelegate OnChangeInven;
 	FOnChangedGoldDelegate OnChangeGold;
+	FOnChangedPotionSlotDelegate OnChangedPotionSlot;
 
 protected:
 	virtual void BeginPlay() override;
@@ -35,6 +38,7 @@ public:
 	FORCEINLINE TArray<TObjectPtr<class UMMInventoryItem>> GetEquipmentItems() { return EquipmentItems; }
 	FORCEINLINE TArray<TObjectPtr<class UMMInventoryItem>> GetConsumableItems() { return ConsumableItems; }
 	FORCEINLINE TArray<TObjectPtr<class UMMInventoryItem>> GetOtherItems() { return OtherItems; }
+	FORCEINLINE TArray<TObjectPtr<class UMMInventoryItem>>& GetPotionQuickSlots() { return PotionQuickSlots; }
 	FORCEINLINE int32 GetCurrentGold() { return CurrentGold; }
 
 	// 아이템 추가
@@ -48,6 +52,10 @@ public:
 	// 슬롯 정렬
 	void SortItem(ESlotType InSlotType);
 
+	// 퀵슬롯 등록
+	void SetQuickSlot(ESlotType InPrevSlotType, int32 InPrevIndex, int32 InCurrentIndex);
+
+// Inventory Section
 protected:
 	// 인벤토리 초기화
 	void InitInventory();
@@ -77,4 +85,9 @@ protected:
 	// 현재 보유한 골드
 	UPROPERTY(EditAnywhere, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	int32 CurrentGold;
+
+// QuickSlot Section
+protected:
+	UPROPERTY(VisibleAnywhere, Category = "QuickSlot", meta = (AllowPrivateAccess = "true"))
+	TArray<TObjectPtr<class UMMInventoryItem>> PotionQuickSlots;
 };

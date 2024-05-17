@@ -37,39 +37,6 @@ void AMMPlayerController::InitHUDWidget()
 	}
 }
 
-void AMMPlayerController::ToggleInventoryVisibility()
-{
-	if (HUDWidget)
-	{
-		if (HUDWidget->ToggleInventoryWidget())
-		{
-			// 인벤토리 위젯이 보이는 경우 UI모드로 변경합니다.
-			SetUIInputMode();
-		}
-		else
-		{
-			// 인벤토리 위젯이 안보이는 경우 Game모드로 변경합니다.
-			SetGameInputMode();
-		}
-	}
-}
-
-void AMMPlayerController::ToggleInteractionVisibility(bool InValue)
-{
-	if (HUDWidget)
-	{
-		HUDWidget->ToggleInteractionWidget(InValue);
-	}
-}
-
-void AMMPlayerController::InteractionWidgetHelpText(FString HelpText)
-{
-	if (HUDWidget)
-	{
-		HUDWidget->InteractionWidgetHelpText(HelpText);
-	}
-}
-
 void AMMPlayerController::SetUIInputMode()
 {
 	FInputModeGameAndUI InputModeData;
