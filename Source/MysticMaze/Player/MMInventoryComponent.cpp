@@ -262,7 +262,7 @@ void UMMInventoryComponent::UseItem(int32 InSlotIndex, ESlotType InventoryType)
 			{
 				if (IsValid(ConsumableItems[ItemIndex]))
 				{
-					if (Item->ItemData->ItemName == PotionQuickSlots[InSlotIndex]->ItemData->ItemName)
+					if (Item->ItemData == PotionQuickSlots[InSlotIndex]->ItemData)
 					{
 						ConsumableItemIndex = ItemIndex;
 						break;

@@ -13,7 +13,16 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(FOnHpChangedDelegate, float /* CurrentHp */
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnMpChangedDelegate, float /* CurrentMp */, float /* MaxMp */);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnExpChangedDelegate, float /* CurrentMp */, float /* MaxExp */);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnMovementSpeedChangedDelegate, float /* MovementSpeed */);
-DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnStatChangedDelegate, const FMMCharacterStat& /* Base Stat */, const FMMCharacterStat& /* Modifier Stat */, const FMMCharacterStat& /* Weapon Stat */);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnStatChangedDelegate, const FMMCharacterStat& /* Total Stat */);
+
+UENUM(BlueprintType)
+enum class EStatusType : uint8
+{
+	ST_STR, // 힘
+	ST_DEX, // 민첩
+	ST_CON, // 체력
+	ST_INT, // 지력
+};
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class MYSTICMAZE_API UMMStatComponent : public UActorComponent
@@ -37,6 +46,8 @@ public:
 	// 마나 회복
 	void HealMp(float InHealPercent);
 
+	// 스탯 업그레이드
+	void UpgradeStat(EStatusType Type);
 
 protected:
 	virtual void BeginPlay() override;
@@ -60,7 +71,7 @@ public:
 
 // Getter
 public:
-	FORCEINLINE float GetCurrentLevel() { return CurrentLevel; }
+	FORCEINLINE int32 GetCurrentLevel() { return CurrentLevel; }
 	FORCEINLINE float GetMaxExp() { return MaxExp; }
 	FORCEINLINE float GetCurrentExp() { return CurrentExp; }
 	FORCEINLINE float GetMaxHp() { return MaxHp; }
@@ -72,6 +83,8 @@ public:
 	FORCEINLINE float GetMovementSpeed() { return MovementSpeed; }
 	FORCEINLINE float GetAttackSpeed() { return AttackSpeed; }
 	FORCEINLINE float GetCriticalHitRate() { return CriticalHitRate; }
+	FORCEINLINE int32 GetAvailableStatPoint() { return AvailableStatPoint; }
+	FORCEINLINE FMMCharacterStat GetTotalStat() { return TotalStat; }
 
 // Basic Status (STR, DEX, CON, INT)
 protected:
@@ -99,7 +112,7 @@ protected:
 protected:
 	// 현재 레벨
 	UPROPERTY(VisibleAnywhere, Category = "DetailStatus", Meta = (AllowPrivateAccess = "true"))
-	float CurrentLevel;
+	int32 CurrentLevel;
 
 	// 최대 경험치
 	UPROPERTY(VisibleAnywhere, Category = "DetailStatus", Meta = (AllowPrivateAccess = "true"))

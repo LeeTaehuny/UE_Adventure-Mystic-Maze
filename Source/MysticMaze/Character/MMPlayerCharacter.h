@@ -54,6 +54,7 @@ protected:
 	void RollStart();
 	void RollEnd(class UAnimMontage* Montage, bool IsEnded);
 	void ConvertInventoryVisibility();
+	void ConvertStatusVisibility();
 	void Interaction();
 	void UseQuickSlot(int32 InNum);
 
@@ -89,6 +90,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_ConvertInventory;
+
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_ConvertStatus;
 
 	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_QuickSlot1;

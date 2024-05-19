@@ -35,10 +35,6 @@ void UMMStatComponent::Init()
 		SetHp(MaxHp);
 		SetMp(MaxMp);
 		SetExp(CurrentExp);
-
-		// TEST
-		SetHp(100);
-		SetMp(100);
 	}
 }
 
@@ -170,7 +166,7 @@ void UMMStatComponent::UpdateDetailStatus()
 
 	// 이벤트 발생
 	OnMovementSpeedChanged.Broadcast(MovementSpeed);
-	OnStatChanged.Broadcast(BaseStat, ModifierStat, WeaponStat);
+	OnStatChanged.Broadcast(TotalStat);
 	OnHpChanged.Broadcast(CurrentHp, MaxHp);
 	OnMpChanged.Broadcast(CurrentMp, MaxMp);
 }
@@ -214,6 +210,39 @@ void UMMStatComponent::HealMp(float InHealPercent)
 	// 마나를 더해줍니다.
 	CurrentMp = FMath::Clamp(CurrentMp + HealAmount, 0, MaxMp);
 	OnMpChanged.Broadcast(CurrentMp, MaxMp);
+}
+
+void UMMStatComponent::UpgradeStat(EStatusType Type)
+{
+	// 잔여 포인트가 존재하는 경우
+	if (AvailableStatPoint > 0)
+	{
+		// 타입에 따라 스탯을 강화합니다.
+		switch (Type)
+		{
+		case EStatusType::ST_STR:
+			ModifierStat.STR++;
+			break;
+
+		case EStatusType::ST_DEX:
+			ModifierStat.DEX++;
+			break;
+
+		case EStatusType::ST_CON:
+			ModifierStat.CON++;
+			break;
+
+		case EStatusType::ST_INT:
+			ModifierStat.INT++;
+			break;
+		}
+
+		// 잔여 포인트를 차감합니다.
+		AvailableStatPoint--;
+
+		// 스탯을 적용합니다.
+		UpdateDetailStatus();
+	}
 }
 
 void UMMStatComponent::SetLevel(int32 InLevel)

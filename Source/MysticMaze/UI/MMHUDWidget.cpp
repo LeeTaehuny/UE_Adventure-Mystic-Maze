@@ -4,6 +4,7 @@
 #include "UI/MMHUDWidget.h"
 #include "UI/MMInventoryWidget.h"
 #include "UI/MMInteractionWidget.h"
+#include "UI/MMStatusWidget.h"
 #include "UI/MMPlayerStatusBarWidget.h"
 #include "Interface/MMInventoryInterface.h"
 #include "Interface/MMStatusInterface.h"
@@ -30,10 +31,23 @@ void UMMHUDWidget::Init()
 		}
 	}
 		
-
 	if (InteractionWidget)
 	{
 		InteractionWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+
+	if (PlayerStatusWidget)
+	{
+		if (StatusPawn)
+		{
+			// 이벤트 바인딩
+			StatusPawn->GetStatComponent()->OnStatChanged.AddUObject(PlayerStatusWidget, &UMMStatusWidget::UpdateStat);
+
+			// 스테이터스 위젯 초기화
+			PlayerStatusWidget->SetOwningActor(OwningActor);
+			PlayerStatusWidget->Init();
+			PlayerStatusWidget->SetVisibility(ESlateVisibility::Hidden);
+		}
 	}
 	
 	if (PlayerStatusBarWidget)
@@ -53,21 +67,48 @@ void UMMHUDWidget::Init()
 			PlayerStatusBarWidget->Init();
 		}
 	}
+
+	// 모든 비트를 끈 상태로 시작
+	VisibilityFlag = static_cast<uint8>(EWidgetFlags::None);
 }
 
-bool UMMHUDWidget::ToggleInventoryWidget()
+void UMMHUDWidget::ToggleInventoryWidget()
 {
-	if (!InventoryWidget) return false;
+	if (!InventoryWidget) return;
 
 	if (InventoryWidget->GetVisibility() == ESlateVisibility::Visible)
 	{
 		InventoryWidget->SetVisibility(ESlateVisibility::Hidden);
-		return false;
+
+		// INVENTORY 위젯을 껐다고 표시합니다.
+		VisibilityFlag &= ~static_cast<uint8>(EWidgetFlags::INVENTORY);
 	}
 	else
 	{
 		InventoryWidget->SetVisibility(ESlateVisibility::Visible);
-		return true;
+
+		// INVENTORY 위젯을 켰다고 표시합니다.
+		VisibilityFlag |= static_cast<uint8>(EWidgetFlags::INVENTORY);
+	}
+}
+
+void UMMHUDWidget::ToggleStatusWidget()
+{
+	if (!PlayerStatusWidget) return;
+
+	if (PlayerStatusWidget->GetVisibility() == ESlateVisibility::Visible)
+	{
+		PlayerStatusWidget->SetVisibility(ESlateVisibility::Hidden);
+
+		// STATUS 위젯을 껐다고 표시합니다.
+		VisibilityFlag &= ~static_cast<uint8>(EWidgetFlags::STATUS);
+	}
+	else
+	{
+		PlayerStatusWidget->SetVisibility(ESlateVisibility::Visible);
+
+		// STATUS 위젯을 켰다고 표시합니다.
+		VisibilityFlag |= static_cast<uint8>(EWidgetFlags::STATUS);
 	}
 }
 

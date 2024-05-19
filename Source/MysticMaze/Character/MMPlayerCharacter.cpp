@@ -128,6 +128,12 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 			IA_ConvertInventory = IA_ConvertInventoryRef.Object;
 		}
 
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_ConvertStatusRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_ConvertStatus.IA_ConvertStatus'"));
+		if (IA_ConvertStatusRef.Object)
+		{
+			IA_ConvertStatus = IA_ConvertStatusRef.Object;
+		}
+
 		static ConstructorHelpers::FObjectFinder<UInputAction>IA_QuickSlot1Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_QuickSlot1.IA_QuickSlot1'"));
 		if (IA_QuickSlot1Ref.Object)
 		{
@@ -359,6 +365,7 @@ void AMMPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(IA_ConvertWeapon, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertWeapon);
 	EnhancedInputComponent->BindAction(IA_Interaction, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::Interaction);
 	EnhancedInputComponent->BindAction(IA_ConvertInventory, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertInventoryVisibility);
+	EnhancedInputComponent->BindAction(IA_ConvertStatus, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertStatusVisibility);
 	
 	EnhancedInputComponent->BindAction(IA_QuickSlot1, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 1);
 	EnhancedInputComponent->BindAction(IA_QuickSlot2, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 2);
@@ -435,14 +442,44 @@ void AMMPlayerCharacter::ConvertInventoryVisibility()
 	{
 		if (PlayerController->GetHUDWidget())
 		{
-			if (PlayerController->GetHUDWidget()->ToggleInventoryWidget())
+			// 인벤토리 위젯 토글 함수를 호출합니다.
+			PlayerController->GetHUDWidget()->ToggleInventoryWidget();
+
+			// 현재 활성화된 위젯에 대한 비트플래그를 확인하여 모드를 변경해주도록 합니다.
+			if (PlayerController->GetHUDWidget()->GetIsVisibility())
 			{
-				// 인벤토리 위젯이 보이는 경우 UI모드로 변경합니다.
+				// 활성화된 위젯이 있으므로 UI모드로 설정합니다.
 				PlayerController->SetUIInputMode();
 			}
 			else
 			{
-				// 인벤토리 위젯이 안보이는 경우 Game모드로 변경합니다.
+				// 활성화된 위젯이 없으므로 UI모드로 설정합니다.
+				PlayerController->SetGameInputMode();
+			}
+		}
+	}
+}
+
+void AMMPlayerCharacter::ConvertStatusVisibility()
+{
+	// 스테이터스 On/Off 설정
+	AMMPlayerController* PlayerController = Cast<AMMPlayerController>(GetController());
+	if (PlayerController)
+	{
+		if (PlayerController->GetHUDWidget())
+		{
+			// 스테이터스 위젯 토글 함수를 호출합니다.
+			PlayerController->GetHUDWidget()->ToggleStatusWidget();
+
+			// 현재 활성화된 위젯에 대한 비트플래그를 확인하여 모드를 변경해주도록 합니다.
+			if (PlayerController->GetHUDWidget()->GetIsVisibility())
+			{
+				// 활성화된 위젯이 있으므로 UI모드로 설정합니다.
+				PlayerController->SetUIInputMode();
+			}
+			else
+			{
+				// 활성화된 위젯이 없으므로 UI모드로 설정합니다.
 				PlayerController->SetGameInputMode();
 			}
 		}

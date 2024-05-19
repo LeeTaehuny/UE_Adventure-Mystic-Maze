@@ -93,6 +93,7 @@ void UMMPlayerStatusBarWidget::UpdateHpBar(float CurrentHp, float MaxHp)
 {
 	TXT_MaxHp->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), MaxHp)));
 	TXT_CurrentHp->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), CurrentHp)));
+	TXT_HpPercent->SetText(FText::FromString(FString::Printf(TEXT("%.0f%%"), (CurrentHp / MaxHp) * 100)));
 	PB_HpBar->SetPercent(CurrentHp / MaxHp);
 }
 
@@ -100,6 +101,7 @@ void UMMPlayerStatusBarWidget::UpdateMpBar(float CurrentMp, float MaxMp)
 {
 	TXT_MaxMp->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), MaxMp)));
 	TXT_CurrentMp->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), CurrentMp)));
+	TXT_MpPercent->SetText(FText::FromString(FString::Printf(TEXT("%.0f%%"), (CurrentMp / MaxMp) * 100)));
 	PB_MpBar->SetPercent(CurrentMp / MaxMp);
 }
 
