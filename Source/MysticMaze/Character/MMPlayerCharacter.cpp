@@ -128,6 +128,42 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 			IA_ConvertInventory = IA_ConvertInventoryRef.Object;
 		}
 
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_QuickSlot1Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_QuickSlot1.IA_QuickSlot1'"));
+		if (IA_QuickSlot1Ref.Object)
+		{
+			IA_QuickSlot1 = IA_QuickSlot1Ref.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_QuickSlot2Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_QuickSlot2.IA_QuickSlot2'"));
+		if (IA_QuickSlot2Ref.Object)
+		{
+			IA_QuickSlot2 = IA_QuickSlot2Ref.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_QuickSlot3Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_QuickSlot3.IA_QuickSlot3'"));
+		if (IA_QuickSlot3Ref.Object)
+		{
+			IA_QuickSlot3 = IA_QuickSlot3Ref.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_QuickSlot4Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_QuickSlot4.IA_QuickSlot4'"));
+		if (IA_QuickSlot4Ref.Object)
+		{
+			IA_QuickSlot4 = IA_QuickSlot4Ref.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_QuickSlot5Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_QuickSlot5.IA_QuickSlot5'"));
+		if (IA_QuickSlot5Ref.Object)
+		{
+			IA_QuickSlot5 = IA_QuickSlot5Ref.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_QuickSlot6Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_QuickSlot6.IA_QuickSlot6'"));
+		if (IA_QuickSlot6Ref.Object)
+		{
+			IA_QuickSlot6 = IA_QuickSlot6Ref.Object;
+		}
+
 		// Basic Input
 		static ConstructorHelpers::FObjectFinder<UInputMappingContext>IMC_BasicRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/MysticMaze/Player/Control/IMC_BasicPlayer.IMC_BasicPlayer'"));
 		if (IMC_BasicRef.Object)
@@ -241,6 +277,8 @@ void AMMPlayerCharacter::PostInitializeComponents()
 
 	// 델리게이트 연동
 	Stat->OnMovementSpeedChanged.AddUObject(this, &AMMPlayerCharacter::ApplyMovementSpeed);
+	// 스탯 컴포넌트 초기화
+	Stat->Init();
 
 	// 파티클 비활성화
 	ChargeParticleSystemComponent->SetActive(false);
@@ -321,6 +359,13 @@ void AMMPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(IA_ConvertWeapon, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertWeapon);
 	EnhancedInputComponent->BindAction(IA_Interaction, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::Interaction);
 	EnhancedInputComponent->BindAction(IA_ConvertInventory, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertInventoryVisibility);
+	
+	EnhancedInputComponent->BindAction(IA_QuickSlot1, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 1);
+	EnhancedInputComponent->BindAction(IA_QuickSlot2, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 2);
+	EnhancedInputComponent->BindAction(IA_QuickSlot3, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 3);
+	EnhancedInputComponent->BindAction(IA_QuickSlot4, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 4);
+	EnhancedInputComponent->BindAction(IA_QuickSlot5, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 5);
+	EnhancedInputComponent->BindAction(IA_QuickSlot6, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 6);
 	
 	// Warrior
 	EnhancedInputComponent->BindAction(IA_WarriorGuard, ETriggerEvent::Started, this, &AMMPlayerCharacter::GuardStart);
@@ -958,4 +1003,26 @@ void AMMPlayerCharacter::Interaction()
 	}
 
 	DrawDebugSphere(GetWorld(), GetActorLocation(), 100.0f, 16, FColor::Green, false, 1.0f);
+}
+
+void AMMPlayerCharacter::UseQuickSlot(int32 InNum)
+{
+	switch (InNum)
+	{
+	case 1:
+		break;
+	case 2:
+		break;
+	case 3:
+		break;
+	case 4:
+		break;
+	case 5:
+		Inventory->UseItem(0, ESlotType::ST_PotionSlot);
+		break;
+
+	case 6:
+		Inventory->UseItem(1, ESlotType::ST_PotionSlot);
+		break;
+	}
 }

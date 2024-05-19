@@ -8,7 +8,10 @@
 #include "GameData/MMEnums.h"
 #include "MMStatComponent.generated.h"
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnHpChangedDelegate, float /* CurrentHp */);
+DECLARE_MULTICAST_DELEGATE(FOnHpZeroDelegate);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnHpChangedDelegate, float /* CurrentHp */, float /* MaxHp */);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnMpChangedDelegate, float /* CurrentMp */, float /* MaxMp */);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnExpChangedDelegate, float /* CurrentMp */, float /* MaxExp */);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnMovementSpeedChangedDelegate, float /* MovementSpeed */);
 DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnStatChangedDelegate, const FMMCharacterStat& /* Base Stat */, const FMMCharacterStat& /* Modifier Stat */, const FMMCharacterStat& /* Weapon Stat */);
 
@@ -22,24 +25,53 @@ public:
 	UMMStatComponent();
 
 public:
+	void Init();
 	void SetLevel(int32 InLevel);
 	void UpdateDetailStatus();
 
+	// 데미지 적용
+	float ApplyDamage(float InDamage);
+
+	// 체력 회복
+	void HealHp(float InHealPercent);
+	// 마나 회복
+	void HealMp(float InHealPercent);
+
+
 protected:
 	virtual void BeginPlay() override;
-	virtual void InitializeComponent() override;
 
 protected:
 	void InitPlayerStatus();
 	void InitMonsterStatus(int32 InLevel);
 
 	void SetHp(float NewHp);
+	void SetMp(float NewMp);
+	void SetExp(float NewExp);
 
 // Delegate
 public:
+	FOnHpZeroDelegate OnHpZero;
 	FOnStatChangedDelegate OnStatChanged;
 	FOnHpChangedDelegate OnHpChanged;
+	FOnMpChangedDelegate OnMpChanged;
+	FOnMpChangedDelegate OnExpChanged;
 	FOnMovementSpeedChangedDelegate OnMovementSpeedChanged;
+
+// Getter
+public:
+	FORCEINLINE float GetCurrentLevel() { return CurrentLevel; }
+	FORCEINLINE float GetMaxExp() { return MaxExp; }
+	FORCEINLINE float GetCurrentExp() { return CurrentExp; }
+	FORCEINLINE float GetMaxHp() { return MaxHp; }
+	FORCEINLINE float GetCurrentHp() { return CurrentHp; }
+	FORCEINLINE float GetMaxMp() { return MaxMp; }
+	FORCEINLINE float GetCurrentMp() { return CurrentMp; }
+	FORCEINLINE float GetAttackDamage() { return AttackDamage; }
+	FORCEINLINE float GetDefense() { return Defense; }
+	FORCEINLINE float GetMovementSpeed() { return MovementSpeed; }
+	FORCEINLINE float GetAttackSpeed() { return AttackSpeed; }
+	FORCEINLINE float GetCriticalHitRate() { return CriticalHitRate; }
 
 // Basic Status (STR, DEX, CON, INT)
 protected:
@@ -68,6 +100,14 @@ protected:
 	// 현재 레벨
 	UPROPERTY(VisibleAnywhere, Category = "DetailStatus", Meta = (AllowPrivateAccess = "true"))
 	float CurrentLevel;
+
+	// 최대 경험치
+	UPROPERTY(VisibleAnywhere, Category = "DetailStatus", Meta = (AllowPrivateAccess = "true"))
+	float MaxExp;
+
+	// 현재 경험치
+	UPROPERTY(VisibleAnywhere, Category = "DetailStatus", Meta = (AllowPrivateAccess = "true"))
+	float CurrentExp;
 
 	// 최대 체력
 	UPROPERTY(Transient, VisibleAnywhere, Category = "DetailStatus", Meta = (AllowPrivateAccess = "true"))
@@ -106,7 +146,6 @@ protected:
 	float CriticalHitRate;
 
 private:
-	int32 CurrentExp;
 	float MaxAdditiveMovementSpeed;
 	float MaxAdditiveAttackSpeed;
 	float MaxAdditiveCriticalHitRate;

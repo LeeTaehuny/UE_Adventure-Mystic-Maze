@@ -3,7 +3,10 @@
 
 #include "Player/MMInventoryComponent.h"
 #include "Player/MMInventoryItem.h"
+#include "Player/MMStatComponent.h"
 #include "Item/MMItemData.h"
+#include "Item/MMPotionItemData.h"
+#include "Interface/MMStatusInterface.h"
 
 #include "Engine/AssetManager.h"
 
@@ -213,14 +216,96 @@ void UMMInventoryComponent::UseItem(int32 InSlotIndex, ESlotType InventoryType)
 	case ESlotType::ST_InventoryConsumable:
 		if (ConsumableItems.IsValidIndex(InSlotIndex) && IsValid(ConsumableItems[InSlotIndex]))
 		{
-			// 수량을 줄여줍니다.
-			ConsumableItems[InSlotIndex]->ItemQuantity--;
-			// 아이템을 사용합니다. TODO : 플레이어에서 작업하기
-			UE_LOG(LogTemp, Warning, TEXT("ConsumableItem Use"));
-			// 수량이 0 이하라면 소멸시켜줍니다.
-			if (ConsumableItems[InSlotIndex]->ItemQuantity <= 0)
+			// 아이템이 포션인지 체크합니다.
+			UMMPotionItemData* PotionData = Cast<UMMPotionItemData>(ConsumableItems[InSlotIndex]->ItemData);
+			if (PotionData)
 			{
-				RemoveItem(InSlotIndex, InventoryType);
+				// 수량을 줄여줍니다.
+				ConsumableItems[InSlotIndex]->ItemQuantity--;
+				// 아이템을 사용합니다.
+				IMMStatusInterface* StatusPawn = Cast<IMMStatusInterface>(GetOwner());
+
+				if (StatusPawn)
+				{
+					switch (PotionData->PotionType)
+					{
+					case EPotionType::PT_Hp:
+						StatusPawn->GetStatComponent()->HealHp(PotionData->Percent);
+						break;
+
+					case EPotionType::PT_Mp:
+						StatusPawn->GetStatComponent()->HealMp(PotionData->Percent);
+						break;
+					}
+				}
+
+				// 수량이 0 이하라면 소멸시켜줍니다.
+				if (ConsumableItems[InSlotIndex]->ItemQuantity <= 0)
+				{
+					RemoveItem(InSlotIndex, InventoryType);
+				}
+
+				OnChangeInven.Broadcast();
+				OnChangedPotionSlot.Broadcast();
+			}
+		}
+		break;
+
+	case ESlotType::ST_PotionSlot:
+		if (PotionQuickSlots.IsValidIndex(InSlotIndex) && IsValid(PotionQuickSlots[InSlotIndex]))
+		{
+			int32 ItemIndex = 0;
+			int32 ConsumableItemIndex = -1;
+
+			// 소비 슬롯에서 인덱스를 찾아줍니다.
+			for (const auto& Item : ConsumableItems)
+			{
+				if (IsValid(ConsumableItems[ItemIndex]))
+				{
+					if (Item->ItemData->ItemName == PotionQuickSlots[InSlotIndex]->ItemData->ItemName)
+					{
+						ConsumableItemIndex = ItemIndex;
+						break;
+					}
+				}
+
+				ItemIndex++;
+			}
+
+			// 인덱스를 찾았다면?
+			if (ConsumableItemIndex != -1)
+			{
+				if (ConsumableItems.IsValidIndex(ConsumableItemIndex) && IsValid(ConsumableItems[ConsumableItemIndex]))
+				{
+					if (ConsumableItems[ConsumableItemIndex]->ItemQuantity >= 1)
+					{
+						// 아이템이 포션인지 체크합니다.
+						UMMPotionItemData* PotionData = Cast<UMMPotionItemData>(ConsumableItems[ConsumableItemIndex]->ItemData);
+						IMMStatusInterface* StatusPawn = Cast<IMMStatusInterface>(GetOwner());
+						if (PotionData && StatusPawn)
+						{
+							// 포션 타입에 따라 회복시켜주도록 합니다.
+							switch (PotionData->PotionType)
+							{
+							case EPotionType::PT_Hp:
+								StatusPawn->GetStatComponent()->HealHp(PotionData->Percent);
+								break;
+
+							case EPotionType::PT_Mp:
+								StatusPawn->GetStatComponent()->HealMp(PotionData->Percent);
+								break;
+							}
+
+							// 수량을 줄여줍니다.
+							ConsumableItems[ConsumableItemIndex]->ItemQuantity--;
+						}
+					}
+
+					if (ConsumableItems[ConsumableItemIndex]->ItemQuantity <= 0)
+					{
+						RemoveItem(ConsumableItemIndex, ESlotType::ST_InventoryConsumable);
+					}
+				}
 			}
 
 			OnChangeInven.Broadcast();

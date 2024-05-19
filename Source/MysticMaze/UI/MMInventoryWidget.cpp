@@ -117,8 +117,6 @@ void UMMInventoryWidget::UpdateInventorySlot()
 
 void UMMInventoryWidget::UpdateInventoryGold()
 {
-	UE_LOG(LogTemp, Warning, TEXT("GoldUpdate"));
-
 	IMMInventoryInterface* InvPlayer = Cast<IMMInventoryInterface>(OwningActor);
 	if (InvPlayer)
 	{

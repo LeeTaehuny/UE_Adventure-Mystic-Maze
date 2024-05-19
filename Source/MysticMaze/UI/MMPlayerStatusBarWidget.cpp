@@ -2,9 +2,11 @@
 
 
 #include "UI/MMPlayerStatusBarWidget.h"
-#include "Blueprint/WidgetTree.h"
 #include "UI/MMSlot.h"
+#include "Interface/MMStatusInterface.h"
+#include "Player/MMStatComponent.h"
 
+#include "Blueprint/WidgetTree.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 
@@ -47,8 +49,6 @@ void UMMPlayerStatusBarWidget::Init()
 		{
 			if (QuickSlot->GetName().Contains(TEXT("SkillSlot")))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("%s"), *QuickSlot->GetName());
-				
 				QuickSlot->SetOwningActor(OwningActor);
 				QuickSlot->SetType(ESlotType::ST_SkillSlot);
 				QuickSlot->Init();
@@ -56,14 +56,24 @@ void UMMPlayerStatusBarWidget::Init()
 			}
 			else if (QuickSlot->GetName().Contains(TEXT("PotionSlot")))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("%s"), *QuickSlot->GetName());
-
 				QuickSlot->SetOwningActor(OwningActor);
 				QuickSlot->SetType(ESlotType::ST_PotionSlot);
 				QuickSlot->Init();
 				PotionSlots[QuickSlot->SlotIndex] = QuickSlot;
 			}
 		}
+	}
+
+	IMMStatusInterface* PlayerCharacter = Cast<IMMStatusInterface>(OwningActor);
+
+	if (PlayerCharacter)
+	{
+		// 스탯 컴포넌트를 불러옵니다.
+		UMMStatComponent* StatComponent = PlayerCharacter->GetStatComponent();
+
+		UpdateHpBar(StatComponent->GetCurrentHp(), StatComponent->GetMaxHp());
+		UpdateMpBar(StatComponent->GetCurrentMp(), StatComponent->GetMaxMp());
+		UpdateExpBar(StatComponent->GetCurrentExp(), StatComponent->GetMaxExp());
 	}
 }
 
@@ -77,4 +87,26 @@ void UMMPlayerStatusBarWidget::UpdatePotionSlot()
 	{
 		PotionSlot->UpdateSlot();
 	}
+}
+
+void UMMPlayerStatusBarWidget::UpdateHpBar(float CurrentHp, float MaxHp)
+{
+	TXT_MaxHp->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), MaxHp)));
+	TXT_CurrentHp->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), CurrentHp)));
+	PB_HpBar->SetPercent(CurrentHp / MaxHp);
+}
+
+void UMMPlayerStatusBarWidget::UpdateMpBar(float CurrentMp, float MaxMp)
+{
+	TXT_MaxMp->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), MaxMp)));
+	TXT_CurrentMp->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), CurrentMp)));
+	PB_MpBar->SetPercent(CurrentMp / MaxMp);
+}
+
+void UMMPlayerStatusBarWidget::UpdateExpBar(float CurrentExp, float MaxExp)
+{
+	TXT_MaxExp->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), MaxExp)));
+	TXT_CurrentExp->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), CurrentExp)));
+	TXT_ExpPercent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), (CurrentExp / MaxExp) * 100)));
+	PB_ExpBar->SetPercent(CurrentExp / MaxExp);
 }

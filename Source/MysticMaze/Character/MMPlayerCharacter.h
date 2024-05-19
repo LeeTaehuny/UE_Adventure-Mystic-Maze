@@ -11,6 +11,7 @@
 #include "Interface/MMPlayerClassInterface.h"
 #include "Interface/MMPlayerVisualInterface.h"
 #include "Interface/MMInventoryInterface.h"
+#include "Interface/MMStatusInterface.h"
 #include "MMPlayerCharacter.generated.h"
 
 /**
@@ -18,7 +19,7 @@
  */
 UCLASS()
 class MYSTICMAZE_API AMMPlayerCharacter : public AMMCharacterBase, public IMMAnimationAttackInterface, public IMMAnimationUpdateInterface, public IMMAnimationWeaponInterface, public IMMPlayerVisualInterface, public IMMInventoryInterface,
-	public IMMPlayerClassInterface
+	public IMMPlayerClassInterface, public IMMStatusInterface
 {
 	GENERATED_BODY()
 	
@@ -54,6 +55,7 @@ protected:
 	void RollEnd(class UAnimMontage* Montage, bool IsEnded);
 	void ConvertInventoryVisibility();
 	void Interaction();
+	void UseQuickSlot(int32 InNum);
 
 	// Basic
 	void BasicMove(const FInputActionValue& Value);
@@ -87,6 +89,24 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_ConvertInventory;
+
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_QuickSlot1;
+
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_QuickSlot2;
+
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_QuickSlot3;
+
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_QuickSlot4;
+
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_QuickSlot5;
+
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_QuickSlot6;
 
 	// InputMappingContext
 	TMap<EClassType, TObjectPtr<class UInputMappingContext>> IMC_Array;
@@ -218,6 +238,8 @@ protected:
 
 // Stat Section
 protected:
+	FORCEINLINE virtual class UMMStatComponent* GetStatComponent() override { return Stat; }
+
 	void ApplyMovementSpeed(float MovementSpeed);
 
 // Member Variable

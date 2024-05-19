@@ -20,14 +20,25 @@ UMMStatComponent::UMMStatComponent()
 	MaxAdditiveCriticalHitRate = 100.0f;
 }
 
-void UMMStatComponent::InitializeComponent()
+void UMMStatComponent::Init()
 {
-	Super::InitializeComponent();
-
 	IMMPlayerClassInterface* PlayerCharacter = Cast<IMMPlayerClassInterface>(GetOwner());
 	if (PlayerCharacter)
 	{
+		// 플레이어 데이터 초기화
 		InitPlayerStatus();
+
+		// 세부 스탯 업데이트
+		UpdateDetailStatus();
+
+		// 현재 체력 초기화
+		SetHp(MaxHp);
+		SetMp(MaxMp);
+		SetExp(CurrentExp);
+
+		// TEST
+		SetHp(100);
+		SetMp(100);
 	}
 }
 
@@ -35,12 +46,6 @@ void UMMStatComponent::InitializeComponent()
 void UMMStatComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// 세부 스탯 업데이트
-	UpdateDetailStatus();
-
-	// 현재 체력 초기화
-	SetHp(MaxHp);
 }
 
 void UMMStatComponent::InitPlayerStatus()
@@ -70,9 +75,11 @@ void UMMStatComponent::InitPlayerStatus()
 
 		WeaponStat = LoadWeaponStatus;
 
-		// 클래스 정보 및 경험치 초기화
+		// 클래스 정보 초기화
 		ClassType = EClassType::CT_Beginner;
-		CurrentExp = 10;
+
+		// 현재 경험치 초기화
+		CurrentExp = 10.0f;
 	}
 	
 	// 레벨별 기본 스탯 적용하기
@@ -80,6 +87,7 @@ void UMMStatComponent::InitPlayerStatus()
 	if (GameMode)
 	{
 		BaseStat = GameMode->GetPlayerStat(CurrentLevel);
+		MaxExp = BaseStat.EXP;
 	}
 
 	// 플레이어 직업 설정
@@ -105,7 +113,23 @@ void UMMStatComponent::SetHp(float NewHp)
 	CurrentHp = FMath::Clamp<float>(NewHp, 0.0f, MaxHp);
 
 	// 변경 이벤트 발생
-	OnHpChanged.Broadcast(CurrentHp);
+	OnHpChanged.Broadcast(CurrentHp, MaxHp);
+}
+
+void UMMStatComponent::SetMp(float NewMp)
+{
+	CurrentMp = FMath::Clamp<float>(NewMp, 0.0f, MaxMp);
+
+	// 변경 이벤트 발생
+	OnMpChanged.Broadcast(CurrentMp, MaxMp);
+}
+
+void UMMStatComponent::SetExp(float NewExp)
+{
+	CurrentExp = FMath::Clamp<float>(NewExp, 0.0f, MaxExp);
+
+	// 변경 이벤트 발생
+	OnExpChanged.Broadcast(CurrentExp, MaxExp);
 }
 
 void UMMStatComponent::UpdateDetailStatus()
@@ -147,8 +171,50 @@ void UMMStatComponent::UpdateDetailStatus()
 	// 이벤트 발생
 	OnMovementSpeedChanged.Broadcast(MovementSpeed);
 	OnStatChanged.Broadcast(BaseStat, ModifierStat, WeaponStat);
+	OnHpChanged.Broadcast(CurrentHp, MaxHp);
+	OnMpChanged.Broadcast(CurrentMp, MaxMp);
 }
 
+float UMMStatComponent::ApplyDamage(float InDamage)
+{
+	// 데미지 연산
+	const float PrevHp = CurrentHp;
+	// * 실제 데미지 = (받은 데미지 - 방어력)
+	const float ActualDamage = FMath::Clamp<float>(InDamage - Defense, 0, InDamage);
+
+	// 데미지 적용
+	SetHp(PrevHp - ActualDamage);
+
+	// 현재 체력이 0보다 작은지 비교
+	if (CurrentHp <= KINDA_SMALL_NUMBER)
+	{
+		// 사망 이벤트 발생
+		OnHpZero.Broadcast();
+	}
+
+	// 실제 받은 데미지 반환
+	return ActualDamage;
+}
+
+void UMMStatComponent::HealHp(float InHealPercent)
+{
+	// 회복할 체력량 구해줍니다.
+	float HealAmount = MaxHp * (InHealPercent / 100);
+
+	// 체력을 더해 줍니다.
+	CurrentHp = FMath::Clamp(CurrentHp + HealAmount, 0, MaxHp);
+	OnHpChanged.Broadcast(CurrentHp, MaxHp);
+}
+
+void UMMStatComponent::HealMp(float InHealPercent)
+{
+	// 회복할 마나량 구해줍니다.
+	float HealAmount = MaxMp * (InHealPercent / 100);
+
+	// 마나를 더해줍니다.
+	CurrentMp = FMath::Clamp(CurrentMp + HealAmount, 0, MaxMp);
+	OnMpChanged.Broadcast(CurrentMp, MaxMp);
+}
 
 void UMMStatComponent::SetLevel(int32 InLevel)
 {
