@@ -24,4 +24,6 @@ class MYSTICMAZE_API IMMInventoryInterface
 public:
 	virtual class UMMInventoryComponent* GetInventoryComponent() = 0;
 	virtual class UAnimMontage* GetPickUpMontage() = 0;
+	virtual void EquipWeapon(class AMMWeapon* Weapon) = 0;
+	virtual void UnEquipWeapon() = 0;
 };

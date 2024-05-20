@@ -13,7 +13,7 @@ void UAnimNotify_MMEquipWeapon::Notify(USkeletalMeshComponent* MeshComp, UAnimSe
 	{
 		// 무기 장착
 		IMMAnimationWeaponInterface* WeaponPawn = Cast<IMMAnimationWeaponInterface>(MeshComp->GetOwner());
-		if (WeaponPawn)
+		if (WeaponPawn && WeaponPawn->GetWeapon())
 		{
 			WeaponPawn->GetWeapon()->DrawWeapon(MeshComp);
 		}

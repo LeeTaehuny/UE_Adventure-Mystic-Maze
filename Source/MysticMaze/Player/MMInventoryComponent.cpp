@@ -3,7 +3,14 @@
 
 #include "Player/MMInventoryComponent.h"
 #include "Player/MMInventoryItem.h"
+#include "Player/MMStatComponent.h"
+#include "Item/MMWeapon.h"
 #include "Item/MMItemData.h"
+#include "Item/MMPotionItemData.h"
+#include "Item/MMWeaponItemData.h"
+#include "Interface/MMStatusInterface.h"
+#include "Interface/MMInventoryInterface.h"
+#include "Interface/MMPlayerClassInterface.h"
 
 #include "Engine/AssetManager.h"
 
@@ -18,6 +25,7 @@ UMMInventoryComponent::UMMInventoryComponent()
 	EquipmentItems.Init(nullptr, MaxInventoryNum);
 	ConsumableItems.Init(nullptr, MaxInventoryNum);
 	OtherItems.Init(nullptr, MaxInventoryNum);
+	PotionQuickSlots.Init(nullptr, 2);
 }
 
 void UMMInventoryComponent::InitializeComponent()
@@ -209,22 +217,103 @@ void UMMInventoryComponent::UseItem(int32 InSlotIndex, ESlotType InventoryType)
 	// 해당 인벤토리 슬롯에 아이템이 존재하는지 체크하고 사용하기
 	switch (InventoryType)
 	{
-	case ESlotType::ST_InventoryEquipment:
-		// TODO : 플레이어 무기 장착
-		break;
-
 	case ESlotType::ST_InventoryConsumable:
 		if (ConsumableItems.IsValidIndex(InSlotIndex) && IsValid(ConsumableItems[InSlotIndex]))
 		{
-			// 수량을 줄여줍니다.
-			ConsumableItems[InSlotIndex]->ItemQuantity--;
-			// 아이템을 사용합니다. TODO : 플레이어에서 작업하기
-			UE_LOG(LogTemp, Warning, TEXT("ConsumableItem Use"));
-			// 수량이 0 이하라면 소멸시켜줍니다.
-			if (ConsumableItems[InSlotIndex]->ItemQuantity <= 0)
+			// 아이템이 포션인지 체크합니다.
+			UMMPotionItemData* PotionData = Cast<UMMPotionItemData>(ConsumableItems[InSlotIndex]->ItemData);
+			if (PotionData)
 			{
-				RemoveItem(InSlotIndex, InventoryType);
+				// 수량을 줄여줍니다.
+				ConsumableItems[InSlotIndex]->ItemQuantity--;
+				// 아이템을 사용합니다.
+				IMMStatusInterface* StatusPawn = Cast<IMMStatusInterface>(GetOwner());
+
+				if (StatusPawn)
+				{
+					switch (PotionData->PotionType)
+					{
+					case EPotionType::PT_Hp:
+						StatusPawn->GetStatComponent()->HealHp(PotionData->Percent);
+						break;
+
+					case EPotionType::PT_Mp:
+						StatusPawn->GetStatComponent()->HealMp(PotionData->Percent);
+						break;
+					}
+				}
+
+				// 수량이 0 이하라면 소멸시켜줍니다.
+				if (ConsumableItems[InSlotIndex]->ItemQuantity <= 0)
+				{
+					RemoveItem(InSlotIndex, InventoryType);
+				}
+
+				OnChangeInven.Broadcast();
+				OnChangedPotionSlot.Broadcast();
 			}
+		}
+		break;
+
+	case ESlotType::ST_PotionSlot:
+		if (PotionQuickSlots.IsValidIndex(InSlotIndex) && IsValid(PotionQuickSlots[InSlotIndex]))
+		{
+			int32 ItemIndex = 0;
+			int32 ConsumableItemIndex = -1;
+
+			// 소비 슬롯에서 인덱스를 찾아줍니다.
+			for (const auto& Item : ConsumableItems)
+			{
+				if (IsValid(ConsumableItems[ItemIndex]))
+				{
+					if (Item->ItemData == PotionQuickSlots[InSlotIndex]->ItemData)
+					{
+						ConsumableItemIndex = ItemIndex;
+						break;
+					}
+				}
+
+				ItemIndex++;
+			}
+
+			// 인덱스를 찾았다면?
+			if (ConsumableItemIndex != -1)
+			{
+				if (ConsumableItems.IsValidIndex(ConsumableItemIndex) && IsValid(ConsumableItems[ConsumableItemIndex]))
+				{
+					if (ConsumableItems[ConsumableItemIndex]->ItemQuantity >= 1)
+					{
+						// 아이템이 포션인지 체크합니다.
+						UMMPotionItemData* PotionData = Cast<UMMPotionItemData>(ConsumableItems[ConsumableItemIndex]->ItemData);
+						IMMStatusInterface* StatusPawn = Cast<IMMStatusInterface>(GetOwner());
+						if (PotionData && StatusPawn)
+						{
+							// 포션 타입에 따라 회복시켜주도록 합니다.
+							switch (PotionData->PotionType)
+							{
+							case EPotionType::PT_Hp:
+								StatusPawn->GetStatComponent()->HealHp(PotionData->Percent);
+								break;
+
+							case EPotionType::PT_Mp:
+								StatusPawn->GetStatComponent()->HealMp(PotionData->Percent);
+								break;
+							}
+
+							// 수량을 줄여줍니다.
+							ConsumableItems[ConsumableItemIndex]->ItemQuantity--;
+						}
+					}
+
+					if (ConsumableItems[ConsumableItemIndex]->ItemQuantity <= 0)
+					{
+						RemoveItem(ConsumableItemIndex, ESlotType::ST_InventoryConsumable);
+					}
+				}
+			}
+
+			OnChangeInven.Broadcast();
+			OnChangedPotionSlot.Broadcast();
 		}
 		break;
 	}
@@ -366,6 +455,109 @@ void UMMInventoryComponent::SortItem(ESlotType InSlotType)
 	}
 }
 
+void UMMInventoryComponent::SetQuickSlot(ESlotType InPrevSlotType, int32 InPrevIndex, int32 InCurrentIndex)
+{
+	if (InPrevSlotType == ESlotType::ST_InventoryConsumable)
+	{
+		if (ConsumableItems.IsValidIndex(InPrevIndex) && IsValid(ConsumableItems[InPrevIndex]) && PotionQuickSlots.IsValidIndex(InCurrentIndex))
+		{
+			PotionQuickSlots[InCurrentIndex] = ConsumableItems[InPrevIndex];
+			OnChangedPotionSlot.Broadcast();
+		}
+	}
+}
+
+void UMMInventoryComponent::EquipItem(int32 InCurrentIndex)
+{
+	// 인덱스와 내부 데이터가 유효한지 체크합니다. 
+	if (!EquipmentItems.IsValidIndex(InCurrentIndex) || !IsValid(EquipmentItems[InCurrentIndex])) return;
+
+	// 장비 타입을 체크합니다.
+	UMMWeaponItemData* WeaponData = Cast<UMMWeaponItemData>(EquipmentItems[InCurrentIndex]->ItemData);
+	if (!WeaponData) return;
+	IMMPlayerClassInterface* ClassPawn = Cast<IMMPlayerClassInterface>(GetOwner());
+	if (!ClassPawn) return;
+
+	// 착용할 수 없는 타입의 직업이라면 반환합니다.
+	if (ClassPawn->GetClass() != WeaponData->PurchaseableClass) return;
+
+	// 현재 착용중인 장비가 존재하는 경우
+	if (IsValid(EquipmentItem))
+	{
+		// 장비를 교체합니다.
+		UMMInventoryItem* TempItem = EquipmentItem;
+		EquipmentItem = EquipmentItems[InCurrentIndex];
+		EquipmentItems[InCurrentIndex] = TempItem;
+	}
+	else
+	{
+		// 새로운 장비를 장비 슬롯에 적용합니다.
+		EquipmentItem = EquipmentItems[InCurrentIndex];
+		EquipmentItems[InCurrentIndex] = nullptr;
+	}
+
+	// 장비를 착용합니다.
+	IMMInventoryInterface* InvPawn = Cast<IMMInventoryInterface>(GetOwner());
+	if (InvPawn)
+	{
+		InvPawn->EquipWeapon(Cast<AMMWeapon>(GetWorld()->SpawnActor<AMMWeapon>(WeaponData->WeaponClass)));
+	}
+
+	// 장비의 스탯을 적용합니다.
+	IMMStatusInterface* StatusPawn = Cast<IMMStatusInterface>(GetOwner());
+	if (StatusPawn)
+	{
+		StatusPawn->GetStatComponent()->SetWeaponStat(WeaponData->WeaponStat);
+	}
+	
+	// 인벤토리 변경 이벤트 발생
+	OnChangeInven.Broadcast();
+}
+
+void UMMInventoryComponent::UnEquipItem()
+{
+	// 결과 반환용 변수
+	bool Result = false;
+
+	// 현재 착용중인 장비가 유효한지 체크합니다.
+	if (!IsValid(EquipmentItem)) return;
+
+	// 현재 장비를 장비 창의 빈 칸에 넣어줍니다.
+	for (auto& Item : EquipmentItems)
+	{
+		if (!IsValid(Item))
+		{
+			Item = EquipmentItem;
+			EquipmentItem = nullptr;
+			Result = true;
+			break;
+		}
+	}
+
+	// 착용 해제에 성공한 경우
+	if (Result)
+	{
+		// 장비 스탯을 초기화합니다.
+		IMMStatusInterface* StatusPawn = Cast<IMMStatusInterface>(GetOwner());
+		if (StatusPawn)
+		{
+			StatusPawn->GetStatComponent()->SetWeaponStat();
+		}
+
+		// 실제 장비를 착용해제 합니다.
+		IMMInventoryInterface* InvPawn = Cast<IMMInventoryInterface>(GetOwner());
+		if (InvPawn)
+		{
+			InvPawn->UnEquipWeapon();
+		}
+
+		// 인벤토리 변경 이벤트 발생
+		OnChangeInven.Broadcast();
+	}
+
+	return;
+}
+
 void UMMInventoryComponent::InitInventory()
 {
 	// TODO : 파일로부터 정보 읽어와서 설정하기
@@ -388,6 +580,8 @@ void UMMInventoryComponent::InitInventory()
 			InventoryEquipmentArray.Add(1, { TEXT("DA_Staff_BluntBell"), 1 });
 			InventoryEquipmentArray.Add(0, { TEXT("DA_Staff_BluntHellHammerCine"), 1 });
 			InventoryEquipmentArray.Add(27, { TEXT("DA_Bow_2"), 1 });
+			InventoryEquipmentArray.Add(3, { TEXT("DA_Sword_BlackKnight"), 1 });
+			InventoryEquipmentArray.Add(5, { TEXT("DA_Sword_BlackWyrmBlade"), 1 });
 
 			InventoryConstableArray.Add(1, { TEXT("DA_HP_Potion_Large"), 10 });
 			InventoryConstableArray.Add(0, { TEXT("DA_HP_Potion_Middle"), 62 });

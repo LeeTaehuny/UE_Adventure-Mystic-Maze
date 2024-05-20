@@ -12,6 +12,8 @@
 #include "Player/MMPlayerController.h"
 #include "Interface/MMInteractionInterface.h"
 #include "Containers/Map.h"
+#include "UI/MMHUDWidget.h"
+#include "Player/MMStatComponent.h"
 
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
@@ -30,6 +32,7 @@
 
 AMMPlayerCharacter::AMMPlayerCharacter()
 {
+	// Tick 활성화
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Member Variable 초기화
@@ -85,10 +88,10 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 	{
 		SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 		SpringArm->SetupAttachment(RootComponent);
-		SpringArm->TargetArmLength = 500.0f;
+		SpringArm->TargetArmLength = 800.0f;
 
 		Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-		Camera->SetRelativeLocation(FVector(0.0f, 0.0f, 150.0f));
+		Camera->SetRelativeLocation(FVector(0.0f, 0.0f, 100.0f));
 		Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 	}
 
@@ -123,6 +126,54 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 		if (IA_ConvertInventoryRef.Object)
 		{
 			IA_ConvertInventory = IA_ConvertInventoryRef.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_ConvertStatusRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_ConvertStatus.IA_ConvertStatus'"));
+		if (IA_ConvertStatusRef.Object)
+		{
+			IA_ConvertStatus = IA_ConvertStatusRef.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_ConvertEquipmentRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_ConvertEquipment.IA_ConvertEquipment'"));
+		if (IA_ConvertEquipmentRef.Object)
+		{
+			IA_ConvertEquipment = IA_ConvertEquipmentRef.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_QuickSlot1Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_QuickSlot1.IA_QuickSlot1'"));
+		if (IA_QuickSlot1Ref.Object)
+		{
+			IA_QuickSlot1 = IA_QuickSlot1Ref.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_QuickSlot2Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_QuickSlot2.IA_QuickSlot2'"));
+		if (IA_QuickSlot2Ref.Object)
+		{
+			IA_QuickSlot2 = IA_QuickSlot2Ref.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_QuickSlot3Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_QuickSlot3.IA_QuickSlot3'"));
+		if (IA_QuickSlot3Ref.Object)
+		{
+			IA_QuickSlot3 = IA_QuickSlot3Ref.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_QuickSlot4Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_QuickSlot4.IA_QuickSlot4'"));
+		if (IA_QuickSlot4Ref.Object)
+		{
+			IA_QuickSlot4 = IA_QuickSlot4Ref.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_QuickSlot5Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_QuickSlot5.IA_QuickSlot5'"));
+		if (IA_QuickSlot5Ref.Object)
+		{
+			IA_QuickSlot5 = IA_QuickSlot5Ref.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_QuickSlot6Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_QuickSlot6.IA_QuickSlot6'"));
+		if (IA_QuickSlot6Ref.Object)
+		{
+			IA_QuickSlot6 = IA_QuickSlot6Ref.Object;
 		}
 
 		// Basic Input
@@ -231,12 +282,25 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 	}
 }
 
+
+void AMMPlayerCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	// 델리게이트 연동
+	Stat->OnMovementSpeedChanged.AddUObject(this, &AMMPlayerCharacter::ApplyMovementSpeed);
+	// 스탯 컴포넌트 초기화
+	Stat->Init();
+
+	// 파티클 비활성화
+	ChargeParticleSystemComponent->SetActive(false);
+}
+
 void AMMPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ChangeClass(EClassType::CT_Beginner);
-	ChargeParticleSystemComponent->SetActive(false);
+	ChangeClass(ClassType);
 
 	// TEST
 	//{
@@ -286,7 +350,6 @@ void AMMPlayerCharacter::Tick(float DeltaSeconds)
 	if (bIsCharge)
 	{
 		ChargeNum = FMath::Clamp(ChargeNum + (DeltaSeconds * 0.3f), 1.0f, 2.0f);
-		UE_LOG(LogTemp, Warning, TEXT("%f"), ChargeNum);
 	}
 }
 
@@ -308,6 +371,15 @@ void AMMPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(IA_ConvertWeapon, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertWeapon);
 	EnhancedInputComponent->BindAction(IA_Interaction, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::Interaction);
 	EnhancedInputComponent->BindAction(IA_ConvertInventory, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertInventoryVisibility);
+	EnhancedInputComponent->BindAction(IA_ConvertStatus, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertStatusVisibility);
+	
+	EnhancedInputComponent->BindAction(IA_QuickSlot1, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 1);
+	EnhancedInputComponent->BindAction(IA_QuickSlot2, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 2);
+	EnhancedInputComponent->BindAction(IA_QuickSlot3, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 3);
+	EnhancedInputComponent->BindAction(IA_QuickSlot4, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 4);
+	EnhancedInputComponent->BindAction(IA_QuickSlot5, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 5);
+	EnhancedInputComponent->BindAction(IA_QuickSlot6, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 6);
+	EnhancedInputComponent->BindAction(IA_ConvertEquipment, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertEquipmentVisibility);
 	
 	// Warrior
 	EnhancedInputComponent->BindAction(IA_WarriorGuard, ETriggerEvent::Started, this, &AMMPlayerCharacter::GuardStart);
@@ -371,11 +443,79 @@ void AMMPlayerCharacter::RollEnd(class UAnimMontage* Montage, bool IsEnded)
 
 void AMMPlayerCharacter::ConvertInventoryVisibility()
 {
-	// 플레이어 컨트롤러의 토글 인벤토리 함수 호출
+	// 인벤토리 On/Off 설정
 	AMMPlayerController* PlayerController = Cast<AMMPlayerController>(GetController());
 	if (PlayerController)
 	{
-		PlayerController->ToggleInventoryVisibility();
+		if (PlayerController->GetHUDWidget())
+		{
+			// 인벤토리 위젯 토글 함수를 호출합니다.
+			PlayerController->GetHUDWidget()->ToggleInventoryWidget();
+
+			// 현재 활성화된 위젯에 대한 비트플래그를 확인하여 모드를 변경해주도록 합니다.
+			if (PlayerController->GetHUDWidget()->GetIsVisibility())
+			{
+				// 활성화된 위젯이 있으므로 UI모드로 설정합니다.
+				PlayerController->SetUIInputMode();
+			}
+			else
+			{
+				// 활성화된 위젯이 없으므로 UI모드로 설정합니다.
+				PlayerController->SetGameInputMode();
+			}
+		}
+	}
+}
+
+void AMMPlayerCharacter::ConvertStatusVisibility()
+{
+	// 스테이터스 On/Off 설정
+	AMMPlayerController* PlayerController = Cast<AMMPlayerController>(GetController());
+	if (PlayerController)
+	{
+		if (PlayerController->GetHUDWidget())
+		{
+			// 스테이터스 위젯 토글 함수를 호출합니다.
+			PlayerController->GetHUDWidget()->ToggleStatusWidget();
+
+			// 현재 활성화된 위젯에 대한 비트플래그를 확인하여 모드를 변경해주도록 합니다.
+			if (PlayerController->GetHUDWidget()->GetIsVisibility())
+			{
+				// 활성화된 위젯이 있으므로 UI모드로 설정합니다.
+				PlayerController->SetUIInputMode();
+			}
+			else
+			{
+				// 활성화된 위젯이 없으므로 UI모드로 설정합니다.
+				PlayerController->SetGameInputMode();
+			}
+		}
+	}
+}
+
+void AMMPlayerCharacter::ConvertEquipmentVisibility()
+{
+	// 장비 위젯 On/Off 설정
+	AMMPlayerController* PlayerController = Cast<AMMPlayerController>(GetController());
+	if (PlayerController)
+	{
+		if (PlayerController->GetHUDWidget())
+		{
+			// 장비 위젯 토글 함수를 호출합니다.
+			PlayerController->GetHUDWidget()->ToggleEquipmentWidget();
+
+			// 현재 활성화된 위젯에 대한 비트플래그를 확인하여 모드를 변경해주도록 합니다.
+			if (PlayerController->GetHUDWidget()->GetIsVisibility())
+			{
+				// 활성화된 위젯이 있으므로 UI모드로 설정합니다.
+				PlayerController->SetUIInputMode();
+			}
+			else
+			{
+				// 활성화된 위젯이 없으므로 UI모드로 설정합니다.
+				PlayerController->SetGameInputMode();
+			}
+		}
 	}
 }
 
@@ -751,8 +891,8 @@ void AMMPlayerCharacter::ReleaseArrow()
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 
 	// 카메라 설정
-	Camera->SetRelativeLocation(FVector(0.0f, 0.0f, 150.0f));
-	SpringArm->TargetArmLength = 500.0f;
+	Camera->SetRelativeLocation(FVector(0.0f, 0.0f, 100.0f));
+	SpringArm->TargetArmLength = 800.0f;
 }
 
 void AMMPlayerCharacter::SaveStart()
@@ -783,7 +923,9 @@ void AMMPlayerCharacter::SaveEnd()
 void AMMPlayerCharacter::DrawEnd(UAnimMontage* Montage, bool IsEnded)
 {
 	bIsChange = false;
-	bIsEquip = true;
+
+	if (CurrentWeapon)
+		bIsEquip = true;
 }
 
 void AMMPlayerCharacter::SheatheWeapon()
@@ -816,10 +958,32 @@ void AMMPlayerCharacter::SheatheEnd(UAnimMontage* Montage, bool IsEnded)
 
 void AMMPlayerCharacter::EquipWeapon(AMMWeapon* Weapon)
 {
-	if (!CurrentWeapon) return;
+	if (!Weapon) return;
 
+	// 기존 무기가 있다면 장착 해제하기
+	if (CurrentWeapon)
+	{
+		UnEquipWeapon();
+	}
+
+	// 현재 무기를 업데이트 및 착용
+	CurrentWeapon = Weapon;
 	CurrentWeapon->SetOwner(this);
-	Weapon->EquipWeapon();
+	CurrentWeapon->EquipWeapon();
+
+	bIsEquip = false;
+	bIsChange = false;
+}
+
+void AMMPlayerCharacter::UnEquipWeapon()
+{
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->Destroy();
+		CurrentWeapon = nullptr;
+		bIsEquip = false;
+		bIsChange = false;
+	}
 }
 
 void AMMPlayerCharacter::DrawArrowEnd(UAnimMontage* Montage, bool IsEnded)
@@ -878,6 +1042,25 @@ void AMMPlayerCharacter::ShootArrow()
 	}
 }
 
+void AMMPlayerCharacter::ApplyMovementSpeed(float MovementSpeed)
+{
+	// 이동속도 설정
+	WalkSpeed += MovementSpeed - 600;
+	RunSpeed += MovementSpeed - 600;
+
+	// 이동속도 적용
+	if (bIsDash)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = RunSpeed;
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("SetSpeed, %f, %f"), WalkSpeed, RunSpeed);
+}
+
 void AMMPlayerCharacter::Interaction()
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -914,4 +1097,26 @@ void AMMPlayerCharacter::Interaction()
 	}
 
 	DrawDebugSphere(GetWorld(), GetActorLocation(), 100.0f, 16, FColor::Green, false, 1.0f);
+}
+
+void AMMPlayerCharacter::UseQuickSlot(int32 InNum)
+{
+	switch (InNum)
+	{
+	case 1:
+		break;
+	case 2:
+		break;
+	case 3:
+		break;
+	case 4:
+		break;
+	case 5:
+		Inventory->UseItem(0, ESlotType::ST_PotionSlot);
+		break;
+
+	case 6:
+		Inventory->UseItem(1, ESlotType::ST_PotionSlot);
+		break;
+	}
 }

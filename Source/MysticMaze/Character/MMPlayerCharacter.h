@@ -8,16 +8,18 @@
 #include "Interface/MMAnimationAttackInterface.h"
 #include "Interface/MMAnimationUpdateInterface.h"
 #include "Interface/MMAnimationWeaponInterface.h"
+#include "Interface/MMPlayerClassInterface.h"
 #include "Interface/MMPlayerVisualInterface.h"
 #include "Interface/MMInventoryInterface.h"
-#include "GameData/MMEnums.h"
+#include "Interface/MMStatusInterface.h"
 #include "MMPlayerCharacter.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class MYSTICMAZE_API AMMPlayerCharacter : public AMMCharacterBase, public IMMAnimationAttackInterface, public IMMAnimationUpdateInterface, public IMMAnimationWeaponInterface, public IMMPlayerVisualInterface, public IMMInventoryInterface
+class MYSTICMAZE_API AMMPlayerCharacter : public AMMCharacterBase, public IMMAnimationAttackInterface, public IMMAnimationUpdateInterface, public IMMAnimationWeaponInterface, public IMMPlayerVisualInterface, public IMMInventoryInterface,
+	public IMMPlayerClassInterface, public IMMStatusInterface
 {
 	GENERATED_BODY()
 	
@@ -27,6 +29,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaSeconds) override;
 
 public:
@@ -51,7 +54,10 @@ protected:
 	void RollStart();
 	void RollEnd(class UAnimMontage* Montage, bool IsEnded);
 	void ConvertInventoryVisibility();
+	void ConvertStatusVisibility();
+	void ConvertEquipmentVisibility();
 	void Interaction();
+	void UseQuickSlot(int32 InNum);
 
 	// Basic
 	void BasicMove(const FInputActionValue& Value);
@@ -85,6 +91,30 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_ConvertInventory;
+
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_ConvertStatus;
+
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_ConvertEquipment;
+
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_QuickSlot1;
+
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_QuickSlot2;
+
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_QuickSlot3;
+
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_QuickSlot4;
+
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_QuickSlot5;
+
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_QuickSlot6;
 
 	// InputMappingContext
 	TMap<EClassType, TObjectPtr<class UInputMappingContext>> IMC_Array;
@@ -162,7 +192,8 @@ protected:
 // Character Class Section
 protected:
 	FORCEINLINE virtual EClassType GetClassType() override { return ClassType; };
-
+	FORCEINLINE virtual EClassType GetClass() override { return ClassType; }
+	FORCEINLINE virtual void SetClass(EClassType Class) override { ClassType = Class; }
 	void ChangeClass(EClassType Class);
 
 	EClassType ClassType;
@@ -175,7 +206,8 @@ protected:
 	void DrawEnd(class UAnimMontage* Montage, bool IsEnded);
 	void SheatheWeapon();
 	void SheatheEnd(class UAnimMontage* Montage, bool IsEnded);
-	void EquipWeapon(class AMMWeapon* Weapon);
+	virtual void EquipWeapon(class AMMWeapon* Weapon) override;
+	virtual void UnEquipWeapon() override;
 
 	UPROPERTY(VisibleAnywhere, Category = Weapon, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class AMMWeapon> CurrentWeapon;
@@ -213,6 +245,12 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UMMInventoryComponent> Inventory;
+
+// Stat Section
+protected:
+	FORCEINLINE virtual class UMMStatComponent* GetStatComponent() override { return Stat; }
+
+	void ApplyMovementSpeed(float MovementSpeed);
 
 // Member Variable
 protected:

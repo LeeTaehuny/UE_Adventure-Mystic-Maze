@@ -7,6 +7,7 @@
 #include "Interface/MMInventoryInterface.h"
 #include "Player/MMInventoryComponent.h"
 #include "Player/MMPlayerController.h"
+#include "UI/MMHUDWidget.h"
 
 #include "GameFramework/Character.h"
 #include "Components/BoxComponent.h"
@@ -72,8 +73,8 @@ void AMMItemBox::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* Oth
 		AMMPlayerController* PlayerController = Cast<AMMPlayerController>(PlayerCharacter->GetController());
 		if (PlayerController)
 		{
-			PlayerController->InteractionWidgetHelpText(HelpText);
-			PlayerController->ToggleInteractionVisibility(true);
+			PlayerController->GetHUDWidget()->InteractionWidgetHelpText(HelpText);
+			PlayerController->GetHUDWidget()->ToggleInteractionWidget(true);
 		}
 	}
 }
@@ -88,7 +89,7 @@ void AMMItemBox::OnEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* Other
 		AMMPlayerController* PlayerController = Cast<AMMPlayerController>(PlayerCharacter->GetController());
 		if (PlayerController)
 		{
-			PlayerController->ToggleInteractionVisibility(false);
+			PlayerController->GetHUDWidget()->ToggleInteractionWidget(false);
 		}
 	}
 }
@@ -116,7 +117,7 @@ void AMMItemBox::Interaction(ACharacter* PlayerCharacter)
 			AMMPlayerController* PlayerController = Cast<AMMPlayerController>(PlayerCharacter->GetController());
 			if (PlayerController)
 			{
-				PlayerController->ToggleInteractionVisibility(false);
+				PlayerController->GetHUDWidget()->ToggleInteractionWidget(false);
 			}
 
 			// 상자 소멸시키기

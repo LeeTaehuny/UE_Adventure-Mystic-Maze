@@ -4,7 +4,6 @@
 #include "UI/MMInventoryWidget.h"
 #include "Interface/MMInventoryInterface.h"
 #include "Player/MMInventoryComponent.h"
-#include "Blueprint/WidgetTree.h"
 #include "UI/MMSlot.h"
 
 #include "Components/TextBlock.h"
@@ -118,8 +117,6 @@ void UMMInventoryWidget::UpdateInventorySlot()
 
 void UMMInventoryWidget::UpdateInventoryGold()
 {
-	UE_LOG(LogTemp, Warning, TEXT("GoldUpdate"));
-
 	IMMInventoryInterface* InvPlayer = Cast<IMMInventoryInterface>(OwningActor);
 	if (InvPlayer)
 	{

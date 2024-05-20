@@ -12,6 +12,13 @@ class MYSTICMAZE_API AMMCharacterBase : public ACharacter
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	AMMCharacterBase();
+
+protected:
+	virtual void PostInitializeComponents() override;
+
+protected:
+	// Stat
+	UPROPERTY(VisibleAnywhere, Category = "Stat", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UMMStatComponent> Stat;
 };

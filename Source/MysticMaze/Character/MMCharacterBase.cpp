@@ -2,11 +2,15 @@
 
 
 #include "Character/MMCharacterBase.h"
+#include "Player/MMStatComponent.h"
 
-// Sets default values
 AMMCharacterBase::AMMCharacterBase()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	// 스탯 컴포넌트 추가
+	Stat = CreateDefaultSubobject<UMMStatComponent>(TEXT("StatComponent"));
+}
 
+void AMMCharacterBase::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
 }
