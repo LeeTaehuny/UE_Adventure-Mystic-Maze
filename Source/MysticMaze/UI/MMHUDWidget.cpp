@@ -6,6 +6,7 @@
 #include "UI/MMInteractionWidget.h"
 #include "UI/MMStatusWidget.h"
 #include "UI/MMPlayerStatusBarWidget.h"
+#include "UI/MMEquipmentWidget.h"
 #include "Interface/MMInventoryInterface.h"
 #include "Interface/MMStatusInterface.h"
 #include "Player/MMInventoryComponent.h"
@@ -68,6 +69,20 @@ void UMMHUDWidget::Init()
 		}
 	}
 
+	if (EquipmentWidget)
+	{
+		if (StatusPawn)
+		{
+			// 스탯컴포넌트의 OnWeaponChanged 델리게이트에 함수 연동
+			StatusPawn->GetStatComponent()->OnWeaponChanged.AddUObject(EquipmentWidget, &UMMEquipmentWidget::UpdateStat);
+
+			// 플레이어 장비 위젯 초기화
+			EquipmentWidget->SetOwningActor(OwningActor);
+			EquipmentWidget->Init();
+			EquipmentWidget->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
+
 	// 모든 비트를 끈 상태로 시작
 	VisibilityFlag = static_cast<uint8>(EWidgetFlags::None);
 }
@@ -109,6 +124,26 @@ void UMMHUDWidget::ToggleStatusWidget()
 
 		// STATUS 위젯을 켰다고 표시합니다.
 		VisibilityFlag |= static_cast<uint8>(EWidgetFlags::STATUS);
+	}
+}
+
+void UMMHUDWidget::ToggleEquipmentWidget()
+{
+	if (!EquipmentWidget) return;
+
+	if (EquipmentWidget->GetVisibility() == ESlateVisibility::Visible)
+	{
+		EquipmentWidget->SetVisibility(ESlateVisibility::Hidden);
+
+		// EQUIPMENT 위젯을 껐다고 표시합니다.
+		VisibilityFlag &= ~static_cast<uint8>(EWidgetFlags::EQUIPMENT);
+	}
+	else
+	{
+		EquipmentWidget->SetVisibility(ESlateVisibility::Visible);
+
+		// EQUIPMENT 위젯을 켰다고 표시합니다.
+		VisibilityFlag |= static_cast<uint8>(EWidgetFlags::EQUIPMENT);
 	}
 }
 

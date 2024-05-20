@@ -91,6 +91,7 @@ public:
 	FORCEINLINE int32 GetAvailableStatPoint() { return AvailableStatPoint; }
 	FORCEINLINE FMMCharacterStat GetTotalStat() { return TotalStat; }
 	FORCEINLINE FMMCharacterStat GetWeaponStat() { return WeaponStat; }
+	FORCEINLINE EClassType GetClass() { return ClassType; }
 
 // Basic Status (STR, DEX, CON, INT)
 protected:

@@ -74,6 +74,9 @@ public:
 	TObjectPtr<class UButton> BTN_UpgradeINT;
 
 	UPROPERTY(meta = (BindWidget = "true"))
+	TObjectPtr<class UTextBlock> TXT_Class;
+
+	UPROPERTY(meta = (BindWidget = "true"))
 	TObjectPtr<class UTextBlock> TXT_CurrentLevel;
 
 	UPROPERTY(meta = (BindWidget = "true"))

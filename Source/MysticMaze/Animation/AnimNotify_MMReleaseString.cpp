@@ -13,7 +13,7 @@ void UAnimNotify_MMReleaseString::Notify(USkeletalMeshComponent* MeshComp, UAnim
 	{
 		// 활을 놓았다는 것을 전달합니다.
 		IMMAnimationWeaponInterface* WeaponPawn = Cast<IMMAnimationWeaponInterface>(MeshComp->GetOwner());
-		if (WeaponPawn)
+		if (WeaponPawn && WeaponPawn->GetWeapon())
 		{
 			AMMBowWeapon* BowWeapon = Cast<AMMBowWeapon>(WeaponPawn->GetWeapon());
 			if (BowWeapon)

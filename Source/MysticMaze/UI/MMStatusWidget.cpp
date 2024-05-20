@@ -113,6 +113,30 @@ void UMMStatusWidget::UpdateStat(const FMMCharacterStat& InTotalStat)
 	TXT_CurrentLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"), StatPlayer->GetStatComponent()->GetCurrentLevel())));
 	TXT_StatPoint->SetText(FText::FromString(FString::Printf(TEXT("%d"), StatPlayer->GetStatComponent()->GetAvailableStatPoint())));
 
+	// Class Update
+	FString ClassName;
+
+	switch (StatPlayer->GetStatComponent()->GetClass())
+	{
+	case EClassType::CT_Beginner:
+		ClassName = TEXT("Beginner");
+		break;
+
+	case EClassType::CT_Warrior:
+		ClassName = TEXT("Warrior");
+		break;
+
+	case EClassType::CT_Archer:
+		ClassName = TEXT("Archer");
+		break;
+
+	case EClassType::CT_Mage:
+		ClassName = TEXT("Mage");
+		break;
+	}
+
+	TXT_Class->SetText(FText::FromString(ClassName));
+
 	// Button Setting (스탯 잔여 포인트에 따른 활성화 / 비활성화)
 	if (StatPlayer->GetStatComponent()->GetAvailableStatPoint() > 0)
 	{

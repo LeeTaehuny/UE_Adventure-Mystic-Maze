@@ -473,7 +473,7 @@ void UMMInventoryComponent::EquipItem(int32 InCurrentIndex)
 	if (!EquipmentItems.IsValidIndex(InCurrentIndex) || !IsValid(EquipmentItems[InCurrentIndex])) return;
 
 	// 장비 타입을 체크합니다.
-	UMMWeaponItemData* WeaponData = Cast<UMMWeaponItemData>(EquipmentItem);
+	UMMWeaponItemData* WeaponData = Cast<UMMWeaponItemData>(EquipmentItems[InCurrentIndex]->ItemData);
 	if (!WeaponData) return;
 	IMMPlayerClassInterface* ClassPawn = Cast<IMMPlayerClassInterface>(GetOwner());
 	if (!ClassPawn) return;
@@ -580,6 +580,8 @@ void UMMInventoryComponent::InitInventory()
 			InventoryEquipmentArray.Add(1, { TEXT("DA_Staff_BluntBell"), 1 });
 			InventoryEquipmentArray.Add(0, { TEXT("DA_Staff_BluntHellHammerCine"), 1 });
 			InventoryEquipmentArray.Add(27, { TEXT("DA_Bow_2"), 1 });
+			InventoryEquipmentArray.Add(3, { TEXT("DA_Sword_BlackKnight"), 1 });
+			InventoryEquipmentArray.Add(5, { TEXT("DA_Sword_BlackWyrmBlade"), 1 });
 
 			InventoryConstableArray.Add(1, { TEXT("DA_HP_Potion_Large"), 10 });
 			InventoryConstableArray.Add(0, { TEXT("DA_HP_Potion_Middle"), 62 });

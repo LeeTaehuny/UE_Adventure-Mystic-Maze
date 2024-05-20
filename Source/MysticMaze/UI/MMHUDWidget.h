@@ -27,11 +27,15 @@ public:
 	UPROPERTY(meta = (BindWidget = "true"))
 	TObjectPtr<class UMMStatusWidget> PlayerStatusWidget;
 
+	UPROPERTY(meta = (BindWidget = "true"))
+	TObjectPtr<class UMMEquipmentWidget> EquipmentWidget;
+
 public:
 	void Init();
 
 	void ToggleInventoryWidget();
 	void ToggleStatusWidget();
+	void ToggleEquipmentWidget();
 	void ToggleInteractionWidget(bool InValue);
 	void InteractionWidgetHelpText(FString HelpText);
 
@@ -41,9 +45,10 @@ public:
 private:
 	enum class EWidgetFlags
 	{
-		None = 0,			// 0000	- 초기화
-		INVENTORY = 1 << 0, // 0001 - 인벤토리 위젯
-		STATUS = 1 << 1,	// 0010 - 스테이터스 위젯
+		None		= 0,		// 0000 0000 - 초기화
+		INVENTORY	= 1 << 0,	// 0000 0001 - 인벤토리 위젯
+		STATUS		= 1 << 1,	// 0000 0010 - 스테이터스 위젯
+		EQUIPMENT	= 1 << 2,	// 0000 0100 - 장비 위젯
 	};
 
 	// 위젯이 열려있는지 판별하기 위한 비트플래그

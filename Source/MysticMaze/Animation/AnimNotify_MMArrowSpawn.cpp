@@ -13,7 +13,7 @@ void UAnimNotify_MMArrowSpawn::Notify(USkeletalMeshComponent* MeshComp, UAnimSeq
 	{
 		// 화살을 스폰합니다.
 		IMMAnimationWeaponInterface* WeaponPawn = Cast<IMMAnimationWeaponInterface>(MeshComp->GetOwner());
-		if (WeaponPawn)
+		if (WeaponPawn && WeaponPawn->GetWeapon())
 		{
 			AMMBowWeapon* BowWeapon = Cast<AMMBowWeapon>(WeaponPawn->GetWeapon());
 			if (BowWeapon)

@@ -134,6 +134,12 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 			IA_ConvertStatus = IA_ConvertStatusRef.Object;
 		}
 
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_ConvertEquipmentRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_ConvertEquipment.IA_ConvertEquipment'"));
+		if (IA_ConvertEquipmentRef.Object)
+		{
+			IA_ConvertEquipment = IA_ConvertEquipmentRef.Object;
+		}
+
 		static ConstructorHelpers::FObjectFinder<UInputAction>IA_QuickSlot1Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_QuickSlot1.IA_QuickSlot1'"));
 		if (IA_QuickSlot1Ref.Object)
 		{
@@ -373,6 +379,7 @@ void AMMPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(IA_QuickSlot4, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 4);
 	EnhancedInputComponent->BindAction(IA_QuickSlot5, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 5);
 	EnhancedInputComponent->BindAction(IA_QuickSlot6, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 6);
+	EnhancedInputComponent->BindAction(IA_ConvertEquipment, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertEquipmentVisibility);
 	
 	// Warrior
 	EnhancedInputComponent->BindAction(IA_WarriorGuard, ETriggerEvent::Started, this, &AMMPlayerCharacter::GuardStart);
@@ -470,6 +477,32 @@ void AMMPlayerCharacter::ConvertStatusVisibility()
 		{
 			// 스테이터스 위젯 토글 함수를 호출합니다.
 			PlayerController->GetHUDWidget()->ToggleStatusWidget();
+
+			// 현재 활성화된 위젯에 대한 비트플래그를 확인하여 모드를 변경해주도록 합니다.
+			if (PlayerController->GetHUDWidget()->GetIsVisibility())
+			{
+				// 활성화된 위젯이 있으므로 UI모드로 설정합니다.
+				PlayerController->SetUIInputMode();
+			}
+			else
+			{
+				// 활성화된 위젯이 없으므로 UI모드로 설정합니다.
+				PlayerController->SetGameInputMode();
+			}
+		}
+	}
+}
+
+void AMMPlayerCharacter::ConvertEquipmentVisibility()
+{
+	// 장비 위젯 On/Off 설정
+	AMMPlayerController* PlayerController = Cast<AMMPlayerController>(GetController());
+	if (PlayerController)
+	{
+		if (PlayerController->GetHUDWidget())
+		{
+			// 장비 위젯 토글 함수를 호출합니다.
+			PlayerController->GetHUDWidget()->ToggleEquipmentWidget();
 
 			// 현재 활성화된 위젯에 대한 비트플래그를 확인하여 모드를 변경해주도록 합니다.
 			if (PlayerController->GetHUDWidget()->GetIsVisibility())
@@ -890,7 +923,9 @@ void AMMPlayerCharacter::SaveEnd()
 void AMMPlayerCharacter::DrawEnd(UAnimMontage* Montage, bool IsEnded)
 {
 	bIsChange = false;
-	bIsEquip = true;
+
+	if (CurrentWeapon)
+		bIsEquip = true;
 }
 
 void AMMPlayerCharacter::SheatheWeapon()
@@ -935,6 +970,9 @@ void AMMPlayerCharacter::EquipWeapon(AMMWeapon* Weapon)
 	CurrentWeapon = Weapon;
 	CurrentWeapon->SetOwner(this);
 	CurrentWeapon->EquipWeapon();
+
+	bIsEquip = false;
+	bIsChange = false;
 }
 
 void AMMPlayerCharacter::UnEquipWeapon()
@@ -942,7 +980,9 @@ void AMMPlayerCharacter::UnEquipWeapon()
 	if (CurrentWeapon)
 	{
 		CurrentWeapon->Destroy();
+		CurrentWeapon = nullptr;
 		bIsEquip = false;
+		bIsChange = false;
 	}
 }
 

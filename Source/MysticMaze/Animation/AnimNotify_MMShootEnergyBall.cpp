@@ -13,7 +13,7 @@ void UAnimNotify_MMShootEnergyBall::Notify(USkeletalMeshComponent* MeshComp, UAn
 	{
 		// 에너지볼을 발사합니다.
 		IMMAnimationWeaponInterface* WeaponPawn = Cast<IMMAnimationWeaponInterface>(MeshComp->GetOwner());
-		if (WeaponPawn)
+		if (WeaponPawn && WeaponPawn->GetWeapon())
 		{
 			AMMStaffWeapon* StaffWeapon = Cast<AMMStaffWeapon>(WeaponPawn->GetWeapon());
 			if (StaffWeapon)

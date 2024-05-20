@@ -61,18 +61,18 @@ void UMMStatComponent::InitPlayerStatus()
 
 		ModifierStat = LoadModifierStatus;
 
-		// WeaponStat 초기화
-		FMMCharacterStat LoadWeaponStatus;
-
-		LoadWeaponStatus.STR = 10;
-		LoadWeaponStatus.DEX = 10;
-		LoadWeaponStatus.CON = 10;
-		LoadWeaponStatus.INT = 10;
-
-		WeaponStat = LoadWeaponStatus;
+		// WeaponStat 초기화 (무기가 있는 경우라면 나중에 인벤쪽에서 해주자..!)
+		//FMMCharacterStat LoadWeaponStatus;
+		//
+		//LoadWeaponStatus.STR = 10;
+		//LoadWeaponStatus.DEX = 10;
+		//LoadWeaponStatus.CON = 10;
+		//LoadWeaponStatus.INT = 10;
+		//
+		//WeaponStat = LoadWeaponStatus;
 
 		// 클래스 정보 초기화
-		ClassType = EClassType::CT_Beginner;
+		ClassType = EClassType::CT_Warrior;
 
 		// 현재 경험치 초기화
 		CurrentExp = 10.0f;
