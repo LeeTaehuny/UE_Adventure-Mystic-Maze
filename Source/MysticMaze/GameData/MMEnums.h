@@ -23,4 +23,5 @@ enum class ESlotType : uint8
     ST_InventoryOther,      // 인벤토리(기타)
     ST_SkillSlot,           // 스킬 슬롯 (퀵슬롯)
     ST_PotionSlot,          // 포션 슬롯 (퀵슬롯)
+    ST_Equipment,           // 장비 슬롯 (장비창)
 };

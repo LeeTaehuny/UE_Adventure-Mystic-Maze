@@ -923,10 +923,27 @@ void AMMPlayerCharacter::SheatheEnd(UAnimMontage* Montage, bool IsEnded)
 
 void AMMPlayerCharacter::EquipWeapon(AMMWeapon* Weapon)
 {
-	if (!CurrentWeapon) return;
+	if (!Weapon) return;
 
+	// 기존 무기가 있다면 장착 해제하기
+	if (CurrentWeapon)
+	{
+		UnEquipWeapon();
+	}
+
+	// 현재 무기를 업데이트 및 착용
+	CurrentWeapon = Weapon;
 	CurrentWeapon->SetOwner(this);
-	Weapon->EquipWeapon();
+	CurrentWeapon->EquipWeapon();
+}
+
+void AMMPlayerCharacter::UnEquipWeapon()
+{
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->Destroy();
+		bIsEquip = false;
+	}
 }
 
 void AMMPlayerCharacter::DrawArrowEnd(UAnimMontage* Montage, bool IsEnded)

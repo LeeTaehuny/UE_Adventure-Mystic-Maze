@@ -4,9 +4,13 @@
 #include "Player/MMInventoryComponent.h"
 #include "Player/MMInventoryItem.h"
 #include "Player/MMStatComponent.h"
+#include "Item/MMWeapon.h"
 #include "Item/MMItemData.h"
 #include "Item/MMPotionItemData.h"
+#include "Item/MMWeaponItemData.h"
 #include "Interface/MMStatusInterface.h"
+#include "Interface/MMInventoryInterface.h"
+#include "Interface/MMPlayerClassInterface.h"
 
 #include "Engine/AssetManager.h"
 
@@ -461,6 +465,97 @@ void UMMInventoryComponent::SetQuickSlot(ESlotType InPrevSlotType, int32 InPrevI
 			OnChangedPotionSlot.Broadcast();
 		}
 	}
+}
+
+void UMMInventoryComponent::EquipItem(int32 InCurrentIndex)
+{
+	// 인덱스와 내부 데이터가 유효한지 체크합니다. 
+	if (!EquipmentItems.IsValidIndex(InCurrentIndex) || !IsValid(EquipmentItems[InCurrentIndex])) return;
+
+	// 장비 타입을 체크합니다.
+	UMMWeaponItemData* WeaponData = Cast<UMMWeaponItemData>(EquipmentItem);
+	if (!WeaponData) return;
+	IMMPlayerClassInterface* ClassPawn = Cast<IMMPlayerClassInterface>(GetOwner());
+	if (!ClassPawn) return;
+
+	// 착용할 수 없는 타입의 직업이라면 반환합니다.
+	if (ClassPawn->GetClass() != WeaponData->PurchaseableClass) return;
+
+	// 현재 착용중인 장비가 존재하는 경우
+	if (IsValid(EquipmentItem))
+	{
+		// 장비를 교체합니다.
+		UMMInventoryItem* TempItem = EquipmentItem;
+		EquipmentItem = EquipmentItems[InCurrentIndex];
+		EquipmentItems[InCurrentIndex] = TempItem;
+	}
+	else
+	{
+		// 새로운 장비를 장비 슬롯에 적용합니다.
+		EquipmentItem = EquipmentItems[InCurrentIndex];
+		EquipmentItems[InCurrentIndex] = nullptr;
+	}
+
+	// 장비를 착용합니다.
+	IMMInventoryInterface* InvPawn = Cast<IMMInventoryInterface>(GetOwner());
+	if (InvPawn)
+	{
+		InvPawn->EquipWeapon(Cast<AMMWeapon>(GetWorld()->SpawnActor<AMMWeapon>(WeaponData->WeaponClass)));
+	}
+
+	// 장비의 스탯을 적용합니다.
+	IMMStatusInterface* StatusPawn = Cast<IMMStatusInterface>(GetOwner());
+	if (StatusPawn)
+	{
+		StatusPawn->GetStatComponent()->SetWeaponStat(WeaponData->WeaponStat);
+	}
+	
+	// 인벤토리 변경 이벤트 발생
+	OnChangeInven.Broadcast();
+}
+
+void UMMInventoryComponent::UnEquipItem()
+{
+	// 결과 반환용 변수
+	bool Result = false;
+
+	// 현재 착용중인 장비가 유효한지 체크합니다.
+	if (!IsValid(EquipmentItem)) return;
+
+	// 현재 장비를 장비 창의 빈 칸에 넣어줍니다.
+	for (auto& Item : EquipmentItems)
+	{
+		if (!IsValid(Item))
+		{
+			Item = EquipmentItem;
+			EquipmentItem = nullptr;
+			Result = true;
+			break;
+		}
+	}
+
+	// 착용 해제에 성공한 경우
+	if (Result)
+	{
+		// 장비 스탯을 초기화합니다.
+		IMMStatusInterface* StatusPawn = Cast<IMMStatusInterface>(GetOwner());
+		if (StatusPawn)
+		{
+			StatusPawn->GetStatComponent()->SetWeaponStat();
+		}
+
+		// 실제 장비를 착용해제 합니다.
+		IMMInventoryInterface* InvPawn = Cast<IMMInventoryInterface>(GetOwner());
+		if (InvPawn)
+		{
+			InvPawn->UnEquipWeapon();
+		}
+
+		// 인벤토리 변경 이벤트 발생
+		OnChangeInven.Broadcast();
+	}
+
+	return;
 }
 
 void UMMInventoryComponent::InitInventory()

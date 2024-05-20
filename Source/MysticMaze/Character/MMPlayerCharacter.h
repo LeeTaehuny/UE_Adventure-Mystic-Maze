@@ -188,6 +188,7 @@ protected:
 // Character Class Section
 protected:
 	FORCEINLINE virtual EClassType GetClassType() override { return ClassType; };
+	FORCEINLINE virtual EClassType GetClass() override { return ClassType; }
 	FORCEINLINE virtual void SetClass(EClassType Class) override { ClassType = Class; }
 	void ChangeClass(EClassType Class);
 
@@ -201,7 +202,8 @@ protected:
 	void DrawEnd(class UAnimMontage* Montage, bool IsEnded);
 	void SheatheWeapon();
 	void SheatheEnd(class UAnimMontage* Montage, bool IsEnded);
-	void EquipWeapon(class AMMWeapon* Weapon);
+	virtual void EquipWeapon(class AMMWeapon* Weapon) override;
+	virtual void UnEquipWeapon() override;
 
 	UPROPERTY(VisibleAnywhere, Category = Weapon, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class AMMWeapon> CurrentWeapon;

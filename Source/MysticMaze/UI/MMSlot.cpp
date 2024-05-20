@@ -38,23 +38,20 @@ FReply UMMSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPoin
 	// 우클릭 입력이 들어온 경우
 	if (InMouseEvent.IsMouseButtonDown(EKeys::RightMouseButton))
 	{
-		// 기타 슬롯인 경우 반환
-		if (SlotType == ESlotType::ST_InventoryOther) return Reply.NativeReply;
+		IMMInventoryInterface* InvPlayer = Cast<IMMInventoryInterface>(OwningActor);
+		if (!InvPlayer) return Reply.NativeReply;
 
 		switch (SlotType)
 		{
-		case ESlotType::ST_InventoryEquipment:
-			// TODO : 아이템 장착
-			break;
-
 		case ESlotType::ST_InventoryConsumable:
 			// 소비 아이템을 사용합니다.
-			IMMInventoryInterface* InvPlayer = Cast<IMMInventoryInterface>(OwningActor);
-			if (InvPlayer)
-			{
-				InvPlayer->GetInventoryComponent()->UseItem(SlotIndex, SlotType);
-				UpdateSlot();
-			}
+			InvPlayer->GetInventoryComponent()->UseItem(SlotIndex, SlotType);
+			UpdateSlot();
+			break;
+
+		case ESlotType::ST_Equipment:
+			// 무기를 해제합니다.
+			InvPlayer->GetInventoryComponent()->UnEquipItem();
 			break;
 		}
 	}
@@ -160,6 +157,16 @@ bool UMMSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& In
 				InvPlayer->GetInventoryComponent()->SetQuickSlot(Operation->SlotType, Operation->PrevSlotIndex, SlotIndex);
 			}
 		}
+		// 다른 타입의 슬롯인 경우 (장비 슬롯 -> 장비창)
+		else if (Operation->SlotType == ESlotType::ST_InventoryEquipment && SlotType == ESlotType::ST_Equipment)
+		{
+			// Operation에 저장된 PrevSlotIndex 위치의 아이템을 장착합니다.
+			IMMInventoryInterface* InvPlayer = Cast<IMMInventoryInterface>(OwningActor);
+			if (InvPlayer)
+			{
+				InvPlayer->GetInventoryComponent()->EquipItem(Operation->PrevSlotIndex);
+			}
+		}
 	}
 
 	return false;
@@ -180,6 +187,7 @@ void UMMSlot::Init()
 	SlotUpdateActions.Add(ESlotType::ST_InventoryOther, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateOtherSlot)));
 	SlotUpdateActions.Add(ESlotType::ST_SkillSlot, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateSkillSlot)));
 	SlotUpdateActions.Add(ESlotType::ST_PotionSlot, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdatePotionSlot)));
+	SlotUpdateActions.Add(ESlotType::ST_Equipment, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateEquipment)));
 
 	UpdateSlot();
 }
@@ -356,6 +364,28 @@ void UMMSlot::UpdatePotionSlot()
 				IMG_Item->SetBrushFromTexture(DefaultTexture);
 				TXT_Quantity->SetText(FText::FromString(TEXT("")));
 			}
+		}
+	}
+}
+
+void UMMSlot::UpdateEquipment()
+{
+	IMMInventoryInterface* InvPlayer = Cast<IMMInventoryInterface>(OwningActor);
+
+	if (InvPlayer)
+	{
+		UMMInventoryItem* EquipmentItem = InvPlayer->GetInventoryComponent()->GetEquipmentItem();
+		if (IsValid(EquipmentItem))
+		{
+			// 존재하는 경우 아이템의 텍스쳐를 반영해줍니다.
+			IMG_Item->SetBrushFromTexture(EquipmentItem->ItemData->ItemTexture);
+			TXT_Quantity->SetText(FText::FromString(TEXT("")));
+		}
+		else
+		{
+			// 존재하지 않는 경우 빈 칸으로 표시합니다.
+			IMG_Item->SetBrushFromTexture(DefaultTexture);
+			TXT_Quantity->SetText(FText::FromString(TEXT("")));
 		}
 	}
 }

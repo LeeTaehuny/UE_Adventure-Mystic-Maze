@@ -245,6 +245,16 @@ void UMMStatComponent::UpgradeStat(EStatusType Type)
 	}
 }
 
+void UMMStatComponent::SetWeaponStat(FMMCharacterStat InWeaponStat)
+{
+	WeaponStat = InWeaponStat;
+
+	// 스탯을 업데이트 합니다.
+	UpdateDetailStatus();
+
+	OnWeaponChanged.Broadcast(WeaponStat);
+}
+
 void UMMStatComponent::SetLevel(int32 InLevel)
 {
 	CurrentLevel = InLevel;

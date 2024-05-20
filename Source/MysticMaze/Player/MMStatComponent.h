@@ -14,6 +14,7 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(FOnMpChangedDelegate, float /* CurrentMp */
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnExpChangedDelegate, float /* CurrentMp */, float /* MaxExp */);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnMovementSpeedChangedDelegate, float /* MovementSpeed */);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnStatChangedDelegate, const FMMCharacterStat& /* Total Stat */);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnWeaponChangedDelegate, const FMMCharacterStat& /* Weapon Stat */);
 
 UENUM(BlueprintType)
 enum class EStatusType : uint8
@@ -49,6 +50,9 @@ public:
 	// 스탯 업그레이드
 	void UpgradeStat(EStatusType Type);
 
+	// 장비 스탯 설정
+	void SetWeaponStat(FMMCharacterStat InWeaponStat = FMMCharacterStat());
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -64,6 +68,7 @@ protected:
 public:
 	FOnHpZeroDelegate OnHpZero;
 	FOnStatChangedDelegate OnStatChanged;
+	FOnWeaponChangedDelegate OnWeaponChanged;
 	FOnHpChangedDelegate OnHpChanged;
 	FOnMpChangedDelegate OnMpChanged;
 	FOnMpChangedDelegate OnExpChanged;
@@ -85,6 +90,7 @@ public:
 	FORCEINLINE float GetCriticalHitRate() { return CriticalHitRate; }
 	FORCEINLINE int32 GetAvailableStatPoint() { return AvailableStatPoint; }
 	FORCEINLINE FMMCharacterStat GetTotalStat() { return TotalStat; }
+	FORCEINLINE FMMCharacterStat GetWeaponStat() { return WeaponStat; }
 
 // Basic Status (STR, DEX, CON, INT)
 protected:

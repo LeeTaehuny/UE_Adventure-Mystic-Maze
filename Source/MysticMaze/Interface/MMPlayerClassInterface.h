@@ -24,4 +24,5 @@ class MYSTICMAZE_API IMMPlayerClassInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual void SetClass(EClassType Class) = 0;
+	virtual EClassType GetClass() = 0;
 };
