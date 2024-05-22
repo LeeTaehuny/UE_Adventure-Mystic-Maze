@@ -6,6 +6,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/BoxComponent.h"
+#include "NavigationSystem.h"
+#include "NavMesh/NavMeshBoundsVolume.h"
 #include "MMRoomBase.generated.h"
 
 UCLASS()
@@ -34,6 +36,9 @@ public:
 
 	UFUNCTION() // 던전에서 몬스터들이 다 죽었을 경우 호출되는 함수
 	void ClearSignal();
+
+	// 몬스터 스포너 생성하기 위한 함수
+	void SpawnerSumon(FVector INLocation);
 
 protected:
 	//int Compass;
@@ -82,6 +87,21 @@ protected:
 
 	// 방의 문 개수 이상의 숫자를 가질 필요가 없기 때문에 최대 15까지만 저장하도록 변수 선언
 	uint8 CurDoorUp : 4;
-	//UPROPERTY(EditAnywhere, Category = "Switch", Meta = (AllowPrivateAccess = "true"))
 	uint8 MaxDoorUp : 4;
+
+	UPROPERTY(EditAnywhere, Category = "MonsterSpawnerData", Meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AActor> MonsterSpawner;
+
+	/*
+	룸의 타입을 정하는 변수 : 몬스터를 스폰할 때 사용함
+	0 : A 타입 네모
+	1 : B 타입 직사각형
+	2 : C 타입 ㄱ
+	3 : D 타입 ㄴ
+	*/
+	uint8 RoomType : 2;
+
+	
+	UPROPERTY(EditAnywhere, Category = "MonsterSpawnerData", Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<ANavMeshBoundsVolume> NavMeshBoundsVolume;
 };

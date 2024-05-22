@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/MMBaseAnimInstance.h"
+
 #include "MMBugSwarmAnim.generated.h"
 
 /**
@@ -17,6 +18,8 @@ class MYSTICMAZE_API UMMBugSwarmAnim : public UMMBaseAnimInstance
 public:
 	UMMBugSwarmAnim();
 
+	
+
 protected:
 	// Initialize
 	virtual void NativeInitializeAnimation() override;
@@ -26,5 +29,11 @@ protected:
 
 protected:
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AnimBP")
+	uint8 bDie : 1;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AnimBP")
+	uint8 bSpawn : 1;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AnimBP")
+	uint8 bRandomDieMotion : 1;
 	
 };

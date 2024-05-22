@@ -3,6 +3,18 @@
 
 #include "Dungeon/MMRoomBase.h"
 
+#include "Kismet/GameplayStatics.h"
+#include "Components/BrushComponent.h"
+
+#include "AI/NavigationSystemBase.h"
+#include "Engine/World.h"
+#include "NavMesh/RecastNavMesh.h"
+
+#include "Monster/MMFirstFloorMonsterSpawner.h"
+#include "Monster/MMSecondFloorMOnsterSpawner.h"
+#include "Monster/MMThirdFloorMonsterSpawner.h"
+
+
 // Sets default values
 AMMRoomBase::AMMRoomBase()
 {
@@ -909,7 +921,37 @@ bool AMMRoomBase::SpawnWestRoom(FVector INCenterLocation)
 void AMMRoomBase::RoomBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	// 룸에 처음 입장했을때 발동, 이곳에서 몬스터 스폰도 진행될 예정
-	bFirstContact = true;
+
+	if (!bFirstContact)
+	{
+		bFirstContact = true;
+
+		FVector LocalLocation = this->GetActorLocation();
+		NavMeshBoundsVolume = GetWorld()->SpawnActor<ANavMeshBoundsVolume>(ANavMeshBoundsVolume::StaticClass());
+		if (NavMeshBoundsVolume)
+		{
+			NavMeshBoundsVolume->GetRootComponent()->SetMobility(EComponentMobility::Movable);
+			UBrushComponent* BrushComponent = Cast<UBrushComponent>(NavMeshBoundsVolume->GetComponentByClass(UBrushComponent::StaticClass()));
+			if (BrushComponent)
+			{
+				BrushComponent->SetMobility(EComponentMobility::Movable);
+			}
+
+			NavMeshBoundsVolume->GetRootComponent()->SetWorldLocation(LocalLocation);
+			NavMeshBoundsVolume->GetRootComponent()->SetWorldScale3D(FVector(8000, 8000, 100));
+			UNavigationSystemV1::GetCurrent(World)->OnNavigationBoundsUpdated(NavMeshBoundsVolume);
+		}
+
+		if (FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld()))
+		{
+			FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld())->Build();
+		}
+
+		// 몬스터 스포너를 스폰하기 위한 함수
+		// 매개변수 : 액터의 원점 로케이션 정보 전달
+		SpawnerSumon(LocalLocation);		
+	}
+	
 }
 
 void AMMRoomBase::DoorUpDown(uint8 INSwitch, UStaticMeshComponent* INWallData)
@@ -947,5 +989,113 @@ void AMMRoomBase::ClearSignal()
 	// 클리어 했다는 것을 알림
 	bMonsterAlive = false;
 	bClear = true;
+}
+
+void AMMRoomBase::SpawnerSumon(FVector INLocation)
+{
+	AActor* MyActor;
+	MyActor = GetWorld()->SpawnActorDeferred<AActor>(MonsterSpawner, FTransform(FVector()));
+	if (MyActor)
+	{
+		// 받아온 블루프린트의 태그에 따라 분류
+		// 1층 태그라면 1층 스포너를
+		// 2층이라면 2층 스포너를
+		// 3층이라면 3층을
+		// 스폰한 스포너에 원점이 되는 함수 설정
+		if (MyActor->ActorHasTag("FirstFloorSpawner"))
+		{
+			AMMFirstFloorMonsterSpawner* FirstFloor = Cast<AMMFirstFloorMonsterSpawner>(MyActor);
+			if (FirstFloor)
+			{
+				// 룸의 타입에 따라 전달하는 위치 정보가 다름
+				switch (RoomType)
+				{
+				case 0:
+					FirstFloor->SetSpawnPoint(INLocation);
+					break;
+
+				case 1:
+					FirstFloor->SetSpawnPoint(INLocation + FVector(2000, 0, 0));
+					FirstFloor->SetSpawnPoint(INLocation + FVector(-2000, 0, 0));
+					break;
+
+				case 2:
+					FirstFloor->SetSpawnPoint(INLocation + FVector(2000, 0, 0));
+					FirstFloor->SetSpawnPoint(INLocation + FVector(-2000, 0, 0));
+					FirstFloor->SetSpawnPoint(INLocation + FVector(-2000, -4000, 0));
+					break;
+
+				case 3:
+					FirstFloor->SetSpawnPoint(INLocation + FVector(2000, 0, 0));
+					FirstFloor->SetSpawnPoint(INLocation + FVector(-2000, 0, 0));
+					FirstFloor->SetSpawnPoint(INLocation + FVector(2000, 4000, 0));
+					break;
+				}
+			}
+		}
+		else if (MyActor->ActorHasTag("SecondFloorSpawner"))
+		{
+			AMMSecondFloorMOnsterSpawner* SecondFloor = Cast<AMMSecondFloorMOnsterSpawner>(MyActor);
+			if (SecondFloor)
+			{
+				switch (RoomType)
+				{
+				case 0:
+					SecondFloor->SetSpawnPoint(INLocation);
+					break;
+
+				case 1:
+					SecondFloor->SetSpawnPoint(INLocation + FVector(2000, 0, 0));
+					SecondFloor->SetSpawnPoint(INLocation + FVector(-2000, 0, 0));
+					break;
+
+				case 2:
+					SecondFloor->SetSpawnPoint(INLocation + FVector(2000, 0, 0));
+					SecondFloor->SetSpawnPoint(INLocation + FVector(-2000, 0, 0));
+					SecondFloor->SetSpawnPoint(INLocation + FVector(-2000, -4000, 0));
+					break;
+
+				case 3:
+					SecondFloor->SetSpawnPoint(INLocation + FVector(2000, 0, 0));
+					SecondFloor->SetSpawnPoint(INLocation + FVector(-2000, 0, 0));
+					SecondFloor->SetSpawnPoint(INLocation + FVector(2000, 4000, 0));
+					break;
+				}
+			}
+		}
+		else if (MyActor->ActorHasTag("ThirdFloorSpawner"))
+		{
+			AMMThirdFloorMonsterSpawner* ThirdFloor = Cast<AMMThirdFloorMonsterSpawner>(MyActor);
+			if (ThirdFloor)
+			{
+				switch (RoomType)
+				{
+				case 0:
+					ThirdFloor->SetSpawnPoint(INLocation);
+					break;
+
+				case 1:
+					ThirdFloor->SetSpawnPoint(INLocation + FVector(2000, 0, 0));
+					ThirdFloor->SetSpawnPoint(INLocation + FVector(-2000, 0, 0));
+					break;
+
+				case 2:
+					ThirdFloor->SetSpawnPoint(INLocation + FVector(2000, 0, 0));
+					ThirdFloor->SetSpawnPoint(INLocation + FVector(-2000, 0, 0));
+					ThirdFloor->SetSpawnPoint(INLocation + FVector(-2000, -4000, 0));
+					break;
+
+				case 3:
+					ThirdFloor->SetSpawnPoint(INLocation + FVector(2000, 0, 0));
+					ThirdFloor->SetSpawnPoint(INLocation + FVector(-2000, 0, 0));
+					ThirdFloor->SetSpawnPoint(INLocation + FVector(2000, 4000, 0));
+					break;
+				}
+			}
+		}
+
+		// 초기화 완료
+		UGameplayStatics::FinishSpawningActor(MyActor, FTransform(FVector()));
+	}
 }
 

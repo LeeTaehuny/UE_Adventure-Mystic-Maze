@@ -59,9 +59,6 @@ private: // 뷰포트에서 사용되는 변수들
 	UPROPERTY(EditAnywhere, Category = "Door", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UBoxComponent> Weast; // 서쪽 문을 열고 닫고 방을 스폰하기 위한 콜리전
 
-
-	
-
 private: // 룸 작동 변수
 
 	// 문이 열리고 닫히는지를 판별하는 변수
@@ -75,4 +72,6 @@ private: // 룸 작동 변수
 	uint8 bSouth_Blocking : 1;
 	uint8 bWest_Blocking : 1;
 	uint8 bEast_Blocking : 1;
+
+	
 };

@@ -64,6 +64,8 @@ AMMRoom_Class_A::AMMRoom_Class_A()
 	// 지금 닫힌 문이 맥스도어업 값과 같거나 넘는다면 문 잠금,
 	// 물론 한 번 몬스터가 스폰된 적이 있어야 함
 	MaxDoorUp = 4;
+
+	RoomType = 0;
 }
 
 // Called when the game starts or when spawned

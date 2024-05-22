@@ -89,6 +89,8 @@ AMMRoom_Class_D::AMMRoom_Class_D()
 	bEast_Blocking_1 = false;
 
 	MaxDoorUp = 8;
+
+	RoomType = 3;
 }
 
 // Called when the game starts or when spawned
