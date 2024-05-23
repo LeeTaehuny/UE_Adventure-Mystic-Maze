@@ -30,12 +30,16 @@ public:
 	UPROPERTY(meta = (BindWidget = "true"))
 	TObjectPtr<class UMMEquipmentWidget> EquipmentWidget;
 
+	UPROPERTY(meta = (BindWidget = "true"))
+	TObjectPtr<class UMMSkillWidget> SkillWidget;
+
 public:
 	void Init();
 
 	void ToggleInventoryWidget();
 	void ToggleStatusWidget();
 	void ToggleEquipmentWidget();
+	void ToggleSkillWidget();
 	void ToggleInteractionWidget(bool InValue);
 	void InteractionWidgetHelpText(FString HelpText);
 
@@ -49,6 +53,7 @@ private:
 		INVENTORY	= 1 << 0,	// 0000 0001 - 인벤토리 위젯
 		STATUS		= 1 << 1,	// 0000 0010 - 스테이터스 위젯
 		EQUIPMENT	= 1 << 2,	// 0000 0100 - 장비 위젯
+		SKILL		= 1 << 3,   // 0000 1000 - 스킬 위젯
 	};
 
 	// 위젯이 열려있는지 판별하기 위한 비트플래그

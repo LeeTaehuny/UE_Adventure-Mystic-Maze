@@ -72,6 +72,7 @@ protected:
 	void UpdateConsumableSlot();
 	void UpdateOtherSlot();
 	void UpdateSkillSlot();
+	void UpdateSkillQuickSlot();
 	void UpdatePotionSlot();
 	void UpdateEquipment();
 	

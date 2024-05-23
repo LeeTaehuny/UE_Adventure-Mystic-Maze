@@ -14,6 +14,11 @@
 #include "Containers/Map.h"
 #include "UI/MMHUDWidget.h"
 #include "Player/MMStatComponent.h"
+#include "Player/MMSkillComponent.h"
+
+// TEST
+#include "Skill/Warrior/MMSkill_ComboSlash.h"
+#include "Skill/MMSkillBase.h"
 
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
@@ -138,6 +143,12 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 		if (IA_ConvertEquipmentRef.Object)
 		{
 			IA_ConvertEquipment = IA_ConvertEquipmentRef.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_ConvertSkillRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_ConvertSkill.IA_ConvertSkill'"));
+		if (IA_ConvertSkillRef.Object)
+		{
+			IA_ConvertSkill = IA_ConvertSkillRef.Object;
 		}
 
 		static ConstructorHelpers::FObjectFinder<UInputAction>IA_QuickSlot1Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_QuickSlot1.IA_QuickSlot1'"));
@@ -279,6 +290,7 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 	// etc. Component
 	{
 		Inventory = CreateDefaultSubobject<UMMInventoryComponent>(TEXT("Inventory"));
+		Skill = CreateDefaultSubobject<UMMSkillComponent>(TEXT("Skill"));
 	}
 }
 
@@ -372,6 +384,7 @@ void AMMPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(IA_Interaction, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::Interaction);
 	EnhancedInputComponent->BindAction(IA_ConvertInventory, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertInventoryVisibility);
 	EnhancedInputComponent->BindAction(IA_ConvertStatus, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertStatusVisibility);
+	EnhancedInputComponent->BindAction(IA_ConvertSkill, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertSkillVisibility);
 	
 	EnhancedInputComponent->BindAction(IA_QuickSlot1, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 1);
 	EnhancedInputComponent->BindAction(IA_QuickSlot2, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 2);
@@ -422,6 +435,23 @@ void AMMPlayerCharacter::RollStart()
 	{
 		// Roll Check
 		bIsRoll = true;
+
+		// 키보드 방향으로 회전
+		{
+			// 컨트롤러의 회전 중 Yaw(Z)를 가져와 저장
+			const FRotator Rotation = Controller->GetControlRotation();
+			const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+			// 회전(Yaw)을 기반으로 전방 및 오른쪽 방향을 받아오기 (X : 전방, Y : 오른쪽)
+			const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+			const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+			// 전방 및 오른쪽 방향을 이용하여 목표 회전 각도 계산
+			const FRotator TargetRotation = (ForwardDirection * MovementVector.X + RightDirection * MovementVector.Y).Rotation();
+
+			// 컨트롤러를 목표 회전 각도로 설정
+			SetActorRotation(TargetRotation);
+		}
 
 		// 몽타주 재생
 		AnimInstance->Montage_Play(RollMontage, 1.3f);
@@ -519,10 +549,37 @@ void AMMPlayerCharacter::ConvertEquipmentVisibility()
 	}
 }
 
+void AMMPlayerCharacter::ConvertSkillVisibility()
+{
+	// 스킬 위젯 On/Off 설정
+	AMMPlayerController* PlayerController = Cast<AMMPlayerController>(GetController());
+	if (PlayerController)
+	{
+		if (PlayerController->GetHUDWidget())
+		{
+			// 스킬 위젯 토글 함수를 호출합니다.
+			PlayerController->GetHUDWidget()->ToggleSkillWidget();
+
+			// 현재 활성화된 위젯에 대한 비트플래그를 확인하여 모드를 변경해주도록 합니다.
+			if (PlayerController->GetHUDWidget()->GetIsVisibility())
+			{
+				// 활성화된 위젯이 있으므로 UI모드로 설정합니다.
+				PlayerController->SetUIInputMode();
+			}
+			else
+			{
+				// 활성화된 위젯이 없으므로 UI모드로 설정합니다.
+				PlayerController->SetGameInputMode();
+			}
+		}
+	}
+}
+
 void AMMPlayerCharacter::BasicMove(const FInputActionValue& Value)
 {
 	// 입력받은 Value로부터 MovementVector 가져오기
-	FVector2D MovementVector = Value.Get<FVector2D>();
+	MovementVector = Value.Get<FVector2D>();
+	//FVector2D MovementVector = Value.Get<FVector2D>();
 
 	// 컨트롤러의 회전 중 Yaw(Z)를 가져와 저장
 	const FRotator Rotation = Controller->GetControlRotation();
@@ -571,6 +628,7 @@ void AMMPlayerCharacter::BasicAttack()
 	{
 		ComboStart();
 		bIsAttacking = true;
+		SetActorRotation(FRotator(GetActorRotation().Pitch, GetControlRotation().Yaw, GetActorRotation().Roll));
 		return;
 	}
 
@@ -1103,20 +1161,19 @@ void AMMPlayerCharacter::UseQuickSlot(int32 InNum)
 {
 	switch (InNum)
 	{
+	// Skill QuickSlot
 	case 1:
-		break;
 	case 2:
-		break;
 	case 3:
-		break;
 	case 4:
-		break;
-	case 5:
-		Inventory->UseItem(0, ESlotType::ST_PotionSlot);
+		if (bIsEquip)
+			Skill->UseSkill(InNum - 1);
 		break;
 
+	// Potion QuickSlot
+	case 5:
 	case 6:
-		Inventory->UseItem(1, ESlotType::ST_PotionSlot);
+		Inventory->UseItem(InNum - 5, ESlotType::ST_PotionSlot);
 		break;
 	}
 }

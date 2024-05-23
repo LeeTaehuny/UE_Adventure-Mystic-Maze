@@ -25,6 +25,7 @@ public:
 	void UpdateHpBar(float CurrentHp, float MaxHp);
 	void UpdateMpBar(float CurrentMp, float MaxMp);
 	void UpdateExpBar(float CurrentExp, float MaxExp);
+	void UpdateSkillData(int32 QuickSlotIndex);
 
 // HpBar
 public:

@@ -22,8 +22,6 @@ class MYSTICMAZE_API UMMInventoryComponent : public UActorComponent
 public:	
 	UMMInventoryComponent();
 
-	virtual void InitializeComponent() override;
-
 // Delegate
 public:
 	FOnChangedInventoryDelegate OnChangeInven;
@@ -31,6 +29,7 @@ public:
 	FOnChangedPotionSlotDelegate OnChangedPotionSlot;
 
 protected:
+	virtual void InitializeComponent() override;
 	virtual void BeginPlay() override;
 
 public:

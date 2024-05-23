@@ -136,8 +136,14 @@ void UMMStatComponent::UpdateDetailStatus()
 	// 비율에 맞춰 세부 스탯 업데이트
 	// * 최대 체력
 	MaxHp = (TotalStat.STR * 0.5f * 100) + (TotalStat.CON * 0.5f * 100);
+	if (CurrentHp > MaxHp)
+		SetHp(MaxHp);
+
 	// * 최대 마나
 	MaxMp = TotalStat.INT * 100;
+	if (CurrentMp > MaxMp)
+		SetMp(MaxMp);
+
 	// * 공격력
 	switch (ClassType)
 	{
@@ -198,8 +204,7 @@ void UMMStatComponent::HealHp(float InHealPercent)
 	float HealAmount = MaxHp * (InHealPercent / 100);
 
 	// 체력을 더해 줍니다.
-	CurrentHp = FMath::Clamp(CurrentHp + HealAmount, 0, MaxHp);
-	OnHpChanged.Broadcast(CurrentHp, MaxHp);
+	SetHp(CurrentHp + HealAmount);
 }
 
 void UMMStatComponent::HealMp(float InHealPercent)
@@ -208,8 +213,12 @@ void UMMStatComponent::HealMp(float InHealPercent)
 	float HealAmount = MaxMp * (InHealPercent / 100);
 
 	// 마나를 더해줍니다.
-	CurrentMp = FMath::Clamp(CurrentMp + HealAmount, 0, MaxMp);
-	OnMpChanged.Broadcast(CurrentMp, MaxMp);
+	SetMp(CurrentMp + HealAmount);
+}
+
+void UMMStatComponent::UseMp(float InAmount)
+{
+	SetMp(CurrentMp - InAmount);
 }
 
 void UMMStatComponent::UpgradeStat(EStatusType Type)

@@ -46,6 +46,8 @@ public:
 	void HealHp(float InHealPercent);
 	// 마나 회복
 	void HealMp(float InHealPercent);
+	// 마나 사용
+	void UseMp(float InAmount);
 
 	// 스탯 업그레이드
 	void UpgradeStat(EStatusType Type);
