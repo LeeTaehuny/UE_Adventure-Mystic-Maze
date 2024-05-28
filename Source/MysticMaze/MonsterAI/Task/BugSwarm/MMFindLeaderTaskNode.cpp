@@ -6,6 +6,7 @@
 #include "Monster/MMBugSwarm.h"
 #include "Collision/MMCollision.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Interface/MMMonsterATKModeInterface.h"
 
 UMMFindLeaderTaskNode::UMMFindLeaderTaskNode()
 {
@@ -24,14 +25,18 @@ EBTNodeResult::Type UMMFindLeaderTaskNode::ExecuteTask(UBehaviorTreeComponent& O
 	TArray<FOverlapResult> Overlaps;
 	FQuat Rotation = FQuat::Identity; // 회전 없음
 	ECollisionChannel TraceChannel = ECC_WorldStatic; // 충돌 채널
-	FCollisionShape CollisionShape = FCollisionShape::MakeSphere(8000.0f); // 구 형태의 충돌체 (반지름: 200)
+	//FCollisionShape CollisionShape = FCollisionShape::MakeSphere(8000.0f); 
+	FCollisionShape CollisionShape = FCollisionShape::MakeBox(FVector(4000, 4000, 1000)); 
 	FCollisionQueryParams Params;
 
 	AMMBugSwarmAIController* Mydata = Cast<AMMBugSwarmAIController>(OwnerComp.GetAIOwner());
+	IMMMonsterATKModeInterface* MyPawnData = Cast<IMMMonsterATKModeInterface>(OwnerComp.GetAIOwner()->GetPawn());
 	if (Mydata)
 	{
 		Mydata->GetBlackboardComponent()->SetValueAsObject("MyLeader", OwnerComp.GetAIOwner()->GetPawn());
 		Mydata->GetBlackboardComponent()->SetValueAsBool("LeaderItMe", true);
+
+		MyPawnData->SetATKMode(true);
 	}
 	else
 	{
@@ -46,6 +51,15 @@ EBTNodeResult::Type UMMFindLeaderTaskNode::ExecuteTask(UBehaviorTreeComponent& O
 		CollisionShape, // 충돌체
 		Params))
 	{
+		//DrawDebugBox(
+		//	GetWorld(),
+		//	SpawnLocation,
+		//	CollisionShape.GetBox(),
+		//	FColor::Red, // 색상
+		//	false, // 영구 여부 (true로 설정하면 디버그 도형이 영구히 남음)
+		//	5.0f // 지속 시간
+		//);
+
 		for (const FOverlapResult& Data : Overlaps)
 		{
 			if (!Data.GetActor()->ActorHasTag(TEXT("BugSwarm")))
@@ -57,11 +71,23 @@ EBTNodeResult::Type UMMFindLeaderTaskNode::ExecuteTask(UBehaviorTreeComponent& O
 			if (changeBug)
 			{
 				AMMBugSwarmAIController* GetAiController = Cast<AMMBugSwarmAIController>(changeBug->GetController());
-				if (GetAiController)
+				if (GetAiController &&
+					!GetAiController->GetBlackboardComponent()->GetValueAsObject("MyLeader"))
 				{
 					GetAiController->GetBlackboardComponent()->SetValueAsObject("MyLeader", OwnerComp.GetAIOwner()->GetPawn());
 					Mydata->AddSoldier(GetAiController);
 				}
+			}
+		}
+
+		for (AMMBugSwarmAIController* monC : Mydata->GetSoldiersData())
+		{
+			//monC->GetBlackboardComponent()->SetValueAsBool("ATK_Mode", true);
+
+			IMMMonsterATKModeInterface* SoldierDatas = Cast<IMMMonsterATKModeInterface>(monC->GetPawn());
+			if (SoldierDatas)
+			{
+				SoldierDatas->SetATKMode(true);
 			}
 		}
 	}

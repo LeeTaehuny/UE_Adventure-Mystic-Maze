@@ -76,4 +76,8 @@ private: // 룸 작동 변수
 	uint8 bSouth_Blocking : 1;
 	uint8 bWest_Blocking : 1;
 	uint8 bEast_Blocking : 1;
+
+
+	UPROPERTY(EditAnywhere, Category = "MonsterSpawnerData", Meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class AMMMonsterSpawner> SpawnerData;
 };

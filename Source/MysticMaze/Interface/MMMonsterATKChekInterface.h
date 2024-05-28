@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "MMBugSwarmFlyingInterface.generated.h"
+#include "MMMonsterATKChekInterface.generated.h"
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
-class UMMBugSwarmFlyingInterface : public UInterface
+class UMMMonsterATKChekInterface : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -16,15 +16,12 @@ class UMMBugSwarmFlyingInterface : public UInterface
 /**
  * 
  */
-class MYSTICMAZE_API IMMBugSwarmFlyingInterface
+class MYSTICMAZE_API IMMMonsterATKChekInterface
 {
 	GENERATED_BODY()
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-
-	virtual void SetFlying(bool INData) = 0;
-	virtual void SetZLocation(float INData) = 0;
-	virtual FVector SetMinZLocation(FVector INData) = 0;
+	virtual void ATKChecking() = 0;
 
 };

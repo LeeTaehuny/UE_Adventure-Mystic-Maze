@@ -8,6 +8,8 @@
 #include "GameFramework/Character.h"
 #include "Components/CapsuleComponent.h"
 
+#include "Interface/MMMugSpeedATKInterface.h"
+
 UMM_BugSwarm_SpeedATK_Task::UMM_BugSwarm_SpeedATK_Task()
 {
 	
@@ -81,8 +83,13 @@ EBTNodeResult::Type UMM_BugSwarm_SpeedATK_Task::ExecuteTask(UBehaviorTreeCompone
 			{
 				// 충돌이 발생하지 않았을 경우 End 지점을 저장
 				HitLocation = End;
-			}		
+			}
 
+			IMMMugSpeedATKInterface* Monster = Cast<IMMMugSpeedATKInterface>(OwnerComp.GetAIOwner()->GetPawn());
+			if (Monster)
+			{
+				Monster->ATKOn();
+			}
 			
 			return EBTNodeResult::InProgress;
 		}
@@ -105,7 +112,6 @@ void UMM_BugSwarm_SpeedATK_Task::TickTask(UBehaviorTreeComponent& OwnerComp, uin
 	MoveRequest.SetReachTestIncludesGoalRadius(true);
 	MoveRequest.SetCanStrafe(true);
 	
-	BugSwarmCapusulData->SetCollisionProfileName(TEXT("MMTrigger"));
 	FPathFollowingRequestResult MoveResult = MyController->MoveTo(MoveRequest);
 
 	// move to 함수의 반환 값에 따라 종료를 결정
@@ -120,13 +126,12 @@ void UMM_BugSwarm_SpeedATK_Task::TickTask(UBehaviorTreeComponent& OwnerComp, uin
 		{
 			OwnerComp.GetAIOwner()->GetBlackboardComponent()->SetValueAsBool("bRehabilitation", true);
 		}
-		// 공격이 종료된 것이 리더가 아닐 경우 제자리에서 대기하도록 설정
-		else
-		{
-		}
 
-		// 테스크 종료 전 콜리전 프리셋 변경
-		BugSwarmCapusulData->SetCollisionProfileName(TEXT("MMCapsule"));
+		IMMMugSpeedATKInterface* Monster = Cast<IMMMugSpeedATKInterface>(OwnerComp.GetAIOwner()->GetPawn());
+		if (Monster)
+		{
+			Monster->ATKOff();
+		}
 
 		// 노드를 바로 끝내기 위한 실패 반환
 		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);

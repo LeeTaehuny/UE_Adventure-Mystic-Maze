@@ -106,7 +106,11 @@ void AMMRoom_Class_A::Tick(float DeltaTime)
 void AMMRoom_Class_A::NorthBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	// 문제의 콜리전에 충돌했을 경우 잠금 풀기
-	bDoorRock = false;
+	if ((bMonsterAlive && !bFirstContact) ||
+		(!bMonsterAlive && bFirstContact))
+	{
+		bDoorRock = false;
+	}
 
 	// 아직 몬스터가 스폰되지 않았다면 문 열음
 	if (!bFirstContact || bNorth_Blocking)
@@ -130,7 +134,11 @@ void AMMRoom_Class_A::NorthEndOverlap(UPrimitiveComponent* HitComp, AActor* Othe
 
 void AMMRoom_Class_A::WastBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	bDoorRock = false;
+	if ((bMonsterAlive && !bFirstContact) ||
+		(!bMonsterAlive && bFirstContact))
+	{
+		bDoorRock = false;
+	}
 
 	if (!bFirstContact || bWest_Blocking)
 	{
@@ -151,7 +159,11 @@ void AMMRoom_Class_A::WastEndOverlap(UPrimitiveComponent* HitComp, AActor* Other
 
 void AMMRoom_Class_A::EastBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	bDoorRock = false;
+	if ((bMonsterAlive && !bFirstContact) ||
+		(!bMonsterAlive && bFirstContact))
+	{
+		bDoorRock = false;
+	}
 
 	if (!bEast_Blocking || bEast_Blocking)
 	{
@@ -172,7 +184,11 @@ void AMMRoom_Class_A::EastEndOverlap(UPrimitiveComponent* HitComp, AActor* Other
 
 void AMMRoom_Class_A::SouthBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	bDoorRock = false;
+	if ((bMonsterAlive && !bFirstContact) ||
+		(!bMonsterAlive && bFirstContact))
+	{
+		bDoorRock = false;
+	}
 
 	if (!bFirstContact || bSouth_Blocking)
 	{

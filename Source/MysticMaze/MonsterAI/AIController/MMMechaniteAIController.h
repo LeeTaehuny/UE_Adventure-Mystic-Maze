@@ -25,7 +25,6 @@ private:
 	UPROPERTY(EditAnywhere, Category = "AI", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UBehaviorTree> BegAIBehavior;
 
-	
-
+	TObjectPtr<UBlackboardComponent> MyBlackboardData;
 
 };

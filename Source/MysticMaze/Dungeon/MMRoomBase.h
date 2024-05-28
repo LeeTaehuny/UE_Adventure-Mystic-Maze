@@ -8,6 +8,7 @@
 #include "Components/BoxComponent.h"
 #include "NavigationSystem.h"
 #include "NavMesh/NavMeshBoundsVolume.h"
+#include "Monster/MMMonsterSpawnType.h"
 #include "MMRoomBase.generated.h"
 
 UCLASS()
@@ -37,8 +38,13 @@ public:
 	UFUNCTION() // 던전에서 몬스터들이 다 죽었을 경우 호출되는 함수
 	void ClearSignal();
 
+	void SetSpawner(class AMMMonsterSpawner* INData) { Spawner = INData; }
+
+	SpawnType GetRandomEnumValue();
+	
+
 	// 몬스터 스포너 생성하기 위한 함수
-	void SpawnerSumon(FVector INLocation);
+	//void SpawnerSumon(FVector INLocation);
 
 protected:
 	//int Compass;
@@ -100,8 +106,7 @@ protected:
 	3 : D 타입 ㄴ
 	*/
 	uint8 RoomType : 2;
-
 	
 	UPROPERTY(EditAnywhere, Category = "MonsterSpawnerData", Meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<ANavMeshBoundsVolume> NavMeshBoundsVolume;
+	TObjectPtr<class AMMMonsterSpawner> Spawner;
 };

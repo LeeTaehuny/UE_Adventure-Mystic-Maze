@@ -54,14 +54,6 @@ void AMMBugSwarmAIController::Tick(float DeltaTime)
 	{
 		Blackboard->SetValueAsBool("Die", BugSwarm->GetDie());
 		Blackboard->SetValueAsBool("Spawn", BugSwarm->GetSpawn());
-		Blackboard->SetValueAsVector("SpawnLocation", BugSwarm->GetSpawnLocation());
-
-		//Blackboard->SetValueAsBool("LeaderItMe", bLeaderItMe);
-		//Blackboard->SetValueAsBool("bRehabilitation", bRehabilitation);
-		//Blackboard->SetValueAsBool("bSpeedAttack", bSpeedAttack);
-		//Blackboard->SetValueAsBool("bMachineGun", bMachineGun);
-
-		//Blackboard->SetValueAsBool("bBugFlying", BugSwarm->GetFlying());
-		//Blackboard->SetValueAsFloat("ZLocation", BugSwarm->GetZLocation());
+		Blackboard->SetValueAsBool("ATK_Mode", BugSwarm->GetATKMode());
 	}
 }

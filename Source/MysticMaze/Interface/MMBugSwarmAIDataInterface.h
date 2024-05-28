@@ -25,9 +25,6 @@ public:
 	// 블랙보드에 데이터를 전달하기 위한 인터페이스
 	virtual bool GetDie() = 0;
 	virtual bool GetSpawn() = 0;
-	virtual FVector GetSpawnLocation() = 0;
-
-	virtual bool GetFlying() = 0;
-	virtual float GetZLocation() = 0;
+	virtual bool GetATKMode() = 0;
 
 };

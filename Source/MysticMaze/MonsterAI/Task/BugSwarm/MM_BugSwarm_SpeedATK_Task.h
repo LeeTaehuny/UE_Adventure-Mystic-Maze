@@ -31,4 +31,6 @@ private:
 
 	AAIController* MyController;
 	UCapsuleComponent* BugSwarmCapusulData;
+
+	
 };

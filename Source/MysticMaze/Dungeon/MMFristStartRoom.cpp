@@ -3,6 +3,8 @@
 
 #include "Dungeon/MMFristStartRoom.h"
 
+#include "Kismet/GameplayStatics.h"
+
 AMMFristStartRoom::AMMFristStartRoom()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -76,6 +78,8 @@ void AMMFristStartRoom::BeginPlay()
 	South_Collision->OnComponentEndOverlap.AddDynamic(this, &AMMFristStartRoom::SouthEndOverlap);
 
 	RoomCenter->OnComponentBeginOverlap.AddDynamic(this, &AMMRoomBase::RoomBeginOverlap);
+
+	Spawner = GetWorld()->SpawnActor<AMMMonsterSpawner>(SpawnerData, FTransform(FVector()));
 }
 
 void AMMFristStartRoom::Tick(float DeltaTime)
