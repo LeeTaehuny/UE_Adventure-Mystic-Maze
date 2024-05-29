@@ -15,7 +15,7 @@ AMMRoom_Class_B::AMMRoom_Class_B()
 	RootComponent = MainFloor;
 
 	RoomCenter = CreateDefaultSubobject<UBoxComponent>(TEXT("Center"));
-	RoomCenter->AttachToComponent(MainFloor, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	RoomCenter->SetupAttachment(MainFloor);
 
 	Wall.Add(CreateDefaultSubobject<UStaticMeshComponent>(TEXT("North Door_0")));
 	Wall.Add(CreateDefaultSubobject<UStaticMeshComponent>(TEXT("North Door_1")));
@@ -29,32 +29,32 @@ AMMRoom_Class_B::AMMRoom_Class_B()
 		for (int i = 0; i < Wall.Num(); i++)
 		{
 			Wall[i]->SetStaticMesh(WallMeshRef.Object);
-			Wall[i]->AttachToComponent(MainFloor, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+			Wall[i]->SetupAttachment(MainFloor);
 		}
 	}
 
 	North_0 = CreateDefaultSubobject<UBoxComponent>(TEXT("North Collision_0"));
-	North_0->AttachToComponent(Wall[0], FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	North_0->SetupAttachment(Wall[0]);
 	BoxColliders.Add(North_0);
 
 	North_1 = CreateDefaultSubobject<UBoxComponent>(TEXT("North Collision_1"));
-	North_1->AttachToComponent(Wall[1], FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	North_1->SetupAttachment(Wall[1]);
 	BoxColliders.Add(North_1);
 
 	East = CreateDefaultSubobject<UBoxComponent>(TEXT("East Collision"));
-	East->AttachToComponent(Wall[2], FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	East->SetupAttachment(Wall[2]);
 	BoxColliders.Add(East);
 
 	Weast = CreateDefaultSubobject<UBoxComponent>(TEXT("West Collision"));
-	Weast->AttachToComponent(Wall[3], FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	Weast->SetupAttachment(Wall[3]);
 	BoxColliders.Add(Weast);
 
 	South_0 = CreateDefaultSubobject<UBoxComponent>(TEXT("South Collision_0"));
-	South_0->AttachToComponent(Wall[4], FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	South_0->SetupAttachment(Wall[4]);
 	BoxColliders.Add(South_0);
 
 	South_1 = CreateDefaultSubobject<UBoxComponent>(TEXT("South Collision_1"));
-	South_1->AttachToComponent(Wall[5], FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	South_1->SetupAttachment(Wall[5]);
 	BoxColliders.Add(South_1);
 
 	bNorth_Switch_0 = false;
@@ -70,6 +70,10 @@ AMMRoom_Class_B::AMMRoom_Class_B()
 	bSouth_Blocking_1 = false;
 	bWest_Blocking = false;
 	bEast_Blocking = false;
+
+	MaxDoorUp = 6;
+
+	RoomType = 1;
 }
 
 // Called when the game starts or when spawned
@@ -90,7 +94,8 @@ void AMMRoom_Class_B::BeginPlay()
 	South_0->OnComponentEndOverlap.AddDynamic(this, &AMMRoom_Class_B::SouthEndOverlap_0);
 	South_1->OnComponentBeginOverlap.AddDynamic(this, &AMMRoom_Class_B::SouthBeginOverlap_1);
 	South_1->OnComponentEndOverlap.AddDynamic(this, &AMMRoom_Class_B::SouthEndOverlap_1);
-	RoomCenter->OnComponentBeginOverlap.AddDynamic(this, &AMMRoomBase::FirstBeginOverlap);
+
+	RoomCenter->OnComponentBeginOverlap.AddDynamic(this, &AMMRoomBase::RoomBeginOverlap);
 }
 
 // Called every frame
@@ -98,32 +103,28 @@ void AMMRoom_Class_B::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!bMonsterAlive)
+	if (!bDoorRock)
 	{
-		bClear = true;
+		CurDoorUp = 0;
+		DoorUpDown(bNorth_Switch_0, Wall[0]);
+		DoorUpDown(bNorth_Switch_1, Wall[1]);
+		DoorUpDown(bEast_Switch, Wall[2]);
+		DoorUpDown(bWest_Switch, Wall[3]);
+		DoorUpDown(bSouth_Switch_0, Wall[4]);
+		DoorUpDown(bSouth_Switch_1, Wall[5]);
 	}
-
-	if (bFirstContact && bMonsterAlive)
-	{
-		bNorth_Switch_0 = false;
-		bNorth_Switch_1 = false;
-		bEast_Switch = false;
-		bWest_Switch = false;
-		bSouth_Switch_0 = false;
-		bSouth_Switch_1 = false;
-	}
-
-	DoorUpDown(bNorth_Switch_0, Wall[0]);
-	DoorUpDown(bNorth_Switch_1, Wall[1]);
-	DoorUpDown(bEast_Switch, Wall[2]);
-	DoorUpDown(bWest_Switch, Wall[3]);
-	DoorUpDown(bSouth_Switch_0, Wall[4]);
-	DoorUpDown(bSouth_Switch_1, Wall[5]);
 }
 
 void AMMRoom_Class_B::NorthBeginOverlap_0(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!bFirstContact)
+	// 문제의 콜리전에 충돌했을 경우 잠금 풀기
+	if ((bMonsterAlive && !bFirstContact) ||
+		(!bMonsterAlive && bFirstContact))
+	{
+		bDoorRock = false;
+	}
+
+	if (!bFirstContact || bNorth_Blocking_0)
 	{
 		bNorth_Switch_0 = true;
 		return;
@@ -144,7 +145,14 @@ void AMMRoom_Class_B::NorthEndOverlap_0(UPrimitiveComponent* HitComp, AActor* Ot
 
 void AMMRoom_Class_B::NorthBeginOverlap_1(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!bFirstContact)
+	// 문제의 콜리전에 충돌했을 경우 잠금 풀기
+	if ((bMonsterAlive && !bFirstContact) ||
+		(!bMonsterAlive && bFirstContact))
+	{
+		bDoorRock = false;
+	}
+
+	if (!bFirstContact || bNorth_Blocking_1)
 	{
 		bNorth_Switch_1 = true;
 		return;
@@ -165,7 +173,14 @@ void AMMRoom_Class_B::NorthEndOverlap_1(UPrimitiveComponent* HitComp, AActor* Ot
 
 void AMMRoom_Class_B::SouthBeginOverlap_0(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!bFirstContact)
+	// 문제의 콜리전에 충돌했을 경우 잠금 풀기
+	if ((bMonsterAlive && !bFirstContact) ||
+		(!bMonsterAlive && bFirstContact))
+	{
+		bDoorRock = false;
+	}
+
+	if (!bFirstContact || bSouth_Blocking_0)
 	{
 		bSouth_Switch_0 = true;
 		return;
@@ -175,7 +190,7 @@ void AMMRoom_Class_B::SouthBeginOverlap_0(UPrimitiveComponent* HitComp, AActor* 
 	{
 		bSouth_Switch_0 = true;
 		FVector CurLocation = this->GetActorLocation() + FVector(2000, 0, 0);
-		bSouth_Blocking_0 = SpawnNrothRoom(CurLocation);
+		bSouth_Blocking_0 = SpawnSouthRoom(CurLocation);
 	}
 }
 void AMMRoom_Class_B::SouthEndOverlap_0(UPrimitiveComponent* HitComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
@@ -186,7 +201,14 @@ void AMMRoom_Class_B::SouthEndOverlap_0(UPrimitiveComponent* HitComp, AActor* Ot
 
 void AMMRoom_Class_B::SouthBeginOverlap_1(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!bFirstContact)
+	// 문제의 콜리전에 충돌했을 경우 잠금 풀기
+	if ((bMonsterAlive && !bFirstContact) ||
+		(!bMonsterAlive && bFirstContact))
+	{
+		bDoorRock = false;
+	}
+
+	if (!bFirstContact || bSouth_Blocking_1)
 	{
 		bSouth_Switch_1 = true;
 		return;
@@ -196,7 +218,7 @@ void AMMRoom_Class_B::SouthBeginOverlap_1(UPrimitiveComponent* HitComp, AActor* 
 	{
 		bSouth_Switch_1 = true;
 		FVector CurLocation = this->GetActorLocation() + FVector(-2000, 0, 0);
-		bSouth_Blocking_1 = SpawnNrothRoom(CurLocation);
+		bSouth_Blocking_1 = SpawnSouthRoom(CurLocation);
 	}
 }
 void AMMRoom_Class_B::SouthEndOverlap_1(UPrimitiveComponent* HitComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
@@ -207,7 +229,14 @@ void AMMRoom_Class_B::SouthEndOverlap_1(UPrimitiveComponent* HitComp, AActor* Ot
 
 void AMMRoom_Class_B::WastBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!bFirstContact)
+	// 문제의 콜리전에 충돌했을 경우 잠금 풀기
+	if ((bMonsterAlive && !bFirstContact) ||
+		(!bMonsterAlive && bFirstContact))
+	{
+		bDoorRock = false;
+	}
+
+	if (!bFirstContact || bWest_Blocking)
 	{
 		bWest_Switch = true;
 		return;
@@ -217,7 +246,7 @@ void AMMRoom_Class_B::WastBeginOverlap(UPrimitiveComponent* HitComp, AActor* Oth
 	{
 		bWest_Switch = true;
 		FVector CurLocation = this->GetActorLocation() + FVector(2000, 0, 0);
-		bWest_Blocking = SpawnNrothRoom(CurLocation);
+		bWest_Blocking = SpawnWestRoom(CurLocation);
 	}
 }
 void AMMRoom_Class_B::WastEndOverlap(UPrimitiveComponent* HitComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
@@ -228,7 +257,14 @@ void AMMRoom_Class_B::WastEndOverlap(UPrimitiveComponent* HitComp, AActor* Other
 
 void AMMRoom_Class_B::EastBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!bFirstContact)
+	// 문제의 콜리전에 충돌했을 경우 잠금 풀기
+	if ((bMonsterAlive && !bFirstContact) ||
+		(!bMonsterAlive && bFirstContact))
+	{
+		bDoorRock = false;
+	}
+
+	if (!bFirstContact || bEast_Blocking)
 	{
 		bEast_Switch = true;
 		return;
@@ -238,7 +274,7 @@ void AMMRoom_Class_B::EastBeginOverlap(UPrimitiveComponent* HitComp, AActor* Oth
 	{
 		bEast_Switch = true;
 		FVector CurLocation = this->GetActorLocation() + FVector(-2000, 0, 0);
-		bEast_Blocking = SpawnNrothRoom(CurLocation);
+		bEast_Blocking = SpawnEastRoom(CurLocation);
 	}
 }
 void AMMRoom_Class_B::EastEndOverlap(UPrimitiveComponent* HitComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
