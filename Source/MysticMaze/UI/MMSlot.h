@@ -75,6 +75,8 @@ protected:
 	void UpdateSkillQuickSlot();
 	void UpdatePotionSlot();
 	void UpdateEquipment();
+
+	void UpdateShopPotion();
 	
 	void SetEquipmentToolTip(class UMMToolTip* EquipmentToolTipWidget, class UMMItemData* ItemData);
 	void SetConsumableToolTip(class UMMToolTip* ConsumableToolTipWidget, class UMMItemData* ItemData);

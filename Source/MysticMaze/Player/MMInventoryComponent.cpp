@@ -26,6 +26,9 @@ UMMInventoryComponent::UMMInventoryComponent()
 	ConsumableItems.Init(nullptr, MaxInventoryNum);
 	OtherItems.Init(nullptr, MaxInventoryNum);
 	PotionQuickSlots.Init(nullptr, 2);
+
+	// 판매 기능 설정
+	bIsSellable = false;
 }
 
 void UMMInventoryComponent::InitializeComponent()
@@ -99,8 +102,11 @@ bool UMMInventoryComponent::AddItem(FName InItemName, int32 InItemQuantity, int3
 						// 이름이 동일한 아이템이 있는지 체크하기
 						if (Item->ItemData->ItemName == NewItem->ItemData->ItemName)
 						{
+							// 현재 칸이 최대 이미 최대 수량이라면 건너뛰기
+							if (Item->ItemQuantity == MaxItemNum) continue;
+
 							// 최대 수량 체크하기
-							if (Item->ItemQuantity + NewItem->ItemQuantity> MaxItemNum)
+							if (Item->ItemQuantity + NewItem->ItemQuantity > MaxItemNum)
 							{
 								// 최대 수량까지 채운 후 남은 값으로 설정하기
 								NewItem->ItemQuantity = Item->ItemQuantity + NewItem->ItemQuantity - MaxItemNum;
@@ -112,6 +118,7 @@ bool UMMInventoryComponent::AddItem(FName InItemName, int32 InItemQuantity, int3
 								// 수량을 더하고 종료하기
 								Item->ItemQuantity += NewItem->ItemQuantity;
 								OnChangeInven.Broadcast();
+								OnChangedPotionSlot.Broadcast();
 								return true;
 							}
 						}
@@ -127,6 +134,9 @@ bool UMMInventoryComponent::AddItem(FName InItemName, int32 InItemQuantity, int3
 						// 이름이 동일한 아이템이 있는지 체크하기
 						if (Item->ItemData->ItemName == NewItem->ItemData->ItemName)
 						{
+							// 현재 칸이 최대 이미 최대 수량이라면 건너뛰기
+							if (Item->ItemQuantity == MaxItemNum) continue;
+
 							// 최대 수량 체크하기
 							if (Item->ItemQuantity + NewItem->ItemQuantity > MaxItemNum)
 							{
@@ -158,7 +168,7 @@ bool UMMInventoryComponent::AddItem(FName InItemName, int32 InItemQuantity, int3
 			{
 				if (!IsValid(Item))
 				{
-					OtherItems[Index] = NewItem;
+					EquipmentItems[Index] = NewItem;
 					bIsResult = true;
 					OnChangeInven.Broadcast();
 					break;
@@ -172,9 +182,10 @@ bool UMMInventoryComponent::AddItem(FName InItemName, int32 InItemQuantity, int3
 			{
 				if (!IsValid(Item))
 				{
-					OtherItems[Index] = NewItem;
+					ConsumableItems[Index] = NewItem;
 					bIsResult = true;
 					OnChangeInven.Broadcast();
+					OnChangedPotionSlot.Broadcast();
 					break;
 				}
 
@@ -319,12 +330,92 @@ void UMMInventoryComponent::UseItem(int32 InSlotIndex, ESlotType InventoryType)
 	}
 }
 
+void UMMInventoryComponent::SellItem(int32 InSlotIndex, ESlotType InventoryType)
+{
+	if (!bIsSellable) return;
+
+	switch (InventoryType)
+	{
+	case ESlotType::ST_InventoryEquipment:
+		if (EquipmentItems.IsValidIndex(InSlotIndex) && IsValid(EquipmentItems[InSlotIndex]))
+		{
+			// 수량을 줄여줍니다.
+			EquipmentItems[InSlotIndex]->ItemQuantity--;
+			// 골드를 추가합니다.
+			AddGold(EquipmentItems[InSlotIndex]->ItemData->ItemSalePrice);
+
+			// 수량이 0 이하라면 소멸시켜줍니다.
+			if (EquipmentItems[InSlotIndex]->ItemQuantity <= 0)
+			{
+				RemoveItem(InSlotIndex, InventoryType);
+			}
+
+			OnChangeInven.Broadcast();
+		}
+		break;
+	case ESlotType::ST_InventoryConsumable:
+		if (ConsumableItems.IsValidIndex(InSlotIndex) && IsValid(ConsumableItems[InSlotIndex]))
+		{
+			// 수량을 줄여줍니다.
+			ConsumableItems[InSlotIndex]->ItemQuantity--;
+			// 골드를 추가합니다.
+			AddGold(ConsumableItems[InSlotIndex]->ItemData->ItemSalePrice);
+
+			// 수량이 0 이하라면 소멸시켜줍니다.
+			if (ConsumableItems[InSlotIndex]->ItemQuantity <= 0)
+			{
+				RemoveItem(InSlotIndex, InventoryType);
+			}
+
+			OnChangeInven.Broadcast();
+			OnChangedPotionSlot.Broadcast();
+		}
+		break;
+	case ESlotType::ST_InventoryOther:
+		if (OtherItems.IsValidIndex(InSlotIndex) && IsValid(OtherItems[InSlotIndex]))
+		{
+			// 수량을 줄여줍니다.
+			OtherItems[InSlotIndex]->ItemQuantity--;
+			// 골드를 추가합니다.
+			AddGold(OtherItems[InSlotIndex]->ItemData->ItemSalePrice);
+
+			// 수량이 0 이하라면 소멸시켜줍니다.
+			if (OtherItems[InSlotIndex]->ItemQuantity <= 0)
+			{
+				RemoveItem(InSlotIndex, InventoryType);
+			}
+
+			OnChangeInven.Broadcast();
+		}
+		break;
+	}
+}
+
 void UMMInventoryComponent::AddGold(int32 InGold)
 {
 	if (InGold < 0) return;
 
 	CurrentGold += InGold;
 	OnChangeGold.Broadcast();
+}
+
+bool UMMInventoryComponent::UseGold(int32 InGold)
+{
+	if (InGold < 0) return false;
+
+	// 금액 소모가 가능한 상황
+	if (CurrentGold - InGold >= 0)
+	{
+		// 금액 소모 및 이벤트 발생
+		CurrentGold -= InGold;
+		OnChangeGold.Broadcast();
+		return true;
+	}
+	// 금액 소모가 불가능한 상황
+	else
+	{
+		return false;
+	}
 }
 
 void UMMInventoryComponent::SwapItem(int32 InPrevIndex, int32 InCurrentIndex, ESlotType InPrevSlotType, ESlotType InCurrentSlotType)
