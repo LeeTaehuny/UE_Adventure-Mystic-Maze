@@ -10,6 +10,6 @@ public class MysticMaze : ModuleRules
 
         PublicIncludePaths.AddRange(new string[] { "MysticMaze" });
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "EnhancedInput","AIModule", "NavigationSystem", "GameplayTasks" });
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "EnhancedInput", "UMG", "Slate", "SlateCore", "Niagara", "AIModule", "NavigationSystem", "GameplayTasks" });
 	}
 }

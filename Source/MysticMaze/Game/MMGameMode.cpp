@@ -13,7 +13,7 @@ AMMGameMode::AMMGameMode()
 	}
 
 	// PlayerControllerClass 설정
-	static ConstructorHelpers::FClassFinder<APlayerController> ControllerClassRef(TEXT("/Script/CoreUObject.Class'/Script/MysticMaze.MMPlayerController'"));
+	static ConstructorHelpers::FClassFinder<APlayerController> ControllerClassRef(TEXT("/Script/Engine.Blueprint'/Game/MysticMaze/Player/BP_MMPlayerController.BP_MMPlayerController_C'"));
 	if (ControllerClassRef.Succeeded())
 	{
 		PlayerControllerClass = ControllerClassRef.Class;

@@ -11,6 +11,8 @@
 			"AdditionalDependencies": [
 				"Engine",
 				"AIModule"
+				"CoreUObject",
+				"UMG"
 			]
 		}
 	],

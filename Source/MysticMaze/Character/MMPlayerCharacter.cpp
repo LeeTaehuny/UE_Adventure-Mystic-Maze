@@ -4,10 +4,21 @@
 #include "Character/MMPlayerCharacter.h"
 #include "MMComboActionData.h"
 #include "Collision/MMCollision.h"
+#include "Item/MMItemBox.h"
 #include "Item/MMWeapon.h"
 #include "Item/MMSwordWeapon.h"
 #include "Item/MMBowWeapon.h"
+#include "Player/MMInventoryComponent.h"
+#include "Player/MMPlayerController.h"
+#include "Interface/MMInteractionInterface.h"
 #include "Containers/Map.h"
+#include "UI/MMHUDWidget.h"
+#include "Player/MMStatComponent.h"
+#include "Player/MMSkillComponent.h"
+
+// TEST
+#include "Skill/Warrior/MMSkill_ComboSlash.h"
+#include "Skill/MMSkillBase.h"
 
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
@@ -26,6 +37,7 @@
 
 AMMPlayerCharacter::AMMPlayerCharacter()
 {
+	// Tick 활성화
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Member Variable 초기화
@@ -81,10 +93,10 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 	{
 		SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 		SpringArm->SetupAttachment(RootComponent);
-		SpringArm->TargetArmLength = 500.0f;
+		SpringArm->TargetArmLength = 800.0f;
 
 		Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-		Camera->SetRelativeLocation(FVector(0.0f, 0.0f, 150.0f));
+		Camera->SetRelativeLocation(FVector(0.0f, 0.0f, 100.0f));
 		Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 	}
 
@@ -107,6 +119,72 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 		if (IA_ConvertWeaponRef.Object)
 		{
 			IA_ConvertWeapon = IA_ConvertWeaponRef.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_InteractionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_Interaction.IA_Interaction'"));
+		if (IA_InteractionRef.Object)
+		{
+			IA_Interaction = IA_InteractionRef.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_ConvertInventoryRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_ConvertInventory.IA_ConvertInventory'"));
+		if (IA_ConvertInventoryRef.Object)
+		{
+			IA_ConvertInventory = IA_ConvertInventoryRef.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_ConvertStatusRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_ConvertStatus.IA_ConvertStatus'"));
+		if (IA_ConvertStatusRef.Object)
+		{
+			IA_ConvertStatus = IA_ConvertStatusRef.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_ConvertEquipmentRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_ConvertEquipment.IA_ConvertEquipment'"));
+		if (IA_ConvertEquipmentRef.Object)
+		{
+			IA_ConvertEquipment = IA_ConvertEquipmentRef.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_ConvertSkillRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_ConvertSkill.IA_ConvertSkill'"));
+		if (IA_ConvertSkillRef.Object)
+		{
+			IA_ConvertSkill = IA_ConvertSkillRef.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_QuickSlot1Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_QuickSlot1.IA_QuickSlot1'"));
+		if (IA_QuickSlot1Ref.Object)
+		{
+			IA_QuickSlot1 = IA_QuickSlot1Ref.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_QuickSlot2Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_QuickSlot2.IA_QuickSlot2'"));
+		if (IA_QuickSlot2Ref.Object)
+		{
+			IA_QuickSlot2 = IA_QuickSlot2Ref.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_QuickSlot3Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_QuickSlot3.IA_QuickSlot3'"));
+		if (IA_QuickSlot3Ref.Object)
+		{
+			IA_QuickSlot3 = IA_QuickSlot3Ref.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_QuickSlot4Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_QuickSlot4.IA_QuickSlot4'"));
+		if (IA_QuickSlot4Ref.Object)
+		{
+			IA_QuickSlot4 = IA_QuickSlot4Ref.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_QuickSlot5Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_QuickSlot5.IA_QuickSlot5'"));
+		if (IA_QuickSlot5Ref.Object)
+		{
+			IA_QuickSlot5 = IA_QuickSlot5Ref.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_QuickSlot6Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_QuickSlot6.IA_QuickSlot6'"));
+		if (IA_QuickSlot6Ref.Object)
+		{
+			IA_QuickSlot6 = IA_QuickSlot6Ref.Object;
 		}
 
 		// Basic Input
@@ -208,14 +286,36 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 			ChargeParticleSystemComponent->Template = ChargeParticleRef.Object;
 		}
 	}
+
+	// etc. Component
+	{
+		Inventory = CreateDefaultSubobject<UMMInventoryComponent>(TEXT("Inventory"));
+		Skill = CreateDefaultSubobject<UMMSkillComponent>(TEXT("Skill"));
+	}
+}
+
+
+void AMMPlayerCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	// 델리게이트 연동
+	Stat->OnMovementSpeedChanged.AddUObject(this, &AMMPlayerCharacter::ApplyMovementSpeed);
+	Stat->OnHpZero.AddUObject(this, &AMMPlayerCharacter::Death);
+	Stat->OnHit.AddUObject(this, &AMMPlayerCharacter::Hit);
+
+	// 스탯 컴포넌트 초기화
+	Stat->Init();
+
+	// 파티클 비활성화
+	ChargeParticleSystemComponent->SetActive(false);
 }
 
 void AMMPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ChangeClass(EClassType::CT_Beginner);
-	ChargeParticleSystemComponent->SetActive(false);
+	ChangeClass(ClassType);
 
 	// TEST
 	//{
@@ -233,17 +333,15 @@ void AMMPlayerCharacter::BeginPlay()
 	//}
 
 	// TEST
-	//AMMItemBox* ItemBox = GetWorld()->SpawnActorDeferred<AMMItemBox>(AMMItemBox::StaticClass(), GetActorTransform());
-	//if (ItemBox)
-	//{
-	//	TMap<FString, int32> ItemList;
-	//	ItemList.Add(TPair<FString, int32>(TEXT("DA_HP_Potion_Large"), 10));
-	//	ItemList.Add(TPair<FString, int32>(TEXT("DA_MP_Potion_Large"), 3));
-	//	ItemList.Add(TPair<FString, int32>(TEXT("DA_Bow_2"), 5));
-	//	ItemBox->AddItemList(ItemList);
-	//	ItemBox->AddMoney(1000);
-	//	ItemBox->FinishSpawning(GetActorTransform());
-	//}
+	FTransform SpawnTransform;
+	SpawnTransform.SetLocation(GetActorLocation() - GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+	AMMItemBox* ItemBox = GetWorld()->SpawnActorDeferred<AMMItemBox>(AMMItemBox::StaticClass(), SpawnTransform);
+	if (ItemBox)
+	{
+		ItemBox->AddItemQuantity(50);
+		ItemBox->AddMoney(1000);
+		ItemBox->FinishSpawning(SpawnTransform);
+	}
 }
 
 void AMMPlayerCharacter::Tick(float DeltaSeconds)
@@ -267,8 +365,26 @@ void AMMPlayerCharacter::Tick(float DeltaSeconds)
 	if (bIsCharge)
 	{
 		ChargeNum = FMath::Clamp(ChargeNum + (DeltaSeconds * 0.3f), 1.0f, 2.0f);
-		UE_LOG(LogTemp, Warning, TEXT("%f"), ChargeNum);
 	}
+}
+
+float AMMPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	UE_LOG(LogTemp, Warning, TEXT("%f"), DamageAmount);
+
+	// 스킬 사용 중이라면?
+	if (IsValid(Skill->GetUsingSkill()))
+	{
+		// 스킬 캔슬하기
+		Skill->GetUsingSkill()->Cancel();
+	}
+
+	// 데미지 적용하기
+	Stat->ApplyDamage(DamageAmount);
+
+	return DamageAmount;
 }
 
 void AMMPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -287,7 +403,19 @@ void AMMPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(IA_Dash, ETriggerEvent::Completed, this, &AMMPlayerCharacter::DashEnd);
 	EnhancedInputComponent->BindAction(IA_Roll, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::RollStart);
 	EnhancedInputComponent->BindAction(IA_ConvertWeapon, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertWeapon);
-
+	EnhancedInputComponent->BindAction(IA_Interaction, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::Interaction);
+	EnhancedInputComponent->BindAction(IA_ConvertInventory, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertInventoryVisibility);
+	EnhancedInputComponent->BindAction(IA_ConvertStatus, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertStatusVisibility);
+	EnhancedInputComponent->BindAction(IA_ConvertSkill, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertSkillVisibility);
+	
+	EnhancedInputComponent->BindAction(IA_QuickSlot1, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 1);
+	EnhancedInputComponent->BindAction(IA_QuickSlot2, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 2);
+	EnhancedInputComponent->BindAction(IA_QuickSlot3, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 3);
+	EnhancedInputComponent->BindAction(IA_QuickSlot4, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 4);
+	EnhancedInputComponent->BindAction(IA_QuickSlot5, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 5);
+	EnhancedInputComponent->BindAction(IA_QuickSlot6, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 6);
+	EnhancedInputComponent->BindAction(IA_ConvertEquipment, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertEquipmentVisibility);
+	
 	// Warrior
 	EnhancedInputComponent->BindAction(IA_WarriorGuard, ETriggerEvent::Started, this, &AMMPlayerCharacter::GuardStart);
 	EnhancedInputComponent->BindAction(IA_WarriorGuard, ETriggerEvent::Completed, this, &AMMPlayerCharacter::GuardEnd);
@@ -330,6 +458,23 @@ void AMMPlayerCharacter::RollStart()
 		// Roll Check
 		bIsRoll = true;
 
+		// 키보드 방향으로 회전
+		{
+			// 컨트롤러의 회전 중 Yaw(Z)를 가져와 저장
+			const FRotator Rotation = Controller->GetControlRotation();
+			const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+			// 회전(Yaw)을 기반으로 전방 및 오른쪽 방향을 받아오기 (X : 전방, Y : 오른쪽)
+			const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+			const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+			// 전방 및 오른쪽 방향을 이용하여 목표 회전 각도 계산
+			const FRotator TargetRotation = (ForwardDirection * MovementVector.X + RightDirection * MovementVector.Y).Rotation();
+
+			// 컨트롤러를 목표 회전 각도로 설정
+			SetActorRotation(TargetRotation);
+		}
+
 		// 몽타주 재생
 		AnimInstance->Montage_Play(RollMontage, 1.3f);
 
@@ -348,10 +493,115 @@ void AMMPlayerCharacter::RollEnd(class UAnimMontage* Montage, bool IsEnded)
 	bIsRoll = false;
 }
 
+void AMMPlayerCharacter::ConvertInventoryVisibility()
+{
+	// 인벤토리 On/Off 설정
+	AMMPlayerController* PlayerController = Cast<AMMPlayerController>(GetController());
+	if (PlayerController)
+	{
+		if (PlayerController->GetHUDWidget())
+		{
+			// 인벤토리 위젯 토글 함수를 호출합니다.
+			PlayerController->GetHUDWidget()->ToggleInventoryWidget();
+
+			// 현재 활성화된 위젯에 대한 비트플래그를 확인하여 모드를 변경해주도록 합니다.
+			if (PlayerController->GetHUDWidget()->GetIsVisibility())
+			{
+				// 활성화된 위젯이 있으므로 UI모드로 설정합니다.
+				PlayerController->SetUIInputMode();
+			}
+			else
+			{
+				// 활성화된 위젯이 없으므로 UI모드로 설정합니다.
+				PlayerController->SetGameInputMode();
+			}
+		}
+	}
+}
+
+void AMMPlayerCharacter::ConvertStatusVisibility()
+{
+	// 스테이터스 On/Off 설정
+	AMMPlayerController* PlayerController = Cast<AMMPlayerController>(GetController());
+	if (PlayerController)
+	{
+		if (PlayerController->GetHUDWidget())
+		{
+			// 스테이터스 위젯 토글 함수를 호출합니다.
+			PlayerController->GetHUDWidget()->ToggleStatusWidget();
+
+			// 현재 활성화된 위젯에 대한 비트플래그를 확인하여 모드를 변경해주도록 합니다.
+			if (PlayerController->GetHUDWidget()->GetIsVisibility())
+			{
+				// 활성화된 위젯이 있으므로 UI모드로 설정합니다.
+				PlayerController->SetUIInputMode();
+			}
+			else
+			{
+				// 활성화된 위젯이 없으므로 UI모드로 설정합니다.
+				PlayerController->SetGameInputMode();
+			}
+		}
+	}
+}
+
+void AMMPlayerCharacter::ConvertEquipmentVisibility()
+{
+	// 장비 위젯 On/Off 설정
+	AMMPlayerController* PlayerController = Cast<AMMPlayerController>(GetController());
+	if (PlayerController)
+	{
+		if (PlayerController->GetHUDWidget())
+		{
+			// 장비 위젯 토글 함수를 호출합니다.
+			PlayerController->GetHUDWidget()->ToggleEquipmentWidget();
+
+			// 현재 활성화된 위젯에 대한 비트플래그를 확인하여 모드를 변경해주도록 합니다.
+			if (PlayerController->GetHUDWidget()->GetIsVisibility())
+			{
+				// 활성화된 위젯이 있으므로 UI모드로 설정합니다.
+				PlayerController->SetUIInputMode();
+			}
+			else
+			{
+				// 활성화된 위젯이 없으므로 UI모드로 설정합니다.
+				PlayerController->SetGameInputMode();
+			}
+		}
+	}
+}
+
+void AMMPlayerCharacter::ConvertSkillVisibility()
+{
+	// 스킬 위젯 On/Off 설정
+	AMMPlayerController* PlayerController = Cast<AMMPlayerController>(GetController());
+	if (PlayerController)
+	{
+		if (PlayerController->GetHUDWidget())
+		{
+			// 스킬 위젯 토글 함수를 호출합니다.
+			PlayerController->GetHUDWidget()->ToggleSkillWidget();
+
+			// 현재 활성화된 위젯에 대한 비트플래그를 확인하여 모드를 변경해주도록 합니다.
+			if (PlayerController->GetHUDWidget()->GetIsVisibility())
+			{
+				// 활성화된 위젯이 있으므로 UI모드로 설정합니다.
+				PlayerController->SetUIInputMode();
+			}
+			else
+			{
+				// 활성화된 위젯이 없으므로 UI모드로 설정합니다.
+				PlayerController->SetGameInputMode();
+			}
+		}
+	}
+}
+
 void AMMPlayerCharacter::BasicMove(const FInputActionValue& Value)
 {
 	// 입력받은 Value로부터 MovementVector 가져오기
-	FVector2D MovementVector = Value.Get<FVector2D>();
+	MovementVector = Value.Get<FVector2D>();
+	//FVector2D MovementVector = Value.Get<FVector2D>();
 
 	// 컨트롤러의 회전 중 Yaw(Z)를 가져와 저장
 	const FRotator Rotation = Controller->GetControlRotation();
@@ -400,6 +650,7 @@ void AMMPlayerCharacter::BasicAttack()
 	{
 		ComboStart();
 		bIsAttacking = true;
+		SetActorRotation(FRotator(GetActorRotation().Pitch, GetControlRotation().Yaw, GetActorRotation().Roll));
 		return;
 	}
 
@@ -424,9 +675,8 @@ void AMMPlayerCharacter::ComboStart()
 	// 공격 시 플레이어 이동 불가
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 
-	// TODO : 공격 속도가 추가되면 값 가져와 지정하기
-	const float AttackSpeedRate = 1.0f;
-
+	// 공격 속도 반영하기
+	const float AttackSpeedRate = Stat->GetAttackSpeed();
 
 	// 애님 인스턴스 가져오기
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -503,8 +753,8 @@ void AMMPlayerCharacter::SetComboTimer()
 	// 인덱스가 유효한지 체크
 	if (ComboData[ClassType]->ComboFrame.IsValidIndex(ComboIndex))
 	{
-		// TODO : 공격 속도가 추가되면 값 가져와 지정하기
-		const float AttackSpeedRate = 1.0f;
+		// 공격속도 지정하기
+		const float AttackSpeedRate = Stat->GetAttackSpeed();
 
 		// 실제 콤보가 입력될 수 있는 시간 구하기
 		float ComboAvailableTime = (ComboData[ClassType]->ComboFrame[ComboIndex] / ComboData[ClassType]->FrameRate) / AttackSpeedRate;
@@ -547,20 +797,71 @@ void AMMPlayerCharacter::BaseAttackCheck()
 
 	if (bHasHit)
 	{
-		// TODO : 데미지 전달
+		// 데미지 전달
 		for (FHitResult Result : OutHitResults)
 		{
-			
-			UE_LOG(LogTemp, Warning, TEXT("%s"), *Result.GetActor()->GetName());
+			ACharacter* PlayerCharacter = Cast<ACharacter>(Result.GetActor());
+			if (PlayerCharacter)
+			{
+				float Damage = Stat->GetAttackDamage();
+				bool Critical = FMath::FRand() < (Stat->GetCriticalHitRate() / 100);
+				
+				if (Critical)
+				{
+					Damage *= 2.0f;
+				}
+
+				UGameplayStatics::ApplyDamage(Result.GetActor(), Damage, GetController(), this, UDamageType::StaticClass());
+			}
 		}
 	}
 
 	// Capsule 모양의 디버깅 체크
-	FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
-	float CapsuleHalfHeight = AttackRange * 0.5f;
-	FColor DrawColor = bHasHit ? FColor::Green : FColor::Red;
+	//FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
+	//float CapsuleHalfHeight = AttackRange * 0.5f;
+	//FColor DrawColor = bHasHit ? FColor::Green : FColor::Red;
 
-	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 3.0f);
+	//DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 3.0f);
+}
+
+void AMMPlayerCharacter::Hit()
+{
+	// Hit 몽타주 재생
+	GetMesh()->GetAnimInstance()->Montage_Play(HitMontage);
+}
+
+void AMMPlayerCharacter::Death()
+{
+	// 애님 인스턴스 가져오기
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance)
+	{
+		// Death 몽타주 재생
+		AnimInstance->Montage_Play(DeathMontage);
+
+		// 몽타주 재생 종료 바인딩
+		FOnMontageEnded EndDelegate;
+		EndDelegate.BindUObject(this, &AMMPlayerCharacter::DeathEnd);
+
+		// DeathMontage가 종료되면 EndDelegate에 연동된 DeathEnd함수 호출
+		AnimInstance->Montage_SetEndDelegate(EndDelegate, DeathMontage);
+	}
+
+	// 캐릭터 이동 기능 제한
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+}
+
+void AMMPlayerCharacter::DeathEnd(UAnimMontage* Montage, bool IsEnded)
+{
+	// 캐릭터 안보이게 설정
+	GetMesh()->SetVisibility(false);
+}
+
+void AMMPlayerCharacter::Respawn()
+{
+	// TODO : 리스폰 위치 지정하기 + 이펙트도?
+	// 캐릭터 이동 기능 활성화
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 }
 
 void AMMPlayerCharacter::ChangeClass(EClassType Class)
@@ -720,8 +1021,8 @@ void AMMPlayerCharacter::ReleaseArrow()
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 
 	// 카메라 설정
-	Camera->SetRelativeLocation(FVector(0.0f, 0.0f, 150.0f));
-	SpringArm->TargetArmLength = 500.0f;
+	Camera->SetRelativeLocation(FVector(0.0f, 0.0f, 100.0f));
+	SpringArm->TargetArmLength = 800.0f;
 }
 
 void AMMPlayerCharacter::SaveStart()
@@ -752,7 +1053,9 @@ void AMMPlayerCharacter::SaveEnd()
 void AMMPlayerCharacter::DrawEnd(UAnimMontage* Montage, bool IsEnded)
 {
 	bIsChange = false;
-	bIsEquip = true;
+
+	if (CurrentWeapon)
+		bIsEquip = true;
 }
 
 void AMMPlayerCharacter::SheatheWeapon()
@@ -785,10 +1088,32 @@ void AMMPlayerCharacter::SheatheEnd(UAnimMontage* Montage, bool IsEnded)
 
 void AMMPlayerCharacter::EquipWeapon(AMMWeapon* Weapon)
 {
-	if (!CurrentWeapon) return;
+	if (!Weapon) return;
 
+	// 기존 무기가 있다면 장착 해제하기
+	if (CurrentWeapon)
+	{
+		UnEquipWeapon();
+	}
+
+	// 현재 무기를 업데이트 및 착용
+	CurrentWeapon = Weapon;
 	CurrentWeapon->SetOwner(this);
-	Weapon->EquipWeapon();
+	CurrentWeapon->EquipWeapon();
+
+	bIsEquip = false;
+	bIsChange = false;
+}
+
+void AMMPlayerCharacter::UnEquipWeapon()
+{
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->Destroy();
+		CurrentWeapon = nullptr;
+		bIsEquip = false;
+		bIsChange = false;
+	}
 }
 
 void AMMPlayerCharacter::DrawArrowEnd(UAnimMontage* Montage, bool IsEnded)
@@ -844,5 +1169,83 @@ void AMMPlayerCharacter::ShootArrow()
 		{
 			BowWeapon->ShootArrow();
 		}
+	}
+}
+
+void AMMPlayerCharacter::ApplyMovementSpeed(float MovementSpeed)
+{
+	// 이동속도 설정
+	WalkSpeed += MovementSpeed - 600;
+	RunSpeed += MovementSpeed - 600;
+
+	// 이동속도 적용
+	if (bIsDash)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = RunSpeed;
+	}
+	else
+	{
+		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("SetSpeed, %f, %f"), WalkSpeed, RunSpeed);
+}
+
+void AMMPlayerCharacter::Interaction()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (!AnimInstance) return;
+	if (AnimInstance->Montage_IsPlaying(PickUpMontage)) return;
+
+	TArray<FOverlapResult> OverlapResults;
+	FCollisionQueryParams CollisionQueryParams;
+
+	bool bHasHit = GetWorld()->OverlapMultiByChannel(
+		OverlapResults,
+		GetActorLocation(),
+		FQuat::Identity,
+		CHANNEL_MMINTERACTION,
+		FCollisionShape::MakeSphere(100.0f),
+		CollisionQueryParams
+	);
+
+	if (bHasHit)
+	{
+		// 충돌한 물체들을 순회하며 상호작용 합니다.
+		for (const FOverlapResult& Result : OverlapResults)
+		{
+			IMMInteractionInterface* InteractionActor = Cast<IMMInteractionInterface>(Result.GetActor());
+
+			// 상호작용이 가능한 액터라면?
+			if (InteractionActor)
+			{
+				// 상호작용 기능을 수행합니다.
+				InteractionActor->Interaction(this);
+				break;
+			}
+		}
+	}
+
+	DrawDebugSphere(GetWorld(), GetActorLocation(), 100.0f, 16, FColor::Green, false, 1.0f);
+}
+
+void AMMPlayerCharacter::UseQuickSlot(int32 InNum)
+{
+	switch (InNum)
+	{
+	// Skill QuickSlot
+	case 1:
+	case 2:
+	case 3:
+	case 4:
+		if (bIsEquip)
+			Skill->UseSkill(InNum - 1);
+		break;
+
+	// Potion QuickSlot
+	case 5:
+	case 6:
+		Inventory->UseItem(InNum - 5, ESlotType::ST_PotionSlot);
+		break;
 	}
 }

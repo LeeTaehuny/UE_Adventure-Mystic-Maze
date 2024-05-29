@@ -13,7 +13,7 @@ void UAnimNotify_MMEnableCollision::Notify(USkeletalMeshComponent* MeshComp, UAn
 	{
 		// 콜리전 On
 		IMMAnimationWeaponInterface* WeaponPawn = Cast<IMMAnimationWeaponInterface>(MeshComp->GetOwner());
-		if (WeaponPawn)
+		if (WeaponPawn && WeaponPawn->GetWeapon())
 		{
 			AMMSwordWeapon* SwordWeapon = Cast<AMMSwordWeapon>(WeaponPawn->GetWeapon());
 			if (SwordWeapon)

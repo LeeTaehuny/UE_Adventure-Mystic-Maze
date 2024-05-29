@@ -11,20 +11,23 @@ struct FMMCharacterStat : public FTableRowBase
     GENERATED_BODY()
 
 public:
-    FMMCharacterStat() : STR(0), DEX(0), CON(0), INT(0) {}
+    FMMCharacterStat() : STR(0), DEX(0), CON(0), INT(0), EXP(0) {}
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
-        int32 STR;
+    int32 STR;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
-        int32 DEX;
+    int32 DEX;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
-        int32 CON;
+    int32 CON;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
-        int32 INT;
+    int32 INT;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Stat)
+    int32 EXP;
 
     FMMCharacterStat operator+(const FMMCharacterStat& other) const
     {

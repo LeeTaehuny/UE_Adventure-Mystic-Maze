@@ -4,7 +4,9 @@
 #include "Item/MMStaffWeapon.h"
 #include "Item/MMEnergyBall.h"
 #include "Interface/MMPlayerVisualInterface.h"
+#include "Interface/MMStatusInterface.h"
 #include "Collision/MMCollision.h"
+#include "Player/MMStatComponent.h"
 
 #include "GameFramework/Character.h"
 #include "Camera/CameraComponent.h"
@@ -40,6 +42,9 @@ void AMMStaffWeapon::SpawnEnergyBall()
 {
 	TempEnergyBall = Cast<AMMEnergyBall>(GetWorld()->SpawnActor(EnergyBallClass));
 
+	IMMStatusInterface* StatPlayer = Cast<IMMStatusInterface>(Owner);
+	if (!StatPlayer) return;
+
 	if (TempEnergyBall)
 	{
 		// 에너지 볼을 소켓에 부착합니다.
@@ -47,6 +52,7 @@ void AMMStaffWeapon::SpawnEnergyBall()
 		if (PlayerCharacter)
 		{
 			TempEnergyBall->SetOwner(Owner);
+			TempEnergyBall->SetDamage(StatPlayer->GetStatComponent()->GetAttackDamage());
 			TempEnergyBall->AttachToComponent(PlayerCharacter->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, EnergyBallSocket);
 		}
 

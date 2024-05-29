@@ -13,7 +13,7 @@ void UAnimNotify_MMPullString::Notify(USkeletalMeshComponent* MeshComp, UAnimSeq
 	{
 		// 활을 당겼다는 것을 전달합니다.
 		IMMAnimationWeaponInterface* WeaponPawn = Cast<IMMAnimationWeaponInterface>(MeshComp->GetOwner());
-		if (WeaponPawn)
+		if (WeaponPawn && WeaponPawn->GetWeapon())
 		{
 			AMMBowWeapon* BowWeapon = Cast<AMMBowWeapon>(WeaponPawn->GetWeapon());
 			if (BowWeapon)
