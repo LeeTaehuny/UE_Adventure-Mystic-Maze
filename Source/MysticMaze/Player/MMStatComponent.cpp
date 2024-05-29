@@ -72,7 +72,7 @@ void UMMStatComponent::InitPlayerStatus()
 		//WeaponStat = LoadWeaponStatus;
 
 		// 클래스 정보 초기화
-		ClassType = EClassType::CT_Warrior;
+		ClassType = EClassType::CT_Archer;
 
 		// 현재 경험치 초기화
 		CurrentExp = 10.0f;
@@ -179,6 +179,11 @@ void UMMStatComponent::UpdateDetailStatus()
 
 float UMMStatComponent::ApplyDamage(float InDamage)
 {
+	if (CurrentHp == KINDA_SMALL_NUMBER)
+	{
+		return 0.0f;
+	}
+
 	// 데미지 연산
 	const float PrevHp = CurrentHp;
 	// * 실제 데미지 = (받은 데미지 - 방어력)
@@ -192,6 +197,11 @@ float UMMStatComponent::ApplyDamage(float InDamage)
 	{
 		// 사망 이벤트 발생
 		OnHpZero.Broadcast();
+	}
+	else
+	{
+		// 피격 이벤트 발생
+		OnHit.Broadcast();
 	}
 
 	// 실제 받은 데미지 반환

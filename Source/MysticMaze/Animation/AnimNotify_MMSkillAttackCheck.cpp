@@ -16,7 +16,7 @@ void UAnimNotify_MMSkillAttackCheck::Notify(USkeletalMeshComponent* MeshComp, UA
 		IMMSkillInterface* SkillPawn = Cast<IMMSkillInterface>(MeshComp->GetOwner());
 		if (SkillPawn)
 		{
-			SkillPawn->GetSkillComponent()->GetUsingSkill()->SkillAttackCheck();
+			SkillPawn->GetSkillComponent()->GetUsingSkill()->SkillAttack();
 		}
 	}
 }

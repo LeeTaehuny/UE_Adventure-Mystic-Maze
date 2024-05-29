@@ -23,11 +23,15 @@ public:
 public:
 	FORCEINLINE class UMMSkillData* GetSkillData() { return SkillData; }
 	FORCEINLINE float GetCurrentCoolTime() { return CurrentCoolTime; }
+	FORCEINLINE int32 GetSkillLevel() { return SkillLevel; }
+	FORCEINLINE void SetSkillLevel(int32 InLevel) { SkillLevel = InLevel; }
 
 	virtual bool UseSkill();
 	virtual void SetTarget(AActor* Target) { }
 	bool CoolDown(float DeltaSeconds);
-	virtual void SkillAttackCheck() {}
+	virtual void SkillAttack() {}
+	virtual void SkillAttackEnd() {}
+	virtual void Cancel() {}
 
 protected:
 	UPROPERTY(VisibleAnywhere, Category = SkillBase, meta = (AllowPrivateAccess = true))
@@ -42,6 +46,11 @@ protected:
 
 	// 쿨타임 진행중인지 판별하기 위한 변수
 	uint8 bIsCoolDown;
+
+	// 스킬의 기본 데미지 저장
+	float BaseDamage;
+	// 치명타 확률 저장
+	float CriticalRate;
 
 private:
 	// 현재 스킬의 쿨타임

@@ -195,7 +195,8 @@ void UMMSkillComponent::InitSkillManager()
 			UMMSkillData* Skill = Cast<UMMSkillData>(AssetPtr.Get());
 			if (Skill)
 			{
-				SkillManager.Add(Skill->SkillName, Skill);
+				SkillManager.Add(AssetPtr->GetName(), Skill);
+				UE_LOG(LogTemp, Warning, TEXT("%s"), *AssetPtr->GetName());
 			}
 		}
 	}
@@ -207,7 +208,9 @@ void UMMSkillComponent::InitSkillList()
 	TArray<TPair<FString, TPair<int32, int32>>> SkillData;
 	{
 		// 스킬의 이름, 레벨, 퀵슬롯 등록 정보 저장
-		SkillData.Add({TEXT("연속 베기"), TPair<int32, int32>(1, 0)});
+		SkillData.Add({TEXT("DA_Warrior_ComboSlash"), TPair<int32, int32>(1, 0)});
+		SkillData.Add({TEXT("DA_Mage_MagicMissile"), TPair<int32, int32>(1, 1)});
+		SkillData.Add({TEXT("DA_Mage_Flamethrower"), TPair<int32, int32>(1, 3)});
 	}
 
 	for (const auto& Skill : SkillData)

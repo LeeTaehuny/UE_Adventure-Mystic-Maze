@@ -21,12 +21,14 @@
 #include "UI/ToolTip/MMEquipmentToolTip.h"
 #include "UI/ToolTip/MMConsumableToolTip.h"
 #include "UI/ToolTip/MMOtherToolTip.h"
+#include "UI/ToolTip/MMSkillToolTip.h"
 
 #include "GameFramework/Character.h"
 #include "Components/SlateWrapperTypes.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
+#include "Components/MultiLineEditableTextBox.h"
 
 
 void UMMSlot::NativeConstruct()
@@ -354,11 +356,21 @@ void UMMSlot::UpdateSkillSlot()
 		{
 			IMG_Item->SetBrushFromTexture(SkillList[SlotIndex]->GetSkillData()->SkillIcon);
 			TXT_Quantity->SetText(FText::FromString(TEXT("")));
+
+			// SetToolTip
+			if (ToolTipMaps.Contains(ESlotType::ST_SkillSlot) && IsValid(ToolTipMaps[SlotType]))
+			{
+				SetSkillToolTip(ToolTipMaps[SlotType], SkillList[SlotIndex]);
+				IMG_Item->SetToolTip(ToolTipMaps[SlotType]);
+			}
 		}
 		else
 		{
 			IMG_Item->SetBrushFromTexture(DefaultTexture);
 			TXT_Quantity->SetText(FText::FromString(TEXT("")));
+
+			// SetToolTip
+			IMG_Item->SetToolTip(nullptr);
 		}
 	}
 }
@@ -528,5 +540,20 @@ void UMMSlot::SetOtherToolTip(UMMToolTip* OtherToolTipWidget, UMMItemData* ItemD
 
 		// 판매 가격
 		OtherToolTip->TXT_SalePrice->SetText(FText::FromString(FString::Printf(TEXT("%d"), OtherItemData->ItemSalePrice)));
+	}
+}
+
+void UMMSlot::SetSkillToolTip(UMMToolTip* SkillToolTipWidget, UMMSkillBase* Skill)
+{
+	UMMSkillToolTip* SkillToolTip = Cast<UMMSkillToolTip>(SkillToolTipWidget);
+	UMMSkillData* SkillData = Cast<UMMSkillData>(Skill->GetSkillData());
+
+	if (SkillToolTip && SkillData)
+	{
+		SkillToolTip->TXT_ItemName->SetText(FText::FromString(SkillData->SkillName));
+		SkillToolTip->TXT_RequireLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"),SkillData->RequiredLevel)));
+		SkillToolTip->TXTB_SkillDesc->SetText(FText::FromString(SkillData->SkillDescription));
+		SkillToolTip->TXT_SkillCoolTime->SetText(FText::FromString(FString::Printf(TEXT("%.1f"), SkillData->CoolTime)));
+		SkillToolTip->TXT_ManaCost->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), SkillData->ManaCost)));
 	}
 }

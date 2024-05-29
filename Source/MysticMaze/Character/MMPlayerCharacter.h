@@ -33,6 +33,8 @@ protected:
 	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaSeconds) override;
 
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
 public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -154,6 +156,12 @@ protected:
 	TObjectPtr<class UAnimMontage> RollMontage;
 
 	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> HitMontage;
+
+	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> DeathMontage;
+
+	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> PickUpMontage;
 
 	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
@@ -193,6 +201,10 @@ protected:
 // Attack Section
 protected:
 	virtual void BaseAttackCheck() override;
+	void Hit();
+	void Death();
+	void DeathEnd(class UAnimMontage* Montage, bool IsEnded);
+	void Respawn();
 
 // Character Class Section
 protected:

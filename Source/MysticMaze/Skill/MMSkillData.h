@@ -41,6 +41,9 @@ public:
 	float ManaCost;
 
 	UPROPERTY(EditAnywhere, Category = Skill)
+	int32 RequiredLevel;
+
+	UPROPERTY(EditAnywhere, Category = Skill)
 	TArray<float> Multiplier;
 
 	UPROPERTY(EditAnywhere, Category = Skill)

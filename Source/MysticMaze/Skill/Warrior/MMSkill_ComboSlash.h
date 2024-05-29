@@ -19,7 +19,8 @@ public:
 
 public:
 	virtual bool UseSkill() override;
-	virtual void SkillAttackCheck() override;
+	virtual void SkillAttack() override;
+	virtual void Cancel() override;
 	
 private:
 	void SkillEnd(class UAnimMontage* Montage, bool IsEnded);

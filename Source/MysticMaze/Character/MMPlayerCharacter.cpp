@@ -301,6 +301,9 @@ void AMMPlayerCharacter::PostInitializeComponents()
 
 	// 델리게이트 연동
 	Stat->OnMovementSpeedChanged.AddUObject(this, &AMMPlayerCharacter::ApplyMovementSpeed);
+	Stat->OnHpZero.AddUObject(this, &AMMPlayerCharacter::Death);
+	Stat->OnHit.AddUObject(this, &AMMPlayerCharacter::Hit);
+
 	// 스탯 컴포넌트 초기화
 	Stat->Init();
 
@@ -363,6 +366,25 @@ void AMMPlayerCharacter::Tick(float DeltaSeconds)
 	{
 		ChargeNum = FMath::Clamp(ChargeNum + (DeltaSeconds * 0.3f), 1.0f, 2.0f);
 	}
+}
+
+float AMMPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	UE_LOG(LogTemp, Warning, TEXT("%f"), DamageAmount);
+
+	// 스킬 사용 중이라면?
+	if (IsValid(Skill->GetUsingSkill()))
+	{
+		// 스킬 캔슬하기
+		Skill->GetUsingSkill()->Cancel();
+	}
+
+	// 데미지 적용하기
+	Stat->ApplyDamage(DamageAmount);
+
+	return DamageAmount;
 }
 
 void AMMPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -653,9 +675,8 @@ void AMMPlayerCharacter::ComboStart()
 	// 공격 시 플레이어 이동 불가
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 
-	// TODO : 공격 속도가 추가되면 값 가져와 지정하기
-	const float AttackSpeedRate = 1.0f;
-
+	// 공격 속도 반영하기
+	const float AttackSpeedRate = Stat->GetAttackSpeed();
 
 	// 애님 인스턴스 가져오기
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -732,8 +753,8 @@ void AMMPlayerCharacter::SetComboTimer()
 	// 인덱스가 유효한지 체크
 	if (ComboData[ClassType]->ComboFrame.IsValidIndex(ComboIndex))
 	{
-		// TODO : 공격 속도가 추가되면 값 가져와 지정하기
-		const float AttackSpeedRate = 1.0f;
+		// 공격속도 지정하기
+		const float AttackSpeedRate = Stat->GetAttackSpeed();
 
 		// 실제 콤보가 입력될 수 있는 시간 구하기
 		float ComboAvailableTime = (ComboData[ClassType]->ComboFrame[ComboIndex] / ComboData[ClassType]->FrameRate) / AttackSpeedRate;
@@ -776,20 +797,71 @@ void AMMPlayerCharacter::BaseAttackCheck()
 
 	if (bHasHit)
 	{
-		// TODO : 데미지 전달
+		// 데미지 전달
 		for (FHitResult Result : OutHitResults)
 		{
-			
-			UE_LOG(LogTemp, Warning, TEXT("%s"), *Result.GetActor()->GetName());
+			ACharacter* PlayerCharacter = Cast<ACharacter>(Result.GetActor());
+			if (PlayerCharacter)
+			{
+				float Damage = Stat->GetAttackDamage();
+				bool Critical = FMath::FRand() < (Stat->GetCriticalHitRate() / 100);
+				
+				if (Critical)
+				{
+					Damage *= 2.0f;
+				}
+
+				UGameplayStatics::ApplyDamage(Result.GetActor(), Damage, GetController(), this, UDamageType::StaticClass());
+			}
 		}
 	}
 
 	// Capsule 모양의 디버깅 체크
-	FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
-	float CapsuleHalfHeight = AttackRange * 0.5f;
-	FColor DrawColor = bHasHit ? FColor::Green : FColor::Red;
+	//FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
+	//float CapsuleHalfHeight = AttackRange * 0.5f;
+	//FColor DrawColor = bHasHit ? FColor::Green : FColor::Red;
 
-	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 3.0f);
+	//DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 3.0f);
+}
+
+void AMMPlayerCharacter::Hit()
+{
+	// Hit 몽타주 재생
+	GetMesh()->GetAnimInstance()->Montage_Play(HitMontage);
+}
+
+void AMMPlayerCharacter::Death()
+{
+	// 애님 인스턴스 가져오기
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance)
+	{
+		// Death 몽타주 재생
+		AnimInstance->Montage_Play(DeathMontage);
+
+		// 몽타주 재생 종료 바인딩
+		FOnMontageEnded EndDelegate;
+		EndDelegate.BindUObject(this, &AMMPlayerCharacter::DeathEnd);
+
+		// DeathMontage가 종료되면 EndDelegate에 연동된 DeathEnd함수 호출
+		AnimInstance->Montage_SetEndDelegate(EndDelegate, DeathMontage);
+	}
+
+	// 캐릭터 이동 기능 제한
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+}
+
+void AMMPlayerCharacter::DeathEnd(UAnimMontage* Montage, bool IsEnded)
+{
+	// 캐릭터 안보이게 설정
+	GetMesh()->SetVisibility(false);
+}
+
+void AMMPlayerCharacter::Respawn()
+{
+	// TODO : 리스폰 위치 지정하기 + 이펙트도?
+	// 캐릭터 이동 기능 활성화
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 }
 
 void AMMPlayerCharacter::ChangeClass(EClassType Class)

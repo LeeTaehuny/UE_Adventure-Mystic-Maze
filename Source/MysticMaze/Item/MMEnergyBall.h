@@ -19,7 +19,11 @@ protected:
 	virtual void PostInitializeComponents() override;
 
 public:	
+	FORCEINLINE void SetDamage(float Amount) { Damage = Amount; }
+	FORCEINLINE void SetTarget(AActor* InTarget) { Target = InTarget; }
+
 	void Fire(FVector TargetLocation);
+	void Fire();
 
 protected:
 	UFUNCTION()
@@ -28,8 +32,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Particle", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UParticleSystemComponent> EnergyBallParticleSystemComponent;
 
-	UPROPERTY(VisibleAnywhere, Category = "Particle", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UParticleSystemComponent> HitParticleSystemComponent;
+	UPROPERTY(EditAnywhere, Category = "Particle", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UParticleSystem> HitParticle;
 
 	UPROPERTY(VisibleAnywhere, Category = "Collision", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USphereComponent> EnergyBallCollision;
@@ -38,6 +42,10 @@ protected:
 	TObjectPtr<class UProjectileMovementComponent> MovementComponent;
 
 private:
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<AActor> Target;
+
 	float Speed = 3000.0f;
+	float Damage;
 	uint8 bIsHit : 1;
 };

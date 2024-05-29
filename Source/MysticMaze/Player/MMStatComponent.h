@@ -9,6 +9,7 @@
 #include "MMStatComponent.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FOnHpZeroDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnHitDelegate);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnHpChangedDelegate, float /* CurrentHp */, float /* MaxHp */);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnMpChangedDelegate, float /* CurrentMp */, float /* MaxMp */);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnExpChangedDelegate, float /* CurrentMp */, float /* MaxExp */);
@@ -69,6 +70,7 @@ protected:
 // Delegate
 public:
 	FOnHpZeroDelegate OnHpZero;
+	FOnHitDelegate OnHit;
 	FOnStatChangedDelegate OnStatChanged;
 	FOnWeaponChangedDelegate OnWeaponChanged;
 	FOnHpChangedDelegate OnHpChanged;

@@ -6,6 +6,8 @@
 #include "Interface/MMStatusInterface.h"
 #include "Player/MMStatComponent.h"
 
+#include "GameFramework/Character.h"
+
 UMMSkillBase::UMMSkillBase()
 {
 	// 쿨타임 진행중 X
@@ -30,15 +32,26 @@ bool UMMSkillBase::UseSkill()
 	if (bIsCoolDown) return false;
 
 	// 마나 확인하기
-	IMMStatusInterface* SkillPlayer = Cast<IMMStatusInterface>(Owner);
-	if (SkillPlayer && SkillPlayer->GetStatComponent()->GetCurrentMp() >= SkillData->ManaCost)
+	IMMStatusInterface* StatPlayer = Cast<IMMStatusInterface>(Owner);
+	if (StatPlayer && StatPlayer->GetStatComponent()->GetCurrentMp() >= SkillData->ManaCost)
 	{
 		// 마나 감소
-		SkillPlayer->GetStatComponent()->UseMp(SkillData->ManaCost);
+		StatPlayer->GetStatComponent()->UseMp(SkillData->ManaCost);
+		// 데미지 저장
+		BaseDamage = StatPlayer->GetStatComponent()->GetAttackDamage() * SkillData->Multiplier[SkillLevel];
+		// 치명타 확률 저장
+		CriticalRate = StatPlayer->GetStatComponent()->GetCriticalHitRate();
 
 		// 쿨타임이 돌도록 설정
 		bIsCoolDown = true;
 
+		// 바라보는 방향 전환하기
+		ACharacter* PlayerCharacter = Cast<ACharacter>(Owner);
+		if (PlayerCharacter)
+		{
+			PlayerCharacter->SetActorRotation(FRotator(PlayerCharacter->GetActorRotation().Pitch, PlayerCharacter->GetControlRotation().Yaw, PlayerCharacter->GetActorRotation().Roll));
+		}
+		
 		return true;
 	}
 	else

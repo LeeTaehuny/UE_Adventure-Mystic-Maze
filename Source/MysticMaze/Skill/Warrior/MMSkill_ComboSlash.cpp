@@ -11,6 +11,7 @@
 #include "Animation/AnimMontage.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Character.h"
+#include "Kismet/GameplayStatics.h"
 
 UMMSkill_ComboSlash::UMMSkill_ComboSlash()
 {
@@ -45,9 +46,9 @@ bool UMMSkill_ComboSlash::UseSkill()
 	return Result;
 }
 
-void UMMSkill_ComboSlash::SkillAttackCheck()
+void UMMSkill_ComboSlash::SkillAttack()
 {
-	Super::SkillAttackCheck();
+	Super::SkillAttack();
 
 	ACharacter* PlayerCharacter = Cast<ACharacter>(Owner);
 	if (PlayerCharacter)
@@ -79,11 +80,18 @@ void UMMSkill_ComboSlash::SkillAttackCheck()
 
 		if (bHasHit)
 		{
-			// TODO : 데미지 전달
+			// 데미지 전달
 			for (FHitResult Result : OutHitResults)
 			{
 				if (Result.GetActor() == Owner) continue;
-				UE_LOG(LogTemp, Warning, TEXT("%s"), *Result.GetActor()->GetName());
+
+				if (Cast<ACharacter>(Result.GetActor()))
+				{
+					// 치명타 체크하기
+					bool Critical = FMath::FRand() < (CriticalRate / 100);
+
+					UGameplayStatics::ApplyDamage(Result.GetActor(), Critical ? BaseDamage * 2.0f : BaseDamage, PlayerCharacter->GetController(), Owner, UDamageType::StaticClass());
+				}
 			}
 		}
 
@@ -93,6 +101,26 @@ void UMMSkill_ComboSlash::SkillAttackCheck()
 		FColor DrawColor = bHasHit ? FColor::Green : FColor::Red;
 
 		DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(PlayerCharacter->GetActorForwardVector()).ToQuat(), DrawColor, false, 3.0f);
+	}
+}
+
+void UMMSkill_ComboSlash::Cancel()
+{
+	ACharacter* PlayerCharacter = Cast<ACharacter>(Owner);
+	if (PlayerCharacter && SkillMontage)
+	{
+		// 스킬 몽타주 재생 종료하기
+		PlayerCharacter->GetMesh()->GetAnimInstance()->Montage_Stop(0.1f, SkillMontage);
+
+		// 플레이어 이동 가능하게 설정
+		PlayerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+
+		// 스킬 종료 알림
+		IMMSkillInterface* SkillCharacter = Cast<IMMSkillInterface>(Owner);
+		if (Owner)
+		{
+			SkillCharacter->GetSkillComponent()->SetSkillEnd(SkillData->SkillName);
+		}
 	}
 }
 
