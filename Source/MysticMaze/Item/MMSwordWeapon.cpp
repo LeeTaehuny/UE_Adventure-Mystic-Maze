@@ -3,9 +3,12 @@
 
 #include "Item/MMSwordWeapon.h"
 #include "Collision/MMCollision.h"
+#include "Interface/MMStatusInterface.h"
+#include "Player/MMStatComponent.h"
 
 #include "GameFramework/Character.h"
 #include "Components/SphereComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 AMMSwordWeapon::AMMSwordWeapon()
 {
@@ -39,8 +42,24 @@ void AMMSwordWeapon::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor*
 {
 	if (Owner == OtherActor) return;
 
-	// TODO : 데미지 전달
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *OtherActor->GetName());
+	// 캐릭터의 경우 데미지 전달
+	ACharacter* PlayerCharacter = Cast<ACharacter>(Owner);
+	if (PlayerCharacter)
+	{
+		IMMStatusInterface* StatPlayer = Cast<IMMStatusInterface>(Owner);
+		if (!StatPlayer) return;
+
+		float Damage = StatPlayer->GetStatComponent()->GetAttackDamage();
+		bool Critical = FMath::FRand() < (StatPlayer->GetStatComponent()->GetCriticalHitRate() / 100);
+
+		if (Critical)
+		{
+			Damage *= 2.0f;
+		}
+
+		// 데미지 전달
+		UGameplayStatics::ApplyDamage(OtherActor, Damage, PlayerCharacter->GetController(), Owner, UDamageType::StaticClass());
+	}
 }
 
 void AMMSwordWeapon::EnableCollision()

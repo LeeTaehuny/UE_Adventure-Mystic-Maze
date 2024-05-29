@@ -12,6 +12,7 @@
 #include "Interface/MMPlayerVisualInterface.h"
 #include "Interface/MMInventoryInterface.h"
 #include "Interface/MMStatusInterface.h"
+#include "Interface/MMSkillInterface.h"
 #include "MMPlayerCharacter.generated.h"
 
 /**
@@ -19,7 +20,7 @@
  */
 UCLASS()
 class MYSTICMAZE_API AMMPlayerCharacter : public AMMCharacterBase, public IMMAnimationAttackInterface, public IMMAnimationUpdateInterface, public IMMAnimationWeaponInterface, public IMMPlayerVisualInterface, public IMMInventoryInterface,
-	public IMMPlayerClassInterface, public IMMStatusInterface
+	public IMMPlayerClassInterface, public IMMStatusInterface, public IMMSkillInterface
 {
 	GENERATED_BODY()
 	
@@ -31,6 +32,8 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void PostInitializeComponents() override;
 	virtual void Tick(float DeltaSeconds) override;
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 public:
 	// Called to bind functionality to input
@@ -56,6 +59,7 @@ protected:
 	void ConvertInventoryVisibility();
 	void ConvertStatusVisibility();
 	void ConvertEquipmentVisibility();
+	void ConvertSkillVisibility();
 	void Interaction();
 	void UseQuickSlot(int32 InNum);
 
@@ -97,6 +101,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_ConvertEquipment;
+
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_ConvertSkill;
 
 	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_QuickSlot1;
@@ -149,6 +156,12 @@ protected:
 	TObjectPtr<class UAnimMontage> RollMontage;
 
 	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> HitMontage;
+
+	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> DeathMontage;
+
+	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> PickUpMontage;
 
 	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
@@ -188,6 +201,10 @@ protected:
 // Attack Section
 protected:
 	virtual void BaseAttackCheck() override;
+	void Hit();
+	void Death();
+	void DeathEnd(class UAnimMontage* Montage, bool IsEnded);
+	void Respawn();
 
 // Character Class Section
 protected:
@@ -246,6 +263,13 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UMMInventoryComponent> Inventory;
 
+// Skill Section
+protected:
+	FORCEINLINE virtual class UMMSkillComponent* GetSkillComponent() override { return Skill; }
+
+	UPROPERTY(VisibleAnywhere, Category = "Skill", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UMMSkillComponent> Skill;
+
 // Stat Section
 protected:
 	FORCEINLINE virtual class UMMStatComponent* GetStatComponent() override { return Stat; }
@@ -265,6 +289,9 @@ protected:
 
 	float WalkSpeed;
 	float RunSpeed;
+
+	// 플레이어 입력 방향
+	FVector2D MovementVector;
 
 // Particle Section
 protected:

@@ -5,6 +5,10 @@
 #include "UI/MMSlot.h"
 #include "Interface/MMStatusInterface.h"
 #include "Player/MMStatComponent.h"
+#include "Interface/MMSkillInterface.h"
+#include "Player/MMSkillComponent.h"
+#include "Skill/MMSkillBase.h"
+#include "Skill/MMSkillData.h"
 
 #include "Blueprint/WidgetTree.h"
 #include "Components/ProgressBar.h"
@@ -22,6 +26,7 @@ void UMMPlayerStatusBarWidget::NativeConstruct()
 
 		if (CoolTimeTextBlockWidget)
 		{
+			CoolTimeTextBlockWidget->SetVisibility(ESlateVisibility::Hidden);
 			CoolTimeTexts.Add(CoolTimeTextBlockWidget);
 		}
 
@@ -29,6 +34,7 @@ void UMMPlayerStatusBarWidget::NativeConstruct()
 		UProgressBar* CoolTimeProgressBarWidget = Cast<UProgressBar>(GetWidgetFromName(CoolTimeProgressBar));
 		if (CoolTimeProgressBarWidget)
 		{
+			CoolTimeProgressBarWidget->SetVisibility(ESlateVisibility::Hidden);
 			CoolTimeProgressBars.Add(CoolTimeProgressBarWidget);
 		}
 	}
@@ -50,7 +56,7 @@ void UMMPlayerStatusBarWidget::Init()
 			if (QuickSlot->GetName().Contains(TEXT("SkillSlot")))
 			{
 				QuickSlot->SetOwningActor(OwningActor);
-				QuickSlot->SetType(ESlotType::ST_SkillSlot);
+				QuickSlot->SetType(ESlotType::ST_SkillQuickSlot);
 				QuickSlot->Init();
 				SkillSlots[QuickSlot->SlotIndex] = QuickSlot;
 			}
@@ -75,10 +81,20 @@ void UMMPlayerStatusBarWidget::Init()
 		UpdateMpBar(StatComponent->GetCurrentMp(), StatComponent->GetMaxMp());
 		UpdateExpBar(StatComponent->GetCurrentExp(), StatComponent->GetMaxExp());
 	}
+
+	for (int i = 0; i < 4; i++)
+		UpdateSkillData(i);
 }
 
 void UMMPlayerStatusBarWidget::UpdateSkillSlot()
 {
+	for (const auto& SkillSlot : SkillSlots)
+	{
+		SkillSlot->UpdateSlot();
+	}
+
+	for (int i = 0; i < 4; i++)
+		UpdateSkillData(i);
 }
 
 void UMMPlayerStatusBarWidget::UpdatePotionSlot()
@@ -111,4 +127,48 @@ void UMMPlayerStatusBarWidget::UpdateExpBar(float CurrentExp, float MaxExp)
 	TXT_CurrentExp->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), CurrentExp)));
 	TXT_ExpPercent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), (CurrentExp / MaxExp) * 100)));
 	PB_ExpBar->SetPercent(CurrentExp / MaxExp);
+}
+
+void UMMPlayerStatusBarWidget::UpdateSkillData(int32 QuickSlotIndex)
+{
+	IMMSkillInterface* SkillPlayer = Cast<IMMSkillInterface>(OwningActor);
+	if (!SkillPlayer) return;
+
+	if (CoolTimeProgressBars.IsValidIndex(QuickSlotIndex) && IsValid(CoolTimeProgressBars[QuickSlotIndex]) &&
+		CoolTimeTexts.IsValidIndex(QuickSlotIndex) && IsValid(CoolTimeTexts[QuickSlotIndex]))
+	{
+		UMMSkillBase* Skill = SkillPlayer->GetSkillComponent()->GetSkillQuickSlot()[QuickSlotIndex];
+
+		if (IsValid(Skill))
+		{
+			// 위젯 활성화
+			CoolTimeProgressBars[QuickSlotIndex]->SetVisibility(ESlateVisibility::Visible);
+			CoolTimeTexts[QuickSlotIndex]->SetVisibility(ESlateVisibility::Visible);
+
+			float Percent = Skill->GetCurrentCoolTime() / Skill->GetSkillData()->CoolTime;
+
+			// 쿨타임 게이지 설정
+			CoolTimeProgressBars[QuickSlotIndex]->SetPercent(Percent);
+			// 쿨타임 시간 설정
+			if (Skill->GetCurrentCoolTime() == Skill->GetSkillData()->CoolTime)
+			{
+				CoolTimeTexts[QuickSlotIndex]->SetText(FText::FromString(TEXT("")));
+				// 위젯 비활성화
+				CoolTimeProgressBars[QuickSlotIndex]->SetVisibility(ESlateVisibility::Hidden);
+				CoolTimeTexts[QuickSlotIndex]->SetVisibility(ESlateVisibility::Hidden);
+			}
+			else
+			{
+				CoolTimeTexts[QuickSlotIndex]->SetText(FText::FromString(FString::Printf(TEXT("%.1f"), Skill->GetCurrentCoolTime())));
+			}
+		}
+		else
+		{
+			CoolTimeProgressBars[QuickSlotIndex]->SetPercent(0.0f);
+			CoolTimeTexts[QuickSlotIndex]->SetText(FText::FromString(TEXT("")));
+
+			CoolTimeProgressBars[QuickSlotIndex]->SetVisibility(ESlateVisibility::Hidden);
+			CoolTimeTexts[QuickSlotIndex]->SetVisibility(ESlateVisibility::Hidden);
+		}
+	}
 }

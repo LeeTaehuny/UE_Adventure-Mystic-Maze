@@ -72,7 +72,7 @@ void UMMStatComponent::InitPlayerStatus()
 		//WeaponStat = LoadWeaponStatus;
 
 		// 클래스 정보 초기화
-		ClassType = EClassType::CT_Warrior;
+		ClassType = EClassType::CT_Archer;
 
 		// 현재 경험치 초기화
 		CurrentExp = 10.0f;
@@ -136,8 +136,14 @@ void UMMStatComponent::UpdateDetailStatus()
 	// 비율에 맞춰 세부 스탯 업데이트
 	// * 최대 체력
 	MaxHp = (TotalStat.STR * 0.5f * 100) + (TotalStat.CON * 0.5f * 100);
+	if (CurrentHp > MaxHp)
+		SetHp(MaxHp);
+
 	// * 최대 마나
 	MaxMp = TotalStat.INT * 100;
+	if (CurrentMp > MaxMp)
+		SetMp(MaxMp);
+
 	// * 공격력
 	switch (ClassType)
 	{
@@ -173,6 +179,11 @@ void UMMStatComponent::UpdateDetailStatus()
 
 float UMMStatComponent::ApplyDamage(float InDamage)
 {
+	if (CurrentHp == KINDA_SMALL_NUMBER)
+	{
+		return 0.0f;
+	}
+
 	// 데미지 연산
 	const float PrevHp = CurrentHp;
 	// * 실제 데미지 = (받은 데미지 - 방어력)
@@ -187,6 +198,11 @@ float UMMStatComponent::ApplyDamage(float InDamage)
 		// 사망 이벤트 발생
 		OnHpZero.Broadcast();
 	}
+	else
+	{
+		// 피격 이벤트 발생
+		OnHit.Broadcast();
+	}
 
 	// 실제 받은 데미지 반환
 	return ActualDamage;
@@ -198,8 +214,7 @@ void UMMStatComponent::HealHp(float InHealPercent)
 	float HealAmount = MaxHp * (InHealPercent / 100);
 
 	// 체력을 더해 줍니다.
-	CurrentHp = FMath::Clamp(CurrentHp + HealAmount, 0, MaxHp);
-	OnHpChanged.Broadcast(CurrentHp, MaxHp);
+	SetHp(CurrentHp + HealAmount);
 }
 
 void UMMStatComponent::HealMp(float InHealPercent)
@@ -208,8 +223,12 @@ void UMMStatComponent::HealMp(float InHealPercent)
 	float HealAmount = MaxMp * (InHealPercent / 100);
 
 	// 마나를 더해줍니다.
-	CurrentMp = FMath::Clamp(CurrentMp + HealAmount, 0, MaxMp);
-	OnMpChanged.Broadcast(CurrentMp, MaxMp);
+	SetMp(CurrentMp + HealAmount);
+}
+
+void UMMStatComponent::UseMp(float InAmount)
+{
+	SetMp(CurrentMp - InAmount);
 }
 
 void UMMStatComponent::UpgradeStat(EStatusType Type)

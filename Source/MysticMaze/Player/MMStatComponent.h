@@ -9,6 +9,7 @@
 #include "MMStatComponent.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FOnHpZeroDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnHitDelegate);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnHpChangedDelegate, float /* CurrentHp */, float /* MaxHp */);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnMpChangedDelegate, float /* CurrentMp */, float /* MaxMp */);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnExpChangedDelegate, float /* CurrentMp */, float /* MaxExp */);
@@ -46,6 +47,8 @@ public:
 	void HealHp(float InHealPercent);
 	// 마나 회복
 	void HealMp(float InHealPercent);
+	// 마나 사용
+	void UseMp(float InAmount);
 
 	// 스탯 업그레이드
 	void UpgradeStat(EStatusType Type);
@@ -67,6 +70,7 @@ protected:
 // Delegate
 public:
 	FOnHpZeroDelegate OnHpZero;
+	FOnHitDelegate OnHit;
 	FOnStatChangedDelegate OnStatChanged;
 	FOnWeaponChangedDelegate OnWeaponChanged;
 	FOnHpChangedDelegate OnHpChanged;

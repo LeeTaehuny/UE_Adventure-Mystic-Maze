@@ -11,18 +11,24 @@
 #include "Interface/MMInventoryInterface.h"
 #include "Player/MMInventoryComponent.h"
 #include "Player/MMInventoryItem.h"
+#include "Interface/MMSkillInterface.h"
+#include "Player/MMSkillComponent.h"
+#include "Skill/MMSkillData.h"
+#include "Skill/MMSkillBase.h"
 #include "UI/MMDragSlot.h"
 
 #include "UI/ToolTip/MMToolTip.h"
 #include "UI/ToolTip/MMEquipmentToolTip.h"
 #include "UI/ToolTip/MMConsumableToolTip.h"
 #include "UI/ToolTip/MMOtherToolTip.h"
+#include "UI/ToolTip/MMSkillToolTip.h"
 
 #include "GameFramework/Character.h"
 #include "Components/SlateWrapperTypes.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
+#include "Components/MultiLineEditableTextBox.h"
 
 
 void UMMSlot::NativeConstruct()
@@ -63,7 +69,8 @@ FReply UMMSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPoin
 
 		// 해당 슬롯에 아이템 정보가 존재하는지 체크합니다.
 		IMMInventoryInterface* InvPlayer = Cast<IMMInventoryInterface>(OwningActor);
-		if (InvPlayer)
+		IMMSkillInterface* SkillPlayer = Cast<IMMSkillInterface>(OwningActor);
+		if (InvPlayer && SkillPlayer)
 		{
 			switch (SlotType)
 			{
@@ -81,6 +88,12 @@ FReply UMMSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPoin
 				break;
 			case ESlotType::ST_InventoryOther:
 				if (IsValid(InvPlayer->GetInventoryComponent()->GetOtherItems()[SlotIndex]))
+				{
+					Success = true;
+				}
+				break;
+			case ESlotType::ST_SkillSlot:
+				if (IsValid(SkillPlayer->GetSkillComponent()->GetSkillList()[SlotIndex]))
 				{
 					Success = true;
 				}
@@ -137,7 +150,7 @@ bool UMMSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& In
 	if (Operation)
 	{
 		// 같은 타입의 슬롯인 경우
-		if (Operation->SlotType == SlotType)
+		if (Operation->SlotType == SlotType && Operation->SlotType != ESlotType::ST_SkillSlot)
 		{
 			// Operation에 저장된 PrevSlotIndex 위치의 아이템을 현재 SlotIndex의 아이템과 교체합니다.
 			IMMInventoryInterface* InvPlayer = Cast<IMMInventoryInterface>(OwningActor);
@@ -167,6 +180,16 @@ bool UMMSlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& In
 				InvPlayer->GetInventoryComponent()->EquipItem(Operation->PrevSlotIndex);
 			}
 		}
+		// 다른 타입의 슬롯인 경우 (스킬 슬롯 -> 퀵슬롯[스킬])
+		else if (Operation->SlotType == ESlotType::ST_SkillSlot && SlotType == ESlotType::ST_SkillQuickSlot)
+		{
+			// Operation에 저장된 PrevSlotIndex 위치의 스킬을 장착합니다.
+			IMMSkillInterface* SkillPlayer = Cast<IMMSkillInterface>(OwningActor);
+			if (SkillPlayer)
+			{
+				SkillPlayer->GetSkillComponent()->SetQuickSlot(Operation->SlotType, Operation->PrevSlotIndex, SlotIndex);
+			}
+		}
 	}
 
 	return false;
@@ -186,6 +209,7 @@ void UMMSlot::Init()
 	SlotUpdateActions.Add(ESlotType::ST_InventoryConsumable, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateConsumableSlot)));
 	SlotUpdateActions.Add(ESlotType::ST_InventoryOther, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateOtherSlot)));
 	SlotUpdateActions.Add(ESlotType::ST_SkillSlot, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateSkillSlot)));
+	SlotUpdateActions.Add(ESlotType::ST_SkillQuickSlot, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateSkillQuickSlot)));
 	SlotUpdateActions.Add(ESlotType::ST_PotionSlot, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdatePotionSlot)));
 	SlotUpdateActions.Add(ESlotType::ST_Equipment, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateEquipment)));
 
@@ -322,9 +346,54 @@ void UMMSlot::UpdateOtherSlot()
 
 void UMMSlot::UpdateSkillSlot()
 {
-	// TODO : 스킬 슬롯 제작 후 초기화
-	IMG_Item->SetBrushFromTexture(DefaultTexture);
-	TXT_Quantity->SetText(FText::FromString(TEXT("")));
+	IMMSkillInterface* SkillPlayer = Cast<IMMSkillInterface>(OwningActor);
+
+	if (SkillPlayer)
+	{
+		const TArray<UMMSkillBase*>& SkillList = SkillPlayer->GetSkillComponent()->GetSkillList();
+
+		if (SkillList.IsValidIndex(SlotIndex) && IsValid(SkillList[SlotIndex]))
+		{
+			IMG_Item->SetBrushFromTexture(SkillList[SlotIndex]->GetSkillData()->SkillIcon);
+			TXT_Quantity->SetText(FText::FromString(TEXT("")));
+
+			// SetToolTip
+			if (ToolTipMaps.Contains(ESlotType::ST_SkillSlot) && IsValid(ToolTipMaps[SlotType]))
+			{
+				SetSkillToolTip(ToolTipMaps[SlotType], SkillList[SlotIndex]);
+				IMG_Item->SetToolTip(ToolTipMaps[SlotType]);
+			}
+		}
+		else
+		{
+			IMG_Item->SetBrushFromTexture(DefaultTexture);
+			TXT_Quantity->SetText(FText::FromString(TEXT("")));
+
+			// SetToolTip
+			IMG_Item->SetToolTip(nullptr);
+		}
+	}
+}
+
+void UMMSlot::UpdateSkillQuickSlot()
+{
+	IMMSkillInterface* SkillPlayer = Cast<IMMSkillInterface>(OwningActor);
+
+	if (SkillPlayer)
+	{
+		const TArray<UMMSkillBase*>& SkillList = SkillPlayer->GetSkillComponent()->GetSkillQuickSlot();
+
+		if (SkillList.IsValidIndex(SlotIndex) && IsValid(SkillList[SlotIndex]))
+		{
+			IMG_Item->SetBrushFromTexture(SkillList[SlotIndex]->GetSkillData()->SkillIcon);
+			TXT_Quantity->SetText(FText::FromString(TEXT("")));
+		}
+		else
+		{
+			IMG_Item->SetBrushFromTexture(DefaultTexture);
+			TXT_Quantity->SetText(FText::FromString(TEXT("")));
+		}
+	}
 }
 
 void UMMSlot::UpdatePotionSlot()
@@ -471,5 +540,20 @@ void UMMSlot::SetOtherToolTip(UMMToolTip* OtherToolTipWidget, UMMItemData* ItemD
 
 		// 판매 가격
 		OtherToolTip->TXT_SalePrice->SetText(FText::FromString(FString::Printf(TEXT("%d"), OtherItemData->ItemSalePrice)));
+	}
+}
+
+void UMMSlot::SetSkillToolTip(UMMToolTip* SkillToolTipWidget, UMMSkillBase* Skill)
+{
+	UMMSkillToolTip* SkillToolTip = Cast<UMMSkillToolTip>(SkillToolTipWidget);
+	UMMSkillData* SkillData = Cast<UMMSkillData>(Skill->GetSkillData());
+
+	if (SkillToolTip && SkillData)
+	{
+		SkillToolTip->TXT_ItemName->SetText(FText::FromString(SkillData->SkillName));
+		SkillToolTip->TXT_RequireLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"),SkillData->RequiredLevel)));
+		SkillToolTip->TXTB_SkillDesc->SetText(FText::FromString(SkillData->SkillDescription));
+		SkillToolTip->TXT_SkillCoolTime->SetText(FText::FromString(FString::Printf(TEXT("%.1f"), SkillData->CoolTime)));
+		SkillToolTip->TXT_ManaCost->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), SkillData->ManaCost)));
 	}
 }
