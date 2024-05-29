@@ -227,7 +227,7 @@ bool AMMRoomBase::SpawnNrothRoom(FVector INCenterLocation)
 			}
 			else
 			{
-				CenterLocation = INCenterLocation + FVector(-RoomSize * 1.5f, RoomSize, 0);
+				CenterLocation = INCenterLocation + FVector(-RoomSize * 0.5f, RoomSize, 0);
 			}
 
 			aa = World->SpawnActor<AMMRoomBase>(CTypeData);

@@ -7,6 +7,7 @@
 
 #include "Interface/MMMonsterSpawnInterface.h"
 #include "Interface/MMAnimationBugSwarmAIInterface.h"
+#include "Interface/MMBugSwarmAIDataInterface.h"
 
 #include "MMGrux.generated.h"
 
@@ -14,7 +15,10 @@
  * 
  */
 UCLASS()
-class MYSTICMAZE_API AMMGrux : public AMMMonsterBase, public IMMMonsterSpawnInterface, public IMMAnimationBugSwarmAIInterface
+class MYSTICMAZE_API AMMGrux : public AMMMonsterBase, 
+	public IMMMonsterSpawnInterface, 
+	public IMMAnimationBugSwarmAIInterface,
+	public IMMBugSwarmAIDataInterface
 {
 	GENERATED_BODY()
 	
@@ -31,8 +35,12 @@ protected:
 	FORCEINLINE virtual bool GetSpawn() override { return bSpawn; }
 	FORCEINLINE virtual bool GetDieMotion() override { return bRandomDieMotion; }
 
-	FORCEINLINE virtual void SetSpawnData(bool INspawn) override { bSpawn = INspawn; }
+	// IMMBugSwarmAIDataInterface : ai 정보를 수정하기 위한 인터페이스 함수
+	FORCEINLINE virtual bool GetATKMode() override { return ATK_Mode; };
 
+	// IMMMonsterSpawnInterface : 노티파이 데이터를 받아오기 위한 함수
+	FORCEINLINE virtual void SetSpawnData(bool INspawn) override { bSpawn = INspawn; }
+		
 protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimBP")

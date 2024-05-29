@@ -139,6 +139,15 @@ void AMMMechanite::ATKChecking()
 		// TODO : 데미지 전달
 		for (FHitResult Result : OutHitResults)
 		{
+			if (AMMMonsterBase* Monster = Cast<AMMMonsterBase>(Result.GetActor()))
+			{
+				continue;
+			}
+
+			UGameplayStatics::ApplyDamage(Result.GetActor(),
+				100.0f, GetController(),
+				this,
+				UDamageType::StaticClass());
 
 			UE_LOG(LogTemp, Warning, TEXT("%s"), *Result.GetActor()->GetName());
 		}

@@ -7,6 +7,7 @@
 #include "Components/SphereComponent.h"
 
 #include "Interface/MMMonsterATKChekInterface.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "MMMonsterBase.generated.h"
 
@@ -20,6 +21,8 @@ class MYSTICMAZE_API AMMMonsterBase : public AMMCharacterBase
 
 public:
 	AMMMonsterBase();
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 	UFUNCTION()
 	void ATKBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

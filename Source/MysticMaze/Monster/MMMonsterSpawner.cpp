@@ -25,7 +25,7 @@ void AMMMonsterSpawner::MonsterSpawn(SpawnType INType, int INLevel, FVector INCe
 {
 	AMMBugSwarm* MonsterBugSwarm;
 	AMMMechanite* MonsterMechanite;
-	//AMMGrux* MonsterGrux;
+	AMMGrux* MonsterGrux;
 	float RandomXLocation;
 	float RandomYLocation;
 	float Distance = 1400;
@@ -33,7 +33,7 @@ void AMMMonsterSpawner::MonsterSpawn(SpawnType INType, int INLevel, FVector INCe
 
 	Areas.Add(world->SpawnActor<AMMMonsterArea>(AMMMonsterArea::StaticClass()));
 
-	INType = SpawnType::BugswarmOnly;
+	INType = SpawnType::MechaniteOnly;
 	
 	switch (INType)
 	{
@@ -109,6 +109,39 @@ void AMMMonsterSpawner::MonsterSpawn(SpawnType INType, int INLevel, FVector INCe
 		break;
 
 	case SpawnType::GruxOnly:
+		for (int i = 0; i < 3; i++)
+		{
+			MonsterGrux = world->SpawnActorDeferred<AMMGrux>(GruxData, FTransform(FVector()));
+			if (MonsterGrux)
+			{
+
+
+				// 초기화 완료
+				UGameplayStatics::FinishSpawningActor(MonsterGrux, FTransform(FVector()));
+			}
+
+			RandomXLocation = FMath::RandRange(-Distance, Distance);
+			RandomYLocation = FMath::RandRange(-Distance, Distance);
+			MonsterGrux->SetActorLocation(FVector(
+				INCenterLocation.X + RandomXLocation,
+				INCenterLocation.Y + RandomYLocation,
+				1200));
+
+			if (INOriginCenterLocation != FVector())
+			{
+				// 만약 오리진 매개변수의 값이 제로라면 혹은 아무런 값도 들어가있지 않다고 한다면
+				// 기존에 입력받은 스폰 로케이션을 센터 좌표로 할당
+				MonsterGrux->SetCenterLocation(INCenterLocation);
+				Areas[Areas.Num() - 1]->SetCheckLocation(INOriginCenterLocation);
+			}
+			else
+			{
+				// 그렇지 않다면 본래 오리진 좌표를 센터 좌표에 할당
+				MonsterGrux->SetCenterLocation(INCenterLocation);
+				Areas[Areas.Num() - 1]->SetCheckLocation(INCenterLocation);
+			}
+			Areas[Areas.Num() - 1]->AddMonsterData(MonsterGrux);
+		}
 		break;
 
 	case SpawnType::BugswarmAndMechanite:

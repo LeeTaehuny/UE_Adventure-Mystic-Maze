@@ -17,7 +17,7 @@ public:
 	// Sets default values for this actor's properties
 	AMMMonsterSpawner();
 
-	void MonsterSpawn(SpawnType INType, int INLevel, FVector INCenterLocation, FVector INOriginCenterLocation = FVector());
+	void MonsterSpawn(SpawnType INType, int INLevel, FVector INCenterLocation, FVector INOriginCenterLocation = FVector(0, 0, 0));
 
 protected:
 	// Called when the game starts or when spawned
