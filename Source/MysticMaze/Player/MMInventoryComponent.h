@@ -50,6 +50,8 @@ public:
 	void UseItem(int32 InSlotIndex, ESlotType InventoryType);
 	// 아이템 판매
 	void SellItem(int32 InSlotIndex, ESlotType InventoryType);
+	// 아이템(무기) 구매
+	bool PurchaseWeapon(int32 InQuantity, int32 InPrice);
 	// 골드 추가
 	void AddGold(int32 InGold);
 	// 골드 소모

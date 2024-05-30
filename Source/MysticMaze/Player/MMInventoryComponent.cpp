@@ -228,44 +228,6 @@ void UMMInventoryComponent::UseItem(int32 InSlotIndex, ESlotType InventoryType)
 	// 해당 인벤토리 슬롯에 아이템이 존재하는지 체크하고 사용하기
 	switch (InventoryType)
 	{
-	case ESlotType::ST_InventoryConsumable:
-		if (ConsumableItems.IsValidIndex(InSlotIndex) && IsValid(ConsumableItems[InSlotIndex]))
-		{
-			// 아이템이 포션인지 체크합니다.
-			UMMPotionItemData* PotionData = Cast<UMMPotionItemData>(ConsumableItems[InSlotIndex]->ItemData);
-			if (PotionData)
-			{
-				// 수량을 줄여줍니다.
-				ConsumableItems[InSlotIndex]->ItemQuantity--;
-				// 아이템을 사용합니다.
-				IMMStatusInterface* StatusPawn = Cast<IMMStatusInterface>(GetOwner());
-
-				if (StatusPawn)
-				{
-					switch (PotionData->PotionType)
-					{
-					case EPotionType::PT_Hp:
-						StatusPawn->GetStatComponent()->HealHp(PotionData->Percent);
-						break;
-
-					case EPotionType::PT_Mp:
-						StatusPawn->GetStatComponent()->HealMp(PotionData->Percent);
-						break;
-					}
-				}
-
-				// 수량이 0 이하라면 소멸시켜줍니다.
-				if (ConsumableItems[InSlotIndex]->ItemQuantity <= 0)
-				{
-					RemoveItem(InSlotIndex, InventoryType);
-				}
-
-				OnChangeInven.Broadcast();
-				OnChangedPotionSlot.Broadcast();
-			}
-		}
-		break;
-
 	case ESlotType::ST_PotionSlot:
 		if (PotionQuickSlots.IsValidIndex(InSlotIndex) && IsValid(PotionQuickSlots[InSlotIndex]))
 		{
@@ -389,6 +351,93 @@ void UMMInventoryComponent::SellItem(int32 InSlotIndex, ESlotType InventoryType)
 		}
 		break;
 	}
+}
+
+bool UMMInventoryComponent::PurchaseWeapon(int32 InQuantity, int32 InPrice)
+{
+	bool Result = false;
+
+	// 가격 확인 (가격이 비싼 경우 반환)
+	if (InPrice > CurrentGold) return Result;
+
+	// 빈 슬롯이 있는지 확인
+	bool bIsFull = true;
+	for (const auto& Weapon : EquipmentItems)
+	{
+		if (!IsValid(Weapon))
+		{
+			// 빈 칸이 있으므로 가득 차있지 않다고 표시
+			bIsFull = false;
+			break;
+		}
+	}
+
+	// 빈 슬롯이 없으면 반환
+	if (bIsFull)
+	{
+		return Result;
+	}
+
+	// 필요 마석 수 확인
+	int32 TempNum = InQuantity;
+	// 임시 배열
+	TArray<int32> DelItemIndex;
+
+	int32 Index = 0;
+	for (UMMInventoryItem* Item : OtherItems)
+	{
+		if (IsValid(Item))
+		{
+			// 마나스톤인 경우
+			if (Item->ItemData->ItemName == TEXT("마나스톤"))
+			{
+				// 수량이 충분하다면?
+				if (Item->ItemQuantity >= TempNum)
+				{
+					// 제거하고 true 리턴하기
+					Item->ItemQuantity -= TempNum;
+					
+					// 제거 후 남은 개수가 0개라면?
+					if (Item->ItemQuantity == 0)
+					{
+						// 아이템 제거
+						RemoveItem(Index, ESlotType::ST_InventoryOther);
+					}
+
+					// 결과 참으로 바꾸고 반복문 종료
+					Result = true;
+					break;
+				}
+				// 수량이 충분하지 못하다면?
+				else if (Item->ItemQuantity < TempNum)
+				{
+					// 해당 인덱스를 제거 인덱스로 추가하기
+					DelItemIndex.Add(Index);
+					// 수량 줄이기
+					TempNum -= Item->ItemQuantity;
+				}
+			}
+		}
+
+		Index++;
+	}
+
+	// 만약 아이템 제거에 성공했다면?
+	if (Result)
+	{
+		// 제거 인덱스에 있는 모든 아이템 제거하기
+		for (int32 i : DelItemIndex)
+			RemoveItem(i, ESlotType::ST_InventoryOther);
+
+		// 돈 소모하기
+		CurrentGold -= InPrice;
+
+		// 이벤트 발송 (인벤토리 및 돈)
+		OnChangeInven.Broadcast();
+		OnChangeGold.Broadcast();
+	}
+
+	return Result;
 }
 
 void UMMInventoryComponent::AddGold(int32 InGold)

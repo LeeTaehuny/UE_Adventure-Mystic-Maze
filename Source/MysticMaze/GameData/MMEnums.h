@@ -26,4 +26,7 @@ enum class ESlotType : uint8
     ST_PotionSlot,          // 포션 슬롯 (퀵슬롯)
     ST_Equipment,           // 장비 슬롯 (장비창)
     ST_ShopPotion,          // 포션 슬롯 (상점)
+    ST_ShopWarriorWeapon,   // 전사 무기 슬롯 (상점)
+    ST_ShopArcherWeapon,    // 궁수 무기 슬롯 (상점)
+    ST_ShopMageWeapon,      // 법사 무기 슬롯 (상점)
 };

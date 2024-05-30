@@ -77,6 +77,9 @@ protected:
 	void UpdateEquipment();
 
 	void UpdateShopPotion();
+	void UpdateShopWarriorWeapon();
+	void UpdateShopArcherWeapon();
+	void UpdateShopMageWeapon();
 	
 	void SetEquipmentToolTip(class UMMToolTip* EquipmentToolTipWidget, class UMMItemData* ItemData);
 	void SetConsumableToolTip(class UMMToolTip* ConsumableToolTipWidget, class UMMItemData* ItemData);

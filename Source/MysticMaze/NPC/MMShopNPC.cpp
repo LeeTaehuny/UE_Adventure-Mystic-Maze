@@ -15,8 +15,7 @@
 
 AMMShopNPC::AMMShopNPC()
 {
-
-	HelpText = TEXT("Press F to open the shop.");
+	HelpText = TEXT("Press F to open the Shop.");
 }
 
 void AMMShopNPC::BeginPlay()

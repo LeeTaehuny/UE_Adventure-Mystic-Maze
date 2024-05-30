@@ -57,6 +57,10 @@ protected:
 	TMap<ESlotType, FUpdateButtonDelegateWrapper> TextUpdateActions;
 
 	void UpdatePotionShopButton();
+	void UpdateWeaponWarriorShopButton();
+	void UpdateWeaponArcherShopButton();
+	void UpdateWeaponMageShopButton();
 
 	void PurchaseItem(int32 Index);
+	void PurchaseWeapon(int32 Index);
 };

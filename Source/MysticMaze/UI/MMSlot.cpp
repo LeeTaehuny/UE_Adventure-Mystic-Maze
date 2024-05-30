@@ -17,6 +17,7 @@
 #include "Skill/MMSkillBase.h"
 #include "UI/MMDragSlot.h"
 #include "NPC/MMShopNPC.h"
+#include "NPC/MMBlacksmithNPC.h"
 
 #include "UI/ToolTip/MMToolTip.h"
 #include "UI/ToolTip/MMEquipmentToolTip.h"
@@ -216,6 +217,9 @@ void UMMSlot::Init()
 	SlotUpdateActions.Add(ESlotType::ST_PotionSlot, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdatePotionSlot)));
 	SlotUpdateActions.Add(ESlotType::ST_Equipment, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateEquipment)));
 	SlotUpdateActions.Add(ESlotType::ST_ShopPotion, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateShopPotion)));
+	SlotUpdateActions.Add(ESlotType::ST_ShopWarriorWeapon, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateShopWarriorWeapon)));
+	SlotUpdateActions.Add(ESlotType::ST_ShopArcherWeapon, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateShopArcherWeapon)));
+	SlotUpdateActions.Add(ESlotType::ST_ShopMageWeapon, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateShopMageWeapon)));
 
 	UpdateSlot();
 }
@@ -477,7 +481,88 @@ void UMMSlot::UpdateShopPotion()
 			// 해당 슬롯에 아이템이 존재하는지 확인합니다.
 			if (IsValid(ShopItems[SlotIndex]))
 			{
-				// 존재하는 경우 아이템의 텍스쳐와 수량을 반영해주도록 합니다. (기타는 수량 표시 O)
+				// 존재하는 경우 아이템의 텍스쳐와 수량을 반영해주도록 합니다.
+				IMG_Item->SetBrushFromTexture(ShopItems[SlotIndex]->ItemData->ItemTexture);
+				TXT_Quantity->SetText(FText::FromString(TEXT("")));
+			}
+		}
+	}
+	else
+	{
+		IMG_Item->SetBrushFromTexture(DefaultTexture);
+		TXT_Quantity->SetText(FText::FromString(TEXT("")));
+	}
+}
+
+void UMMSlot::UpdateShopWarriorWeapon()
+{
+	AMMBlacksmithNPC* ShopNpc = Cast<AMMBlacksmithNPC>(OwningActor);
+
+	if (ShopNpc)
+	{
+		TArray<UMMInventoryItem*> ShopItems = ShopNpc->GetWarriorItems();
+
+		// 현재 Slot의 인덱스가 유효한지 체크합니다.
+		if (ShopItems.IsValidIndex(SlotIndex))
+		{
+			// 해당 슬롯에 아이템이 존재하는지 확인합니다.
+			if (IsValid(ShopItems[SlotIndex]))
+			{
+				// 존재하는 경우 아이템의 텍스쳐와 수량을 반영해주도록 합니다.
+				IMG_Item->SetBrushFromTexture(ShopItems[SlotIndex]->ItemData->ItemTexture);
+				TXT_Quantity->SetText(FText::FromString(TEXT("")));
+			}
+		}
+	}
+	else
+	{
+		IMG_Item->SetBrushFromTexture(DefaultTexture);
+		TXT_Quantity->SetText(FText::FromString(TEXT("")));
+	}
+}
+
+void UMMSlot::UpdateShopArcherWeapon()
+{
+	AMMBlacksmithNPC* ShopNpc = Cast<AMMBlacksmithNPC>(OwningActor);
+
+	if (ShopNpc)
+	{
+		TArray<UMMInventoryItem*> ShopItems = ShopNpc->GetArcherItems();
+
+		// 현재 Slot의 인덱스가 유효한지 체크합니다.
+		if (ShopItems.IsValidIndex(SlotIndex))
+		{
+			// 해당 슬롯에 아이템이 존재하는지 확인합니다.
+			if (IsValid(ShopItems[SlotIndex]))
+			{
+				// 존재하는 경우 아이템의 텍스쳐와 수량을 반영해주도록 합니다.
+				IMG_Item->SetBrushFromTexture(ShopItems[SlotIndex]->ItemData->ItemTexture);
+				TXT_Quantity->SetText(FText::FromString(TEXT("")));
+			}
+		}
+	}
+	else
+	{
+		IMG_Item->SetBrushFromTexture(DefaultTexture);
+		TXT_Quantity->SetText(FText::FromString(TEXT("")));
+	}
+}
+
+void UMMSlot::UpdateShopMageWeapon()
+{
+	AMMBlacksmithNPC* ShopNpc = Cast<AMMBlacksmithNPC>(OwningActor);
+
+	if (ShopNpc)
+	{
+		TArray<UMMInventoryItem*> ShopItems = ShopNpc->GetMageItems();
+
+		// 현재 Slot의 인덱스가 유효한지 체크합니다.
+		if (ShopItems.IsValidIndex(SlotIndex))
+		{
+			// 해당 슬롯에 아이템이 존재하는지 확인합니다.
+			if (IsValid(ShopItems[SlotIndex]))
+			{
+				// 존재하는 경우 아이템의 텍스쳐와 수량을 반영해주도록 합니다.
 				IMG_Item->SetBrushFromTexture(ShopItems[SlotIndex]->ItemData->ItemTexture);
 				TXT_Quantity->SetText(FText::FromString(TEXT("")));
 			}
