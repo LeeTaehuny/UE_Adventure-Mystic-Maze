@@ -19,6 +19,9 @@ public:
 	TObjectPtr<class UTextBlock> TXT_RequireLevel;
 
 	UPROPERTY(meta = (BindWidget = "true"))
+	TObjectPtr<class UTextBlock> TXT_SkillLevel;
+
+	UPROPERTY(meta = (BindWidget = "true"))
 	TObjectPtr<class UMultiLineEditableTextBox> TXTB_SkillDesc;
 
 	UPROPERTY(meta = (BindWidget = "true"))

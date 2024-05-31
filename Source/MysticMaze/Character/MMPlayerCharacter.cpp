@@ -318,21 +318,6 @@ void AMMPlayerCharacter::BeginPlay()
 	ChangeClass(ClassType);
 
 	// TEST
-	//{
-	//	ChangeClass(EClassType::CT_Mage);
-	//
-	//	if (GetWorld())
-	//	{
-	//		CurrentWeapon = Cast<AMMWeapon>(GetWorld()->SpawnActor<AMMWeapon>(WeaponClass));
-	//		if (CurrentWeapon)
-	//		{
-	//			UE_LOG(LogTemp, Warning, TEXT("Weapon Spawned"));
-	//			EquipWeapon(CurrentWeapon);
-	//		}
-	//	}
-	//}
-
-	// TEST
 	FTransform SpawnTransform;
 	SpawnTransform.SetLocation(GetActorLocation() - GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
 	AMMItemBox* ItemBox = GetWorld()->SpawnActorDeferred<AMMItemBox>(AMMItemBox::StaticClass(), SpawnTransform);
@@ -365,6 +350,14 @@ void AMMPlayerCharacter::Tick(float DeltaSeconds)
 	if (bIsCharge)
 	{
 		ChargeNum = FMath::Clamp(ChargeNum + (DeltaSeconds * 0.3f), 1.0f, 2.0f);
+	}
+
+	// TEST : 1초마다 경험치 10씩 주기
+	LevelUpTime += DeltaSeconds;
+	if (LevelUpTime >= 1.0f)
+	{
+		LevelUpTime = 0.0f;
+		Stat->SetExp(60.0f);
 	}
 }
 

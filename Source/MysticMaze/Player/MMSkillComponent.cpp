@@ -137,6 +137,29 @@ void UMMSkillComponent::SetSkillEnd(FString SkillName)
 	}
 }
 
+void UMMSkillComponent::AddSkill(FString SkillName)
+{
+	// 해당 이름의 스킬이 존재한다면 내 리스트에 추가하기
+	if (SkillManager.Find(SkillName))
+	{
+		UMMSkillBase* NewSkill = NewObject<UMMSkillBase>(this, SkillManager[SkillName]->SkillClass);
+		if (NewSkill)
+		{
+			NewSkill->Init(SkillManager[SkillName], 1, GetOwner());
+
+			for (auto& TempSkill : SkillList)
+			{
+				if (!IsValid(TempSkill))
+				{
+					TempSkill = NewSkill;
+					OnSkillChanged.Broadcast();
+					break;
+				}
+			}
+		}
+	}
+}
+
 void UMMSkillComponent::SetQuickSlot(ESlotType InPrevSlotType, int32 InPrevIndex, int32 InCurrentIndex)
 {
 	if (InPrevSlotType == ESlotType::ST_SkillSlot)
@@ -208,9 +231,9 @@ void UMMSkillComponent::InitSkillList()
 	TArray<TPair<FString, TPair<int32, int32>>> SkillData;
 	{
 		// 스킬의 이름, 레벨, 퀵슬롯 등록 정보 저장
-		SkillData.Add({TEXT("DA_Warrior_ComboSlash"), TPair<int32, int32>(1, 0)});
-		SkillData.Add({TEXT("DA_Mage_MagicMissile"), TPair<int32, int32>(1, 1)});
-		SkillData.Add({TEXT("DA_Mage_Flamethrower"), TPair<int32, int32>(1, 3)});
+		//SkillData.Add({TEXT("DA_Warrior_ComboSlash"), TPair<int32, int32>(1, 0)});
+		//SkillData.Add({TEXT("DA_Mage_MagicMissile"), TPair<int32, int32>(1, 1)});
+		//SkillData.Add({TEXT("DA_Mage_Flamethrower"), TPair<int32, int32>(1, 3)});
 	}
 
 	for (const auto& Skill : SkillData)

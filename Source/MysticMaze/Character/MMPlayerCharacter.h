@@ -210,7 +210,7 @@ protected:
 protected:
 	FORCEINLINE virtual EClassType GetClassType() override { return ClassType; };
 	FORCEINLINE virtual EClassType GetClass() override { return ClassType; }
-	FORCEINLINE virtual void SetClass(EClassType Class) override { ClassType = Class; }
+	FORCEINLINE virtual void SetClass(EClassType Class) override { ClassType = Class; ChangeClass(ClassType); }
 	void ChangeClass(EClassType Class);
 
 	EClassType ClassType;
@@ -297,4 +297,9 @@ protected:
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Particle", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UParticleSystemComponent> ChargeParticleSystemComponent;
+
+
+// TEST
+private:
+	float LevelUpTime;
 };

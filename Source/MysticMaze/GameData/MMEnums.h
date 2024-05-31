@@ -29,4 +29,7 @@ enum class ESlotType : uint8
     ST_ShopWarriorWeapon,   // 전사 무기 슬롯 (상점)
     ST_ShopArcherWeapon,    // 궁수 무기 슬롯 (상점)
     ST_ShopMageWeapon,      // 법사 무기 슬롯 (상점)
+    ST_ClassSkillWarrior,   // 전사 스킬 슬롯 (전직 교관)
+    ST_ClassSkillArcher,    // 궁수 스킬 슬롯 (전직 교관)
+    ST_ClassSkillMage,      // 법사 스킬 슬롯 (전직 교관)
 };

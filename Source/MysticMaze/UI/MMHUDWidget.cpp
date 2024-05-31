@@ -48,6 +48,7 @@ void UMMHUDWidget::Init()
 		{
 			// 이벤트 바인딩
 			StatusPawn->GetStatComponent()->OnStatChanged.AddUObject(PlayerStatusWidget, &UMMStatusWidget::UpdateStat);
+			StatusPawn->GetStatComponent()->OnClassChanged.AddUObject(PlayerStatusWidget, &UMMStatusWidget::UpdateClass);
 
 			// 스테이터스 위젯 초기화
 			PlayerStatusWidget->SetOwningActor(OwningActor);
@@ -95,6 +96,7 @@ void UMMHUDWidget::Init()
 	if (SkillWidget)
 	{
 		// TODO : 델리게이트 연동
+		SkillPawn->GetSkillComponent()->OnSkillChanged.AddUObject(SkillWidget, &UMMSkillWidget::UpdateSkillSlot);
 
 		// 스킬 위젯 초기화
 		SkillWidget->SetOwningActor(OwningActor);

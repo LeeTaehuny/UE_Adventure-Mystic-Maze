@@ -80,6 +80,10 @@ protected:
 	void UpdateShopWarriorWeapon();
 	void UpdateShopArcherWeapon();
 	void UpdateShopMageWeapon();
+
+	void UpdateClassSkillWarrior();
+	void UpdateClassSkillArcher();
+	void UpdateClassSkillMage();
 	
 	void SetEquipmentToolTip(class UMMToolTip* EquipmentToolTipWidget, class UMMItemData* ItemData);
 	void SetConsumableToolTip(class UMMToolTip* ConsumableToolTipWidget, class UMMItemData* ItemData);

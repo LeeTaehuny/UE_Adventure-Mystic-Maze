@@ -60,7 +60,13 @@ protected:
 	void UpdateWeaponWarriorShopButton();
 	void UpdateWeaponArcherShopButton();
 	void UpdateWeaponMageShopButton();
+	void UpdateClassSkillWarrior();
+	void UpdateClassSkillArcher();
+	void UpdateClassSkillMage();
 
 	void PurchaseItem(int32 Index);
 	void PurchaseWeapon(int32 Index);
+	void PurchaseSkill(int32 Index);
+
+	
 };
