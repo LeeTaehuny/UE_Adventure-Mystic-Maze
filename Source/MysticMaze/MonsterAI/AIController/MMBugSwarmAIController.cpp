@@ -6,7 +6,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Interface/MMBugSwarmAIDataInterface.h"
-#include "Kismet/GameplayStatics.h"
 
 AMMBugSwarmAIController::AMMBugSwarmAIController()
 {

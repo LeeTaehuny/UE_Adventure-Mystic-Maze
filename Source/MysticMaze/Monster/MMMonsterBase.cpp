@@ -8,6 +8,7 @@
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
+#include "GameFramework/CharacterMovementComponent.h"
 
 AMMMonsterBase::AMMMonsterBase()
 {
@@ -21,12 +22,42 @@ float AMMMonsterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 
 	UE_LOG(LogTemp, Warning, TEXT("IN Damage : %f"), DamageAmount);
 
-	return 0.0f;
+	// 데미지 적용하기
+	Stat->ApplyDamage(DamageAmount);
+
+	return DamageAmount;
+
+	// TODO : 스텟 데미지 히트 함수와 다이 함수 관련 작업을 진행 해야함
 }
 
+void AMMMonsterBase::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	// 델리게이트 연동
+	Stat->OnMovementSpeedChanged.AddUObject(this, &AMMMonsterBase::ApplyMovementSpeed);
+	Stat->OnHpZero.AddUObject(this, &AMMMonsterBase::Die);
+	Stat->OnHit.AddUObject(this, &AMMMonsterBase::Hit);
+
+	// 스탯 컴포넌트 초기화
+	Stat->Init();
+
+	// 파티클 비활성화
+	// ChargeParticleSystemComponent->SetActive(false);
+}
+
+// 돌진 공격에 관련된 함수
 void AMMMonsterBase::ATKBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (AMMMonsterBase* Casting = Cast<AMMMonsterBase>(OtherActor))
+	{
+		return;
+	}
 
+	UGameplayStatics::ApplyDamage(OtherActor,
+		100.0f, GetController(),
+		this,
+		UDamageType::StaticClass());
 }
 void AMMMonsterBase::ATKEndOverlap(UPrimitiveComponent* HitComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
@@ -39,5 +70,32 @@ void AMMMonsterBase::SetCenterLocation(FVector InLocation)
 	if (MyController)
 	{
 		MyController->GetBlackboardComponent()->SetValueAsVector("SpawnLocation", InLocation);
+	}
+}
+
+void AMMMonsterBase::ApplyMovementSpeed(float MovementSpeed)
+{
+
+}
+
+void AMMMonsterBase::Die()
+{
+	UE_LOG(LogTemp, Display, TEXT("Dying"));
+	bDie = true;
+	GetCharacterMovement()->StopMovementImmediately();
+}
+
+void AMMMonsterBase::Hit()
+{
+	UE_LOG(LogTemp, Display, TEXT("Hiting"));
+
+	if (HitMontage)
+	{
+		ATK_Mode = true;
+		GetMesh()->GetAnimInstance()->Montage_Play(HitMontage);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("hit Anim Not"));
 	}
 }

@@ -79,5 +79,5 @@ private: // 룸 작동 변수
 
 
 	UPROPERTY(EditAnywhere, Category = "MonsterSpawnerData", Meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<class AMMMonsterSpawner> SpawnerData;
+	TSubclassOf<AMMMonsterSpawner> SpawnerData;
 };

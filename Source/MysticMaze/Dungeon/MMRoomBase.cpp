@@ -11,6 +11,7 @@
 #include "NavMesh/RecastNavMesh.h"
 
 #include "Monster/MMMonsterSpawner.h"
+#include "Monster/MMMonsterArea.h"
 
 
 // Sets default values
@@ -962,29 +963,75 @@ void AMMRoomBase::RoomBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherAc
 
 		SpawnType RnadomValue = GetRandomEnumValue();
 
-		//RnadomValue = SpawnType::MechaniteOnly;
+		MonsterArea = GetWorld()->SpawnActor<AMMMonsterArea>(AMMMonsterArea::StaticClass());
+		TArray<TObjectPtr<class AMMMonsterBase>> MonsterData;
+
 		switch (RoomType)
 		{
 		case 0:
-
-			Spawner->MonsterSpawn(RnadomValue, 1, LocalLocation);
+			MonsterData = Spawner->MonsterSpawn(RnadomValue, 1, LocalLocation);
+			for (int i = 0; i < MonsterData.Num(); i++)
+			{
+				MonsterArea->AddMonsterData(MonsterData[i]);
+			}
+			MonsterArea->SetCheckLocation(LocalLocation);
 			break;
 
 		case 1:
-			Spawner->MonsterSpawn(RnadomValue, 1, LocalLocation + FVector(-2000, 0, 0), LocalLocation);
-			Spawner->MonsterSpawn(RnadomValue, 1, LocalLocation + FVector(2000, 0, 0), LocalLocation);
+			MonsterData = Spawner->MonsterSpawn(RnadomValue, 1, LocalLocation + FVector(-2000, 0, 0));
+			for (int i = 0; i < MonsterData.Num(); i++)
+			{
+				MonsterArea->AddMonsterData(MonsterData[i]);
+			}
+
+			MonsterData = Spawner->MonsterSpawn(RnadomValue, 1, LocalLocation + FVector(2000, 0, 0));
+			for (int i = 0; i < MonsterData.Num(); i++)
+			{
+				MonsterArea->AddMonsterData(MonsterData[i]);
+			}
+			MonsterArea->SetCheckLocation(LocalLocation);
 			break;
 
 		case 2:
-			Spawner->MonsterSpawn(RnadomValue, 1, LocalLocation + FVector(-2000, 0, 0), LocalLocation);
-			Spawner->MonsterSpawn(RnadomValue, 1, LocalLocation + FVector(2000, 0, 0), LocalLocation);
-			Spawner->MonsterSpawn(RnadomValue, 1, LocalLocation + FVector(-2000, -4000, 0), LocalLocation);
+			MonsterData = Spawner->MonsterSpawn(RnadomValue, 1, LocalLocation + FVector(-2000, 0, 0));
+			for (int i = 0; i < MonsterData.Num(); i++)
+			{
+				MonsterArea->AddMonsterData(MonsterData[i]);
+			}
+
+			MonsterData = Spawner->MonsterSpawn(RnadomValue, 1, LocalLocation + FVector(2000, 0, 0));
+			for (int i = 0; i < MonsterData.Num(); i++)
+			{
+				MonsterArea->AddMonsterData(MonsterData[i]);
+			}
+
+			MonsterData = Spawner->MonsterSpawn(RnadomValue, 1, LocalLocation + FVector(-2000, -4000, 0));
+			for (int i = 0; i < MonsterData.Num(); i++)
+			{
+				MonsterArea->AddMonsterData(MonsterData[i]);
+			}
+			MonsterArea->SetCheckLocation(LocalLocation + FVector(0, -2000, 0));
 			break;
 
 		case 3:
-			Spawner->MonsterSpawn(RnadomValue, 1, LocalLocation + FVector(-2000, 0, 0), LocalLocation);
-			Spawner->MonsterSpawn(RnadomValue, 1, LocalLocation + FVector(2000, 0, 0), LocalLocation);
-			Spawner->MonsterSpawn(RnadomValue, 1, LocalLocation + FVector(2000, 4000, 0), LocalLocation);
+			MonsterData = Spawner->MonsterSpawn(RnadomValue, 1, LocalLocation + FVector(-2000, 0, 0));
+			for (int i = 0; i < MonsterData.Num(); i++)
+			{
+				MonsterArea->AddMonsterData(MonsterData[i]);
+			}
+
+			MonsterData = Spawner->MonsterSpawn(RnadomValue, 1, LocalLocation + FVector(2000, 0, 0));
+			for (int i = 0; i < MonsterData.Num(); i++)
+			{
+				MonsterArea->AddMonsterData(MonsterData[i]);
+			}
+
+			MonsterData = Spawner->MonsterSpawn(RnadomValue, 1, LocalLocation + FVector(2000, 4000, 0));
+			for (int i = 0; i < MonsterData.Num(); i++)
+			{
+				MonsterArea->AddMonsterData(MonsterData[i]);
+			}
+			MonsterArea->SetCheckLocation(LocalLocation + FVector(0, 2000, 0));
 			break;
 
 		default:

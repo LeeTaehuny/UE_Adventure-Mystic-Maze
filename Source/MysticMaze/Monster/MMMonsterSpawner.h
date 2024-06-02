@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Monster/MMMonsterSpawnType.h"
-
 #include "MMMonsterSpawner.generated.h"
 
 UCLASS()
@@ -17,7 +16,7 @@ public:
 	// Sets default values for this actor's properties
 	AMMMonsterSpawner();
 
-	void MonsterSpawn(SpawnType INType, int INLevel, FVector INCenterLocation, FVector INOriginCenterLocation = FVector(0, 0, 0));
+	TArray<TObjectPtr<class AMMMonsterBase>> MonsterSpawn(SpawnType INType, int INLevel, FVector INCenterLocation);
 
 protected:
 	// Called when the game starts or when spawned
@@ -25,11 +24,9 @@ protected:
 
 public:	
 	// Called every frame
-	//virtual void Tick(float DeltaTime) override;
+	virtual void Tick(float DeltaTime) override;
 
 private:
-	SpawnType MType = SpawnType::BugswarmOnly;
-
 	// 스폰할 몬스터의 블루프린트 데이터를 저장하기 위한 변수들
 	UPROPERTY(EditAnywhere, Category = "MonsterData")
 	TSubclassOf<class AMMBugSwarm> BugSwarmData;
@@ -39,8 +36,6 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "MonsterData")
 	TSubclassOf<class AMMGrux> GruxData;
-
-	TArray<TObjectPtr<class AMMMonsterArea>> Areas;
 
 	// TArray<TObjectPtr<class AMMMonsterBase>> Monster;
 

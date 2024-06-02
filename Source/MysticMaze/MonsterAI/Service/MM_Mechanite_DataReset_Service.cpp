@@ -5,6 +5,7 @@
 
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Interface/MMMechainteCoolDownInterface.h"
 
 void UMM_Mechanite_DataReset_Service::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
@@ -16,5 +17,12 @@ void UMM_Mechanite_DataReset_Service::TickNode(UBehaviorTreeComponent& OwnerComp
 		OwnerBlackboard->SetValueAsBool("bNormalATK", true);
 		OwnerBlackboard->SetValueAsBool("bRushATK", false);
 		OwnerBlackboard->SetValueAsVector("Rush_ATK_Location", FVector());
+
+		IMMMechainteCoolDownInterface* MechainteCoolDown = Cast<IMMMechainteCoolDownInterface>(OwnerComp.GetAIOwner()->GetPawn());
+		if (MechainteCoolDown)
+		{
+			MechainteCoolDown->ResetCoolDownbool(false);
+			MechainteCoolDown->ResetCoolDownFloat(0.0f);
+		}
 	}
 }

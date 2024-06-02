@@ -10,6 +10,9 @@
 #include "Interface/MMMechaniteRushATKInterface.h"
 #include "Interface/MMMonsterATKModeInterface.h"		// 공격 모드 변수의 값을 전달하기 위함
 #include "Interface/MMMechaniteAIInterface.h"			// ai 컨트롤러에 값을 전달하기 위한 인터페이스
+#include "Interface/MMMechainteCoolDownInterface.h"		// 메카나이트의 돌진 쿨타임을 관리하기 위한 인터페이스
+
+#include "Monster/MMMonsterSpawner.h"
 
 #include "MMMechanite.generated.h"
 
@@ -22,7 +25,8 @@ class MYSTICMAZE_API AMMMechanite : public AMMMonsterBase,
 	public IMMMonsterATKChekInterface,
 	public IMMMechaniteRushATKInterface,
 	public IMMMonsterATKModeInterface,
-	public IMMMechaniteAIInterface
+	public IMMMechaniteAIInterface,
+	public IMMMechainteCoolDownInterface
 {
 	GENERATED_BODY()
 	
@@ -67,6 +71,10 @@ private:
 	FORCEINLINE virtual void SetATKMode(bool INData) override { ATK_Mode = INData; };
 
 	// IMMMechaniteAIInterface : ai 컨트롤러에 값을 전달하기 위한 인터페이스
+
+	// IMMMechainteCoolDownInterface : 메카나이트의 돌진 쿨타임을 관리하기 위한 인터페이스
+	virtual void ResetCoolDownFloat(float INData) override { RushATKCoolDown = INData; }
+	virtual void ResetCoolDownbool(bool INData) override { RushATKCoolOn = INData; }
 
 private:
 	

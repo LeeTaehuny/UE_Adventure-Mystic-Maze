@@ -9,6 +9,8 @@
 #include "Interface/MMMonsterATKChekInterface.h"
 #include "Kismet/GameplayStatics.h"
 
+#include "Player/MMStatComponent.h"
+
 #include "MMMonsterBase.generated.h"
 
 /**
@@ -23,6 +25,7 @@ public:
 	AMMMonsterBase();
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+	virtual void PostInitializeComponents() override;
 
 	UFUNCTION()
 	void ATKBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -31,6 +34,12 @@ public:
 
 	void SetCenterLocation(FVector InLocation);
 	FORCEINLINE void SetATKMode(bool INData) { ATK_Mode = INData; }
+	FORCEINLINE bool GetATKMode() { return ATK_Mode; }
+
+
+	void ApplyMovementSpeed(float MovementSpeed);
+	void Die();
+	void Hit();
 
 protected:
 
@@ -45,5 +54,8 @@ protected:
 
 	// 스폰지점을 저장하기 위한 변수
 	FVector CenterLocation;
+
+	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> HitMontage;
 	
 };

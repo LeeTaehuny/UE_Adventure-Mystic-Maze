@@ -2,13 +2,14 @@
 
 
 #include "Animation/MMGruxAnim.h"
-#include "Interface/MMAnimationBugSwarmAIInterface.h"
+#include "Interface/MMAnimationGruxInterface.h"
 
 UMMGruxAnim::UMMGruxAnim()
 {
 	bDie = false;
 	bSpawn = true;
 	bRandomDieMotion = false;
+	bAngryMode = false;
 }
 
 void UMMGruxAnim::NativeInitializeAnimation()
@@ -22,11 +23,13 @@ void UMMGruxAnim::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	IMMAnimationBugSwarmAIInterface* monster = Cast<IMMAnimationBugSwarmAIInterface>(TryGetPawnOwner());
+	IMMAnimationGruxInterface* monster = Cast<IMMAnimationGruxInterface>(TryGetPawnOwner());
 	if (monster)
 	{
 		bDie = monster->GetDie();
 		bSpawn = monster->GetSpawn();
 		bRandomDieMotion = monster->GetDieMotion();
+		bAngryMode = monster->GetAngryMode();
+		bAngryModeChangeComplete = monster->GetAngryModeChangeComplete();
 	}
 }

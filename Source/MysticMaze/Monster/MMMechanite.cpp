@@ -65,7 +65,7 @@ void AMMMechanite::Tick(float DeltaTime)
 		if (RushATKCoolDown >= RushATKCoolDown_MaxTime)
 		{
 			RushATKCoolDown = 0;
-			RushATKCoolDown_MaxTime = FMath::RandRange(5, 16);
+			RushATKCoolDown_MaxTime = FMath::RandRange(18, 25);
 
 			RushATKCoolOn = true;
 		}
@@ -256,7 +256,6 @@ void AMMMechanite::RushATKCheck()
 		// TODO : 데미지 전달
 		for (FHitResult Result : OutHitResults)
 		{
-
 			UE_LOG(LogTemp, Warning, TEXT("%s"), *Result.GetActor()->GetName());
 		}
 	}

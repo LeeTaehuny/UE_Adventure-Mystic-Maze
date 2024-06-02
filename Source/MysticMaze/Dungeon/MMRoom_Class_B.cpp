@@ -113,6 +113,17 @@ void AMMRoom_Class_B::Tick(float DeltaTime)
 		DoorUpDown(bSouth_Switch_0, Wall[4]);
 		DoorUpDown(bSouth_Switch_1, Wall[5]);
 	}
+
+	if (IsValid(MonsterArea))
+	{
+		if (MonsterArea->IfMonsterNull(DeltaTime))
+		{
+			ClearSignal();
+			MonsterArea->Destroy();
+			MonsterArea = nullptr;
+		}
+	}
+
 }
 
 void AMMRoom_Class_B::NorthBeginOverlap_0(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

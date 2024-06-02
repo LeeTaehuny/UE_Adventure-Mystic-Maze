@@ -9,6 +9,8 @@
 #include "NavigationSystem.h"
 #include "NavMesh/NavMeshBoundsVolume.h"
 #include "Monster/MMMonsterSpawnType.h"
+#include "Monster/MMMonsterSpawner.h"
+#include "Monster/MMMonsterArea.h"
 #include "MMRoomBase.generated.h"
 
 UCLASS()
@@ -109,4 +111,6 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category = "MonsterSpawnerData", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class AMMMonsterSpawner> Spawner;
+
+	TObjectPtr<class AMMMonsterArea> MonsterArea;
 };
