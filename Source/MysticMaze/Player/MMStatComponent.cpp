@@ -124,7 +124,7 @@ void UMMStatComponent::SetExp(float NewExp)
 {
 	CurrentExp += NewExp;
 
-	if (CurrentExp >= MaxExp)
+	if (MaxExp && CurrentExp >= MaxExp)
 	{
 		while (CurrentExp >= MaxExp)
 		{

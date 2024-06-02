@@ -276,6 +276,14 @@ protected:
 
 	void ApplyMovementSpeed(float MovementSpeed);
 
+// Riding Section
+protected:
+	UPROPERTY(VisibleAnywhere, Category = "Ride", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USkeletalMeshComponent> RideMesh;
+
+	UPROPERTY(VisibleAnywhere, Category = "Ride", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USkeletalMeshComponent> RideActorMesh;
+
 // Member Variable
 protected:
 	FORCEINLINE virtual bool GetIsEquip() override { return bIsEquip; }

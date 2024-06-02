@@ -88,6 +88,15 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 			// Collision 설정
 			GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
 		}
+
+		// Ride
+		RideMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("RidingMesh"));
+		RideMesh->SetupAttachment(RootComponent);
+		RideMesh->SetVisibility(false);
+
+		RideActorMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("RidingActorMesh"));
+		RideActorMesh->SetupAttachment(RideMesh);
+		RideActorMesh->SetVisibility(false);
 	}
 
 	// Camera 설정
