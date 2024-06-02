@@ -28,6 +28,7 @@ AMMArrow::AMMArrow()
 	ArrowCollision = CreateDefaultSubobject<USphereComponent>(TEXT("ArrowCollision"));
 	ArrowCollision->SetupAttachment(IronComponent);
 	ArrowCollision->SetCollisionProfileName(MMWEAPON);
+	ArrowCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	MovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("MovementComponent"));
 	MovementComponent->bRotationFollowsVelocity = true;
@@ -54,6 +55,9 @@ void AMMArrow::Fire(FVector TargetLocation)
 {
 	// 방향 구하기
 	FVector LaunchDirection = (TargetLocation - GetActorLocation()).GetSafeNormal();
+
+	// 콜리전 활성화
+	ArrowCollision->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	
 	// 방향 지정 및 Projectile Movement Component 활성화
 	MovementComponent->Velocity = LaunchDirection * MovementComponent->InitialSpeed;

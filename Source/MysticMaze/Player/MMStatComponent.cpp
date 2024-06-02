@@ -99,6 +99,8 @@ void UMMStatComponent::InitMonsterStatus(int32 InLevel)
 	if (GameMode)
 	{
 		BaseStat = GameMode->GetPlayerStat(CurrentLevel);
+
+		UpdateDetailStatus();
 	}
 }
 

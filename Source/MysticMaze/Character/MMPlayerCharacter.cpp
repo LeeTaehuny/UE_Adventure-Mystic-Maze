@@ -54,6 +54,7 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 		bIsCharge = false;
 		WalkSpeed = 230.0f;
 		RunSpeed = 600.0f;
+		SumTime = 0.0f;
 
 		ClassType = EClassType::CT_None;
 	}
@@ -349,21 +350,23 @@ void AMMPlayerCharacter::Tick(float DeltaSeconds)
 
 	if (bIsCharge)
 	{
-		ChargeNum = FMath::Clamp(ChargeNum + (DeltaSeconds * 0.3f), 1.0f, 2.0f);
-	}
+		SumTime += DeltaSeconds;
 
-	// TEST : 1초마다 경험치 10씩 주기
-	LevelUpTime += DeltaSeconds;
-	if (LevelUpTime >= 1.0f)
-	{
-		LevelUpTime = 0.0f;
-		Stat->SetExp(60.0f);
+		if (SumTime >= 0.2f)
+		{
+			// 마나 및 체력 회복
+			Stat->HealHp(0.1f);
+			Stat->HealMp(0.1f);
+		}
 	}
 }
 
 float AMMPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	// 구르기 중이면 데미지 받지 않기
+	if (bIsRoll) return 0.0f;
 
 	UE_LOG(LogTemp, Warning, TEXT("%f"), DamageAmount);
 
@@ -451,6 +454,9 @@ void AMMPlayerCharacter::RollStart()
 		// Roll Check
 		bIsRoll = true;
 
+		// 콜리전 충돌 무효
+		GetCapsuleComponent()->SetCollisionProfileName(MMTRIGGER);
+
 		// 키보드 방향으로 회전
 		{
 			// 컨트롤러의 회전 중 Yaw(Z)를 가져와 저장
@@ -484,6 +490,9 @@ void AMMPlayerCharacter::RollEnd(class UAnimMontage* Montage, bool IsEnded)
 {
 	// Roll UnCheck
 	bIsRoll = false;
+
+	// 콜리전 충돌 활성화
+	GetCapsuleComponent()->SetCollisionProfileName(MMCAPSULE);
 }
 
 void AMMPlayerCharacter::ConvertInventoryVisibility()
@@ -963,6 +972,17 @@ void AMMPlayerCharacter::DrawArrow()
 		bIsHold = true;
 		bIsStop = false;
 
+		// 스테이터스바 위젯 감추기
+		AMMPlayerController* PlayerController = Cast<AMMPlayerController>(GetController());
+		if (PlayerController)
+		{
+			if (PlayerController->GetHUDWidget())
+			{
+				// 스테이터스바 위젯 토글 함수를 호출합니다.
+				PlayerController->GetHUDWidget()->ToggleStatusBarWidget();
+			}
+		}
+
 		// 움직임 설정
 		GetCharacterMovement()->bOrientRotationToMovement = false;
 		GetCharacterMovement()->bUseControllerDesiredRotation = true;
@@ -1007,6 +1027,17 @@ void AMMPlayerCharacter::ReleaseArrow()
 	bIsHold = false;
 	bCanShoot = false;
 	bIsStop = true;
+
+	// 스테이터스바 위젯 출력
+	AMMPlayerController* PlayerController = Cast<AMMPlayerController>(GetController());
+	if (PlayerController)
+	{
+		if (PlayerController->GetHUDWidget())
+		{
+			// 스테이터스바 위젯 토글 함수를 호출합니다.
+			PlayerController->GetHUDWidget()->ToggleStatusBarWidget();
+		}
+	}
 
 	// 움직임 설정
 	GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -1168,17 +1199,16 @@ void AMMPlayerCharacter::ShootArrow()
 void AMMPlayerCharacter::ApplyMovementSpeed(float MovementSpeed)
 {
 	// 이동속도 설정
-	WalkSpeed += MovementSpeed - 600;
-	RunSpeed += MovementSpeed - 600;
+	float AdditiveSpeed = MovementSpeed - 600;
 
 	// 이동속도 적용
 	if (bIsDash)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = RunSpeed;
+		GetCharacterMovement()->MaxWalkSpeed = RunSpeed + AdditiveSpeed;
 	}
 	else
 	{
-		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed + AdditiveSpeed;
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("SetSpeed, %f, %f"), WalkSpeed, RunSpeed);

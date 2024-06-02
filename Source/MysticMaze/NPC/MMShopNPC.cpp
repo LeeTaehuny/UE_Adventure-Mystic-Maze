@@ -126,10 +126,17 @@ void AMMShopNPC::CloseShop()
 		AMMPlayerController* PlayerController = Cast<AMMPlayerController>(TempPlayer->GetController());
 		if (PlayerController)
 		{
-			FInputModeGameOnly InputModeData;
-			PlayerController->SetInputMode(InputModeData);
-			PlayerController->bShowMouseCursor = false;
-			ShopWidget->SetVisibility(ESlateVisibility::Hidden);
+			// 활성화된 위젯이 있다면?
+			if (PlayerController->GetHUDWidget()->GetIsVisibility())
+			{
+				// UI & Game 모드로 전환
+				PlayerController->SetUIInputMode();
+			}
+			else
+			{
+				// Game 모드로 전환
+				PlayerController->SetGameInputMode();
+			}
 		}
 		
 		// 판매 기능 비활성화
@@ -139,6 +146,7 @@ void AMMShopNPC::CloseShop()
 			InventoryPawn->GetInventoryComponent()->SetSellable(false);
 		}
 		
+		ShopWidget->SetVisibility(ESlateVisibility::Hidden);
 		TempPlayer = nullptr;
 	}
 }

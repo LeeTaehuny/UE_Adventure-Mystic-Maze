@@ -76,6 +76,7 @@ void UMMHUDWidget::Init()
 			// 플레이어 스테이터스바 위젯 초기화
 			PlayerStatusBarWidget->SetOwningActor(OwningActor);
 			PlayerStatusBarWidget->Init();
+			PlayerStatusBarWidget->SetVisibility(ESlateVisibility::Visible);
 		}
 	}
 
@@ -185,6 +186,20 @@ void UMMHUDWidget::ToggleSkillWidget()
 
 		// SKILL 위젯을 켰다고 표시합니다.
 		VisibilityFlag |= static_cast<uint8>(EWidgetFlags::SKILL);
+	}
+}
+
+void UMMHUDWidget::ToggleStatusBarWidget()
+{
+	if (!PlayerStatusBarWidget) return;
+
+	if (PlayerStatusBarWidget->GetVisibility() == ESlateVisibility::Visible)
+	{
+		PlayerStatusBarWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+	else
+	{
+		PlayerStatusBarWidget->SetVisibility(ESlateVisibility::Visible);
 	}
 }
 

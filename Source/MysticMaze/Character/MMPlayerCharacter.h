@@ -251,7 +251,7 @@ protected:
 	FORCEINLINE virtual bool GetIsCharge() override { return bIsCharge; }
 
 	uint8 bIsCharge : 1;		// 마나 축적 여부
-	float ChargeNum;			// 축적된 마나 량
+	float SumTime;
 
 	UPROPERTY(EditAnywhere, Category = "Particle", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UParticleSystem> ChargeParticle;

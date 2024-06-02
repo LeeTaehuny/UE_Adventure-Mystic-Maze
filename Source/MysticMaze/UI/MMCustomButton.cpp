@@ -160,7 +160,7 @@ void UMMCustomButton::UpdateClassSkillWarrior()
 					// 버튼 활성화하기
 					BTN_CustomButton->SetIsEnabled(true);
 					// 가격 보여주기
-					TXT_Price->SetText(FText::FromString(FString::Printf(TEXT("%d$"), SkillData[ButtonIndex]->UpgradeGold[SkillLevel - 1])));
+					TXT_Price->SetText(FText::FromString(FString::Printf(TEXT("%d$"), SkillData[ButtonIndex]->UpgradeGold[SkillLevel])));
 				}
 			}
 		}
@@ -206,7 +206,7 @@ void UMMCustomButton::UpdateClassSkillArcher()
 					// 버튼 활성화하기
 					BTN_CustomButton->SetIsEnabled(true);
 					// 가격 보여주기
-					TXT_Price->SetText(FText::FromString(FString::Printf(TEXT("%d$"), SkillData[ButtonIndex]->UpgradeGold[SkillLevel - 1])));
+					TXT_Price->SetText(FText::FromString(FString::Printf(TEXT("%d$"), SkillData[ButtonIndex]->UpgradeGold[SkillLevel])));
 				}
 			}
 		}
