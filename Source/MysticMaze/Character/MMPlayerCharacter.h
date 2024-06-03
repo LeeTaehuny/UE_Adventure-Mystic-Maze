@@ -60,6 +60,7 @@ protected:
 	void ConvertStatusVisibility();
 	void ConvertEquipmentVisibility();
 	void ConvertSkillVisibility();
+	void ConvertRiding();
 	void Interaction();
 	void UseQuickSlot(int32 InNum);
 
@@ -106,6 +107,9 @@ protected:
 	TObjectPtr<class UInputAction> IA_ConvertSkill;
 
 	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_ConvertRiding;
+
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_QuickSlot1;
 
 	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
@@ -122,6 +126,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_QuickSlot6;
+
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputMappingContext> IMC_Riding;
 
 	// InputMappingContext
 	TMap<EClassType, TObjectPtr<class UInputMappingContext>> IMC_Array;
@@ -294,9 +301,11 @@ protected:
 	uint8 bIsAttacking : 1;		// 공격중인지 체크
 	uint8 bIsStop : 1;			// 애니메이션 스탑 여부
 	uint8 bIsEquip : 1;			// 무기 장착 여부
+	uint8 bIsRide : 1;			// 탈것 활성화 여부
 
 	float WalkSpeed;
 	float RunSpeed;
+	float RidingSpeed;
 
 	// 플레이어 입력 방향
 	FVector2D MovementVector;
@@ -305,9 +314,4 @@ protected:
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "Particle", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UParticleSystemComponent> ChargeParticleSystemComponent;
-
-
-// TEST
-private:
-	float LevelUpTime;
 };

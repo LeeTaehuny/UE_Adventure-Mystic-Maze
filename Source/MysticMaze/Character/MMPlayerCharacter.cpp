@@ -52,8 +52,10 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 		bCanShoot = false;
 		bIsStop = false;
 		bIsCharge = false;
+		bIsRide = false;
 		WalkSpeed = 230.0f;
 		RunSpeed = 600.0f;
+		RidingSpeed = 1500.0f;
 		SumTime = 0.0f;
 
 		ClassType = EClassType::CT_None;
@@ -161,6 +163,12 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 			IA_ConvertSkill = IA_ConvertSkillRef.Object;
 		}
 
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_ConvertRidingRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_ConvertRiding.IA_ConvertRiding'"));
+		if (IA_ConvertRidingRef.Object)
+		{
+			IA_ConvertRiding = IA_ConvertRidingRef.Object;
+		}
+
 		static ConstructorHelpers::FObjectFinder<UInputAction>IA_QuickSlot1Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_QuickSlot1.IA_QuickSlot1'"));
 		if (IA_QuickSlot1Ref.Object)
 		{
@@ -195,6 +203,12 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 		if (IA_QuickSlot6Ref.Object)
 		{
 			IA_QuickSlot6 = IA_QuickSlot6Ref.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputMappingContext>IMC_RidingRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/MysticMaze/Player/Control/IMC_Riding.IMC_Riding'"));
+		if (IMC_RidingRef.Object)
+		{
+			IMC_Riding = IMC_RidingRef.Object;
 		}
 
 		// Basic Input
@@ -374,10 +388,16 @@ float AMMPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
+	float ActualDamage = DamageAmount;
+
 	// 구르기 중이면 데미지 받지 않기
 	if (bIsRoll) return 0.0f;
 
-	UE_LOG(LogTemp, Warning, TEXT("%f"), DamageAmount);
+	// 가드 중이면 데미지 50% 절감
+	if (bIsGuard)
+	{
+		ActualDamage *= 0.5f;
+	}
 
 	// 스킬 사용 중이라면?
 	if (IsValid(Skill->GetUsingSkill()))
@@ -387,7 +407,7 @@ float AMMPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	}
 
 	// 데미지 적용하기
-	Stat->ApplyDamage(DamageAmount);
+	Stat->ApplyDamage(ActualDamage);
 
 	return DamageAmount;
 }
@@ -412,7 +432,8 @@ void AMMPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(IA_ConvertInventory, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertInventoryVisibility);
 	EnhancedInputComponent->BindAction(IA_ConvertStatus, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertStatusVisibility);
 	EnhancedInputComponent->BindAction(IA_ConvertSkill, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertSkillVisibility);
-	
+	EnhancedInputComponent->BindAction(IA_ConvertRiding, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertRiding);
+
 	EnhancedInputComponent->BindAction(IA_QuickSlot1, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 1);
 	EnhancedInputComponent->BindAction(IA_QuickSlot2, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 2);
 	EnhancedInputComponent->BindAction(IA_QuickSlot3, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 3);
@@ -603,6 +624,71 @@ void AMMPlayerCharacter::ConvertSkillVisibility()
 			{
 				// 활성화된 위젯이 없으므로 UI모드로 설정합니다.
 				PlayerController->SetGameInputMode();
+			}
+		}
+	}
+}
+
+void AMMPlayerCharacter::ConvertRiding()
+{
+	// 특정 동작 중에는 탈것 소환 X
+	if (bIsRoll) return;
+	if (bIsChange) return;
+	if (bIsAttacking) return;
+	if (bIsGuard) return;
+	if (bIsHold) return;
+	if (bIsCharge) return;
+
+	// 탈것 활성화 Toggle
+	if (!bIsRide) 
+		bIsRide = true;
+	else 
+		bIsRide = false;
+
+	// 탈것이 활성화 되었다면?
+	if (bIsRide)
+	{
+		// 탈것 메시 활성화
+		RideMesh->SetVisibility(true);
+		RideActorMesh->SetVisibility(true);
+		// 기본 메시 비활성화
+		GetMesh()->SetVisibility(false);
+		// 이동속도 조정 (1000)
+		GetCharacterMovement()->MaxWalkSpeed = RidingSpeed;
+		// 달리기 상태 초기화
+		bIsDash = false;
+	}
+	// 탈것이 비활성화 되었다면?
+	else
+	{
+		// 탈것 메시 비활성화
+		RideMesh->SetVisibility(false);
+		RideActorMesh->SetVisibility(false);
+		// 기본 메시 활성화
+		GetMesh()->SetVisibility(true);
+		// 이동속도 조정
+		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+	}
+
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (PlayerController)
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			// 기존에 저장된 IMC 초기화
+			SubSystem->ClearAllMappings();
+
+			if (bIsRide)
+			{
+				// Riding 매핑 컨텍스트 연동
+				UInputMappingContext* NewMappingContext = IMC_Riding;
+				SubSystem->AddMappingContext(NewMappingContext, 0);
+			}
+			else
+			{
+				// 현재 직업 매핑 컨텍스트 연동
+				UInputMappingContext* NewMappingContext = IMC_Array[ClassType];
+				SubSystem->AddMappingContext(NewMappingContext, 0);
 			}
 		}
 	}
@@ -826,19 +912,22 @@ void AMMPlayerCharacter::BaseAttackCheck()
 			}
 		}
 	}
-
-	// Capsule 모양의 디버깅 체크
-	//FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
-	//float CapsuleHalfHeight = AttackRange * 0.5f;
-	//FColor DrawColor = bHasHit ? FColor::Green : FColor::Red;
-
-	//DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 3.0f);
 }
 
 void AMMPlayerCharacter::Hit()
 {
-	// Hit 몽타주 재생
-	GetMesh()->GetAnimInstance()->Montage_Play(HitMontage);
+	// 탈것이 활성화 되어 있는 상황이라면?
+	if (bIsRide)
+	{
+		// 탈것 해제하기
+		ConvertRiding();
+	}
+
+	if (!bIsGuard)
+	{
+		// Hit 몽타주 재생
+		GetMesh()->GetAnimInstance()->Montage_Play(HitMontage);
+	}
 }
 
 void AMMPlayerCharacter::Death()
