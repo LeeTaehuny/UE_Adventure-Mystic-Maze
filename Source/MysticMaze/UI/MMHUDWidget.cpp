@@ -48,6 +48,7 @@ void UMMHUDWidget::Init()
 		{
 			// 이벤트 바인딩
 			StatusPawn->GetStatComponent()->OnStatChanged.AddUObject(PlayerStatusWidget, &UMMStatusWidget::UpdateStat);
+			StatusPawn->GetStatComponent()->OnClassChanged.AddUObject(PlayerStatusWidget, &UMMStatusWidget::UpdateClass);
 
 			// 스테이터스 위젯 초기화
 			PlayerStatusWidget->SetOwningActor(OwningActor);
@@ -75,6 +76,7 @@ void UMMHUDWidget::Init()
 			// 플레이어 스테이터스바 위젯 초기화
 			PlayerStatusBarWidget->SetOwningActor(OwningActor);
 			PlayerStatusBarWidget->Init();
+			PlayerStatusBarWidget->SetVisibility(ESlateVisibility::Visible);
 		}
 	}
 
@@ -95,6 +97,7 @@ void UMMHUDWidget::Init()
 	if (SkillWidget)
 	{
 		// TODO : 델리게이트 연동
+		SkillPawn->GetSkillComponent()->OnSkillChanged.AddUObject(SkillWidget, &UMMSkillWidget::UpdateSkillSlot);
 
 		// 스킬 위젯 초기화
 		SkillWidget->SetOwningActor(OwningActor);
@@ -183,6 +186,20 @@ void UMMHUDWidget::ToggleSkillWidget()
 
 		// SKILL 위젯을 켰다고 표시합니다.
 		VisibilityFlag |= static_cast<uint8>(EWidgetFlags::SKILL);
+	}
+}
+
+void UMMHUDWidget::ToggleStatusBarWidget()
+{
+	if (!PlayerStatusBarWidget) return;
+
+	if (PlayerStatusBarWidget->GetVisibility() == ESlateVisibility::Visible)
+	{
+		PlayerStatusBarWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+	else
+	{
+		PlayerStatusBarWidget->SetVisibility(ESlateVisibility::Visible);
 	}
 }
 
