@@ -148,7 +148,7 @@ void UMMCustomButton::UpdateClassSkillWarrior()
 				int32 SkillLevel = WarriorSkillMap[SkillData[ButtonIndex]->GetName()];
 
 				// 만약 스킬이 최대 레벨이라면? - 1, 2, 3 존재.
-				if (SkillLevel > 3)
+				if (SkillLevel >= 3)
 				{
 					// 버튼 비활성화하기
 					BTN_CustomButton->SetIsEnabled(false);
@@ -194,7 +194,7 @@ void UMMCustomButton::UpdateClassSkillArcher()
 				int32 SkillLevel = ArcherSkillMap[SkillData[ButtonIndex]->GetName()];
 
 				// 만약 스킬이 최대 레벨이라면? - 1, 2, 3 존재.
-				if (SkillLevel > 3)
+				if (SkillLevel >= 3)
 				{
 					// 버튼 비활성화하기
 					BTN_CustomButton->SetIsEnabled(false);
