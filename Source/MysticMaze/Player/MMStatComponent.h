@@ -63,6 +63,9 @@ public:
 	// 경험치 획득
 	void SetExp(float NewExp);
 
+	// Save
+	void SaveStat();
+
 protected:
 	virtual void BeginPlay() override;
 
