@@ -11,6 +11,7 @@
 #include "Monster/MMMonsterSpawnType.h"
 #include "Monster/MMMonsterSpawner.h"
 #include "Monster/MMMonsterArea.h"
+
 #include "MMRoomBase.generated.h"
 
 UCLASS()
@@ -108,6 +109,14 @@ protected:
 	3 : D 타입 ㄴ
 	*/
 	uint8 RoomType : 2;
+
+	// 몇 층에 스폰할지 정보를 전달하기 위한 함수
+	// 0 : 필드
+	// 1 : 1층
+	// 2 : 2층
+	// 3 : 3층
+	UPROPERTY(EditAnywhere, Category = "MonsterSpawnerData", Meta = (AllowPrivateAccess = "true"))
+	uint8 RoomFloor;
 	
 	UPROPERTY(EditAnywhere, Category = "MonsterSpawnerData", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class AMMMonsterSpawner> Spawner;

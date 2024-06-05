@@ -46,6 +46,10 @@ void AMMMonsterBase::PostInitializeComponents()
 	// ChargeParticleSystemComponent->SetActive(false);
 }
 
+void AMMMonsterBase::GoblindDieMontage()
+{
+}
+
 // 돌진 공격에 관련된 함수
 void AMMMonsterBase::ATKBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -83,6 +87,12 @@ void AMMMonsterBase::Die()
 	UE_LOG(LogTemp, Display, TEXT("Dying"));
 	bDie = true;
 	GetCharacterMovement()->StopMovementImmediately();
+	AAIController* AIController = Cast<AAIController>(GetController());
+	if (AIController)
+	{
+		AIController->GetBlackboardComponent()->SetValueAsBool("Die", true);
+		GoblindDieMontage();
+	}
 }
 
 void AMMMonsterBase::Hit()

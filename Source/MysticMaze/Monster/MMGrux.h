@@ -47,6 +47,8 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
+	virtual void GoblindDieMontage() override;
+
 	//IMMAnimationGruxInterface : 애니메이션 인터페이스 함수
 	FORCEINLINE virtual bool GetDie() override { return bDie; }
 	FORCEINLINE virtual bool GetSpawn() override { return bSpawn; }

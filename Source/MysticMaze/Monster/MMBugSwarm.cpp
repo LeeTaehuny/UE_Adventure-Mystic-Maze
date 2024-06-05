@@ -60,6 +60,10 @@ void AMMBugSwarm::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void AMMBugSwarm::GoblindDieMontage()
+{
+}
+
 void AMMBugSwarm::ATKChecking()
 {
 	// 충돌 결과를 반환하기 위한 배열

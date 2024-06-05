@@ -72,6 +72,10 @@ void AMMMechanite::Tick(float DeltaTime)
 	}
 }
 
+void AMMMechanite::GoblindDieMontage()
+{
+}
+
 void AMMMechanite::RushATK_End(class UAnimMontage* Montage, bool IsEnded)
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();

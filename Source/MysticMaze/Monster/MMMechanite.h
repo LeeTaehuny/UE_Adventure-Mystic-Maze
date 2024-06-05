@@ -40,6 +40,8 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
+	virtual void GoblindDieMontage() override;
+
 	void RushATK_End(class UAnimMontage* Montage, bool IsEnded);
 
 	// IMMMonsterATKChekInterface : 공격을 감지하는 인터페이스

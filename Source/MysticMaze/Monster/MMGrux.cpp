@@ -69,6 +69,10 @@ void AMMGrux::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void AMMGrux::GoblindDieMontage()
+{
+}
+
 void AMMGrux::Monsterdie()
 {
 	this->Destroy();

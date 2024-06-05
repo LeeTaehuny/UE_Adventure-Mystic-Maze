@@ -7,6 +7,9 @@
 #include "Monster/MMBugSwarm.h"
 #include "Monster/MMMechanite.h"
 #include "Monster/MMGrux.h"
+#include "Monster/MMGoblinCommander.h"
+#include "Monster/MMGoblinWarrior.h"
+#include "Monster/MMGoblinWizard.h"
 
 #include "Monster/MMMonsterArea.h"
 
@@ -28,15 +31,19 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 	AMMBugSwarm* MonsterBugSwarm;
 	AMMMechanite* MonsterMechanite;
 	AMMGrux* MonsterGrux;
+	AMMGoblinCommander* MonsterGoblinCommander;
+	AMMGoblinWarrior* MonsterGobinWarrior;
+	AMMGoblinWizard* MonsterGobinWizard;
 	float RandomXLocation;
 	float RandomYLocation;
 	float Distance = 1400;
 	UWorld* world = GetWorld();
 
-	INType = SpawnType::GruxOnly;
+	INType = SpawnType::GoblinWWHalf;
 	
 	switch (INType)
 	{
+		// 이 밑으로는 1계층 //
 	case SpawnType::BugswarmOnly:
 		for (int i = 0; i < 8; i++)
 		{
@@ -59,7 +66,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 			SpawnMonsters.Add(MonsterGrux);
 		}
 		break;
-
+		 
 	case SpawnType::MechaniteOnly:
 		for (int i = 0; i < 3; i++)
 		{
@@ -119,6 +126,120 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 
 	case SpawnType::StrongGrux:
 		break;
+		// 이 위로는 1계층 //
+
+		// 이 밑으로는 2계층 //
+	case SpawnType::GoblinWarriorOnly:
+
+		MonsterGoblinCommander = world->SpawnActor<AMMGoblinCommander>(GoblinCommanderData);
+
+		for (int i = 0; i < 8; i++)
+		{
+			MonsterGobinWarrior = world->SpawnActorDeferred<AMMGoblinWarrior>(GoblinWarriorData, FTransform(FVector()));
+			if (MonsterGobinWarrior)
+			{
+				// 초기화 완료
+				UGameplayStatics::FinishSpawningActor(MonsterGobinWarrior, FTransform(FVector()));
+			}
+
+			// 몬스터의 스폰을 기준 점에서부터 랜던한 곳으로 날려버리기 위한 코드
+			RandomXLocation = FMath::RandRange(-Distance, Distance);
+			RandomYLocation = FMath::RandRange(-Distance, Distance);
+			MonsterGobinWarrior->SetActorLocation(FVector(
+				INCenterLocation.X + RandomXLocation,
+				INCenterLocation.Y + RandomYLocation,
+				1100));
+
+			MonsterGobinWarrior->SetCenterLocation(INCenterLocation);
+			SpawnMonsters.Add(MonsterGobinWarrior);
+			MonsterGoblinCommander->SerchGoblin(MonsterGobinWarrior);
+		}
+		break;
+
+	case SpawnType::GoblinWizardOnly:
+
+		MonsterGoblinCommander = world->SpawnActor<AMMGoblinCommander>(GoblinCommanderData);
+
+		for (int i = 0; i < 8; i++)
+		{
+			MonsterGobinWizard = world->SpawnActorDeferred<AMMGoblinWizard>(GoblinWizardData, FTransform(FVector()));
+			if (MonsterGobinWizard)
+			{
+				// 초기화 완료
+				UGameplayStatics::FinishSpawningActor(MonsterGobinWizard, FTransform(FVector()));
+			}
+
+			// 몬스터의 스폰을 기준 점에서부터 랜던한 곳으로 날려버리기 위한 코드
+			RandomXLocation = FMath::RandRange(-Distance, Distance);
+			RandomYLocation = FMath::RandRange(-Distance, Distance);
+			MonsterGobinWizard->SetActorLocation(FVector(
+				INCenterLocation.X + RandomXLocation,
+				INCenterLocation.Y + RandomYLocation,
+				1100));
+
+			MonsterGobinWizard->SetCenterLocation(INCenterLocation);
+			SpawnMonsters.Add(MonsterGobinWizard);
+			MonsterGoblinCommander->SerchGoblin(MonsterGobinWizard);
+		}
+		break;
+
+	case SpawnType::GoblinWWHalf:
+
+		MonsterGoblinCommander = world->SpawnActor<AMMGoblinCommander>(GoblinCommanderData);
+
+		for (int i = 0; i < 4; i++)
+		{
+			MonsterGobinWizard = world->SpawnActorDeferred<AMMGoblinWizard>(GoblinWizardData, FTransform(FVector()));
+			if (MonsterGobinWizard)
+			{
+				// 초기화 완료
+				UGameplayStatics::FinishSpawningActor(MonsterGobinWizard, FTransform(FVector()));
+			}
+
+			// 몬스터의 스폰을 기준 점에서부터 랜던한 곳으로 날려버리기 위한 코드
+			RandomXLocation = FMath::RandRange(-Distance, Distance);
+			RandomYLocation = FMath::RandRange(-Distance, Distance);
+			MonsterGobinWizard->SetActorLocation(FVector(
+				INCenterLocation.X + RandomXLocation,
+				INCenterLocation.Y + RandomYLocation,
+				1200));
+
+			MonsterGobinWizard->SetCenterLocation(INCenterLocation);
+			SpawnMonsters.Add(MonsterGobinWizard);
+			MonsterGoblinCommander->SerchGoblin(MonsterGobinWizard);
+		}
+		for (int i = 0; i < 4; i++)
+		{
+			MonsterGobinWarrior = world->SpawnActorDeferred<AMMGoblinWarrior>(GoblinWarriorData, FTransform(FVector()));
+			if (MonsterGobinWarrior)
+			{
+				// 초기화 완료
+				UGameplayStatics::FinishSpawningActor(MonsterGobinWarrior, FTransform(FVector()));
+			}
+
+			// 몬스터의 스폰을 기준 점에서부터 랜던한 곳으로 날려버리기 위한 코드
+			RandomXLocation = FMath::RandRange(-Distance, Distance);
+			RandomYLocation = FMath::RandRange(-Distance, Distance);
+			MonsterGobinWarrior->SetActorLocation(FVector(
+				INCenterLocation.X + RandomXLocation,
+				INCenterLocation.Y + RandomYLocation,
+				1200));
+
+			UE_LOG(LogTemp, Display, TEXT("X : %f, Y : %f, Z : %f"), MonsterGobinWarrior->GetActorLocation().X, MonsterGobinWarrior->GetActorLocation().Y, MonsterGobinWarrior->GetActorLocation().Z);
+
+			MonsterGobinWarrior->SetCenterLocation(INCenterLocation);
+			SpawnMonsters.Add(MonsterGobinWarrior);
+			MonsterGoblinCommander->SerchGoblin(MonsterGobinWarrior);
+		}
+		
+		break;
+
+	case SpawnType::Warrior23__Wizard13:
+		break;
+
+	case SpawnType::Warrior13__Wizard23:
+		break;
+		// 이 위로는 2계층 //
 
 	default:
 		break;

@@ -956,12 +956,29 @@ void AMMRoomBase::RoomBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherAc
 		//{
 		//	FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld())->Build();
 		//}
-
 		// 몬스터 스포너를 스폰하기 위한 함수
 		// 매개변수 : 액터의 원점 로케이션 정보 전달
 		//SpawnerSumon(LocalLocation);
 
-		SpawnType RnadomValue = GetRandomEnumValue();
+		SpawnType RnadomValue;// = GetRandomEnumValue();
+
+		switch (RoomFloor)
+		{
+		case 1:
+			RnadomValue = (SpawnType)FMath::RandRange(0, 6);
+			break;
+
+		case 2:
+			RnadomValue = (SpawnType)FMath::RandRange(7, 11);
+			break;
+
+		case 3:
+			RnadomValue = (SpawnType)FMath::RandRange(11, 11);
+			break;
+
+		default:
+			break;
+		}
 
 		MonsterArea = GetWorld()->SpawnActor<AMMMonsterArea>(AMMMonsterArea::StaticClass());
 		TArray<TObjectPtr<class AMMMonsterBase>> MonsterData;
@@ -1077,7 +1094,6 @@ void AMMRoomBase::ClearSignal()
 	bMonsterAlive = false;
 	bClear = true;
 }
-
 
 /*
 void AMMRoomBase::SpawnerSumon(FVector INLocation)

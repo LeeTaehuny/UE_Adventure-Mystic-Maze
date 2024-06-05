@@ -5,6 +5,7 @@
 
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Interface/MMGoblinWarriorAIDataInterface.h"
 
 AMMGoblinWarriorAIController::AMMGoblinWarriorAIController()
 {
@@ -30,4 +31,10 @@ void AMMGoblinWarriorAIController::BeginPlay()
 void AMMGoblinWarriorAIController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	IMMGoblinWarriorAIDataInterface* Warrior = Cast<IMMGoblinWarriorAIDataInterface>(GetPawn());
+	if (Warrior)
+	{
+		Blackboard->SetValueAsBool("ATK_Mode", Warrior->GetATKMode());
+	}
 }

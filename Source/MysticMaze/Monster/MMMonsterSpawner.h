@@ -12,7 +12,7 @@ class MYSTICMAZE_API AMMMonsterSpawner : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
+public:
 	// Sets default values for this actor's properties
 	AMMMonsterSpawner();
 
@@ -36,6 +36,15 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "MonsterData")
 	TSubclassOf<class AMMGrux> GruxData;
+
+	UPROPERTY(EditAnywhere, Category = "MonsterData")
+	TSubclassOf<class AMMGoblinCommander> GoblinCommanderData;
+
+	UPROPERTY(EditAnywhere, Category = "MonsterData")
+	TSubclassOf<class AMMGoblinWarrior> GoblinWarriorData;
+
+	UPROPERTY(EditAnywhere, Category = "MonsterData")
+	TSubclassOf<class AMMGoblinWizard> GoblinWizardData;
 
 	// TArray<TObjectPtr<class AMMMonsterBase>> Monster;
 

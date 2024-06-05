@@ -12,7 +12,7 @@
 
 UMM_BugSwarm_SpeedATK_Task::UMM_BugSwarm_SpeedATK_Task()
 {
-	
+	NodeName = "SpeedATK";
 }
 
 EBTNodeResult::Type UMM_BugSwarm_SpeedATK_Task::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)

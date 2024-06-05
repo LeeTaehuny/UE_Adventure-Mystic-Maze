@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Monster/MMGoblinWarrior.h"
@@ -12,20 +12,136 @@ AMMGoblinWarrior::AMMGoblinWarrior()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Goblin/Mesh/Goblin_Base/SK_Goblin.SK_Goblin'"));
-	if (SkeletalMeshRef.Object)
 	{
-		GetMesh()->SetSkeletalMesh(SkeletalMeshRef.Object);
-		GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, -90.0f, 0.0f));
-
-		GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
-		static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceClassRef(TEXT("/Script/Engine.AnimBlueprint'/Game/MysticMaze/Monster/Goblin/Animations/ABP_GoblinWarrior.ABP_GoblinWarrior_C'"));
-		if (AnimInstanceClassRef.Class)
+		// ìŠ¤ì¼ˆë ˆí†¤ ëª¸í†µ í• ë‹¹
+		static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Goblin/Mesh/Goblin_Base/SK_Goblin.SK_Goblin'"));
+		ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceClassRef(TEXT("/Script/Engine.AnimBlueprint'/Game/MysticMaze/Monster/Goblin/Warrior/Animations/ABP_GoblinWarrior.ABP_GoblinWarrior_C'"));
+		if (SkeletalMeshRef.Object)
 		{
-			GetMesh()->SetAnimInstanceClass(AnimInstanceClassRef.Class);
+			GetMesh()->SetSkeletalMesh(SkeletalMeshRef.Object);
+			GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, -90.0f, 0.0f));
+
+			GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+			if (AnimInstanceClassRef.Class)
+			{
+				GetMesh()->SetAnimInstanceClass(AnimInstanceClassRef.Class);
+			}
+
+			GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
 		}
 
-		GetMesh()->SetCollisionProfileName(TEXT("NoCollision"));
+		// ê³ ë¸”ë¦°ì˜ ë¹µíƒ„
+		static ConstructorHelpers::FObjectFinder<USkeletalMesh> HeadMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Goblin/Mesh/Goblin_armor/SK_Head_Helmet.SK_Head_Helmet'"));
+		if (HeadMeshRef.Object)
+		{
+			HeadMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Head Mesh"));
+			HeadMesh->SetSkeletalMesh(HeadMeshRef.Object);
+			HeadMesh->SetupAttachment(GetMesh());
+			HeadMesh->SetCollisionProfileName(TEXT("NoCollision"));
+
+			HeadMesh->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+			if (AnimInstanceClassRef.Class)
+			{
+				HeadMesh->SetAnimInstanceClass(AnimInstanceClassRef.Class);
+			}
+		}
+
+		// ê³ ë¸”ë¦°ì˜ ëª¸í†µ ê°‘ì˜·
+		static ConstructorHelpers::FObjectFinder<USkeletalMesh> BodyArmorMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Goblin/Mesh/Goblin_armor/SK_Goblin_Body_Armor.SK_Goblin_Body_Armor'"));
+		if (BodyArmorMeshRef.Object)
+		{
+			BodyArmorMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("BodyArmor Mesh"));
+			BodyArmorMesh->SetSkeletalMesh(BodyArmorMeshRef.Object);
+			BodyArmorMesh->SetupAttachment(GetMesh());
+			BodyArmorMesh->SetCollisionProfileName(TEXT("NoCollision"));
+
+			BodyArmorMesh->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+			if (AnimInstanceClassRef.Class)
+			{
+				BodyArmorMesh->SetAnimInstanceClass(AnimInstanceClassRef.Class);
+			}
+		}
+
+		// ê³ ë¸”ë¦°ì˜ ì†ëª© ë°©ì–´êµ¬
+		static ConstructorHelpers::FObjectFinder<USkeletalMesh> BracersMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Goblin/Mesh/Goblin_armor/SK_Goblin_Bracers.SK_Goblin_Bracers'"));
+		if (BracersMeshRef.Object)
+		{
+			BracersMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Bracers Mesh"));
+			BracersMesh->SetSkeletalMesh(BracersMeshRef.Object);
+			BracersMesh->SetupAttachment(GetMesh());
+			BracersMesh->SetCollisionProfileName(TEXT("NoCollision"));
+
+			BracersMesh->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+			if (AnimInstanceClassRef.Class)
+			{
+				BracersMesh->SetAnimInstanceClass(AnimInstanceClassRef.Class);
+			}
+		}
+
+		// ê³ ë¸”ë¦°ì˜ ì¹˜ë§ˆ..?
+		static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkirtMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Goblin/Mesh/Goblin_armor/SK_Goblin_skirt.SK_Goblin_skirt'"));
+		if (SkirtMeshRef.Object)
+		{
+			SkirtMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Skirt Mesh"));
+			SkirtMesh->SetSkeletalMesh(SkirtMeshRef.Object);
+			SkirtMesh->SetupAttachment(GetMesh());
+			SkirtMesh->SetCollisionProfileName(TEXT("NoCollision"));
+
+			SkirtMesh->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+			if (AnimInstanceClassRef.Class)
+			{
+				SkirtMesh->SetAnimInstanceClass(AnimInstanceClassRef.Class);
+			}
+		}
+
+		// ê³ ë¸”ë¦°ì˜ ë‹¤ë¦¬ ë°©ì–´êµ¬
+		static ConstructorHelpers::FObjectFinder<USkeletalMesh> LegArmorMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Goblin/Mesh/Goblin_armor/SK_Goblin_Leg_Armor.SK_Goblin_Leg_Armor'"));
+		if (LegArmorMeshRef.Object)
+		{
+			LegArmorMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("LegArmor Mesh"));
+			LegArmorMesh->SetSkeletalMesh(LegArmorMeshRef.Object);
+			LegArmorMesh->SetupAttachment(GetMesh());
+			LegArmorMesh->SetCollisionProfileName(TEXT("NoCollision"));
+
+			LegArmorMesh->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+			if (AnimInstanceClassRef.Class)
+			{
+				LegArmorMesh->SetAnimInstanceClass(AnimInstanceClassRef.Class);
+			}
+		}
+
+		// ê³ ë¸”ë¦°ì˜ ê²€
+		static ConstructorHelpers::FObjectFinder<USkeletalMesh> SwordMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Goblin/Mesh/Weapons/SK_Sword.SK_Sword'"));
+		ConstructorHelpers::FClassFinder<UAnimInstance> WeaponAnimInstanceClassRef(TEXT("/Script/Engine.AnimBlueprint'/Game/MysticMaze/Monster/Goblin/Warrior/Animations/ABP_GoblinWarrioWeapon.ABP_GoblinWarrioWeapon_C'"));
+		if (SwordMeshRef.Object)
+		{
+			SwordMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Sword Mesh"));
+			SwordMesh->SetSkeletalMesh(SwordMeshRef.Object);
+			SwordMesh->SetupAttachment(GetMesh());
+			SwordMesh->SetCollisionProfileName(TEXT("NoCollision"));
+
+			SwordMesh->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+			if (WeaponAnimInstanceClassRef.Class)
+			{
+				SwordMesh->SetAnimInstanceClass(WeaponAnimInstanceClassRef.Class);
+			}
+		}
+
+		// ê³ ë¸”ë¦°ì˜ ë°©íŒ¨
+		static ConstructorHelpers::FObjectFinder<USkeletalMesh> ShieldMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Goblin/Mesh/Weapons/SK_Shield_A.SK_Shield_A'"));
+		if (ShieldMeshRef.Object)
+		{
+			ShieldMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Shield Mesh"));
+			ShieldMesh->SetSkeletalMesh(ShieldMeshRef.Object);
+			ShieldMesh->SetupAttachment(GetMesh());
+			ShieldMesh->SetCollisionProfileName(TEXT("NoCollision"));
+
+			ShieldMesh->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+			if (WeaponAnimInstanceClassRef.Class)
+			{
+				ShieldMesh->SetAnimInstanceClass(WeaponAnimInstanceClassRef.Class);
+			}
+		}
 	}
 
 	static ConstructorHelpers::FClassFinder<AMMGoblinWarriorAIController> BehaviorRef(TEXT("/Script/Engine.Blueprint'/Game/MysticMaze/Monster/Goblin/Warrior/AI/BP_GoblinWarriorAIController.BP_GoblinWarriorAIController_C'"));
@@ -35,12 +151,14 @@ AMMGoblinWarrior::AMMGoblinWarrior()
 		AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	}
 
-	// Ä³¸¯ÅÍÀÇ °È´Â ¼Óµµ ¼³Á¤
+	// ìºë¦­í„°ì˜ ê±·ëŠ” ì†ë„ ì„¤ì •
 	//GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 
 	ATK_Collision = CreateDefaultSubobject<USphereComponent>(TEXT("Rush Check"));
 	ATK_Collision->SetupAttachment(GetMesh());
 	ATK_Collision->SetCollisionProfileName(TEXT("NoCollision"));
+
+	bRandomDieMotion = FMath::RandRange(0, 1);
 }
 
 void AMMGoblinWarrior::BeginPlay()
@@ -56,21 +174,67 @@ void AMMGoblinWarrior::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void AMMGoblinWarrior::GoblindDieMontage()
+{
+	MontageAutoPlay(Die1Montage, Die2Montage);
+
+	int RandomATKMotionStart = FMath::RandRange(1, 2);
+	switch (RandomATKMotionStart)
+	{
+	case 1:
+		GetMesh()->GetAnimInstance()->Montage_JumpToSection("Die1", Die1Montage);
+		HeadMesh->GetAnimInstance()->Montage_JumpToSection("Die1", Die1Montage);
+		BodyArmorMesh->GetAnimInstance()->Montage_JumpToSection("Die1", Die1Montage);
+		BracersMesh->GetAnimInstance()->Montage_JumpToSection("Die1", Die1Montage);
+		SkirtMesh->GetAnimInstance()->Montage_JumpToSection("Die1", Die1Montage);
+		LegArmorMesh->GetAnimInstance()->Montage_JumpToSection("Die1", Die1Montage);
+
+		SwordMesh->GetAnimInstance()->Montage_JumpToSection("Die1", Die2Montage);
+		ShieldMesh->GetAnimInstance()->Montage_JumpToSection("Die1", Die2Montage);
+		break;
+
+	case 2:
+		GetMesh()->GetAnimInstance()->Montage_JumpToSection("Die2", Die1Montage);
+		HeadMesh->GetAnimInstance()->Montage_JumpToSection("Die2", Die1Montage);
+		BodyArmorMesh->GetAnimInstance()->Montage_JumpToSection("Die2", Die1Montage);
+		BracersMesh->GetAnimInstance()->Montage_JumpToSection("Die2", Die1Montage);
+		SkirtMesh->GetAnimInstance()->Montage_JumpToSection("Die2", Die1Montage);
+		LegArmorMesh->GetAnimInstance()->Montage_JumpToSection("Die2", Die1Montage);
+
+		SwordMesh->GetAnimInstance()->Montage_JumpToSection("Die2", Die2Montage);
+		ShieldMesh->GetAnimInstance()->Montage_JumpToSection("Die2", Die2Montage);
+		break;
+	}
+}
+
+void AMMGoblinWarrior::MontageAutoPlay(UAnimMontage* INBodyData, UAnimMontage* INWeaponData)
+{
+	GetMesh()->GetAnimInstance()->Montage_Play(INBodyData);
+	HeadMesh->GetAnimInstance()->Montage_Play(INBodyData);
+	BodyArmorMesh->GetAnimInstance()->Montage_Play(INBodyData);
+	BracersMesh->GetAnimInstance()->Montage_Play(INBodyData);
+	SkirtMesh->GetAnimInstance()->Montage_Play(INBodyData);
+	LegArmorMesh->GetAnimInstance()->Montage_Play(INBodyData);
+
+	SwordMesh->GetAnimInstance()->Montage_Play(INWeaponData);
+	ShieldMesh->GetAnimInstance()->Montage_Play(INWeaponData);
+}
+
 void AMMGoblinWarrior::ATKChecking()
 {
-	// Ãæµ¹ °á°ú¸¦ ¹İÈ¯ÇÏ±â À§ÇÑ ¹è¿­
+	// ì¶©ëŒ ê²°ê³¼ë¥¼ ë°˜í™˜í•˜ê¸° ìœ„í•œ ë°°ì—´
 	TArray<FHitResult> OutHitResults;
 
-	// °ø°İ ¹İ°æ
+	// ê³µê²© ë°˜ê²½
 	float AttackRange = 100.0f;
-	// °ø°İ Ã¼Å©¸¦ À§ÇÑ ±¸Ã¼ÀÇ ¹İÁö¸§
+	// ê³µê²© ì²´í¬ë¥¼ ìœ„í•œ êµ¬ì²´ì˜ ë°˜ì§€ë¦„
 	float AttackRadius = 50.0f;
 
-	// Ãæµ¹ Å½Áö¸¦ À§ÇÑ ½ÃÀÛ ÁöÁ¡ (ÇÃ·¹ÀÌ¾î ÇöÀç À§Ä¡ + Àü¹æ ¹æÇâ ÇÃ·¹ÀÌ¾îÀÇ CapsuleComponentÀÇ ¹İÁö¸§ °Å¸®)
+	// ì¶©ëŒ íƒì§€ë¥¼ ìœ„í•œ ì‹œì‘ ì§€ì  (í”Œë ˆì´ì–´ í˜„ì¬ ìœ„ì¹˜ + ì „ë°© ë°©í–¥ í”Œë ˆì´ì–´ì˜ CapsuleComponentì˜ ë°˜ì§€ë¦„ ê±°ë¦¬)
 	FVector Start = GetActorLocation() + (GetActorForwardVector() * GetCapsuleComponent()->GetScaledCapsuleRadius());
-	// Ãæµ¹ Å½Áö Á¾·á ÁöÁ¡ (½ÃÀÛÁöÁ¡ + Àü¹æ ¹æÇâÀÇ °ø°İ °Å¸®)
+	// ì¶©ëŒ íƒì§€ ì¢…ë£Œ ì§€ì  (ì‹œì‘ì§€ì  + ì „ë°© ë°©í–¥ì˜ ê³µê²© ê±°ë¦¬)
 	FVector End = Start + (GetActorForwardVector() * AttackRange);
-	// ÆÄ¶ó¹ÌÅÍ ¼³Á¤ÇÏ±â (Æ®·¹ÀÌ½º ÅÂ±× : Attack, º¹ÀâÇÑ Ãæµ¹ Ã³¸® : false, ¹«½ÃÇÒ ¾×ÅÍ : this) 
+	// íŒŒë¼ë¯¸í„° ì„¤ì •í•˜ê¸° (íŠ¸ë ˆì´ìŠ¤ íƒœê·¸ : Attack, ë³µì¡í•œ ì¶©ëŒ ì²˜ë¦¬ : false, ë¬´ì‹œí•  ì•¡í„° : this) 
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(Attack), false, this);
 
 	bool bHasHit = GetWorld()->SweepMultiByChannel(
@@ -84,7 +248,7 @@ void AMMGoblinWarrior::ATKChecking()
 
 	if (bHasHit)
 	{
-		// TODO : µ¥¹ÌÁö Àü´Ş
+		// TODO : ë°ë¯¸ì§€ ì „ë‹¬
 		for (FHitResult Result : OutHitResults)
 		{
 			if (AMMMonsterBase* Monster = Cast<AMMMonsterBase>(Result.GetActor()))
@@ -101,10 +265,56 @@ void AMMGoblinWarrior::ATKChecking()
 		}
 	}
 
-	// Capsule ¸ğ¾çÀÇ µğ¹ö±ë Ã¼Å©
+	// Capsule ëª¨ì–‘ì˜ ë””ë²„ê¹… ì²´í¬
 	FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
 	float CapsuleHalfHeight = AttackRange * 0.5f;
 	FColor DrawColor = bHasHit ? FColor::Green : FColor::Red;
 
 	DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(GetActorForwardVector()).ToQuat(), DrawColor, false, 3.0f);
+}
+
+void AMMGoblinWarrior::PlayingHowl()
+{
+	MontageAutoPlay(BodyHowl, WeaponHowl);
+}
+
+void AMMGoblinWarrior::WarriorNormalATK()
+{
+	if (!GetMesh()->GetAnimInstance()->IsAnyMontagePlaying())
+	{
+		MontageAutoPlay(BodyATK, WeaponATK);
+
+		int RandomATKMotionStart = FMath::RandRange(1, 2);
+		switch (RandomATKMotionStart)
+		{
+		case 1:
+			GetMesh()->GetAnimInstance()->Montage_JumpToSection("Default", BodyATK);
+			HeadMesh->GetAnimInstance()->Montage_JumpToSection("Default", BodyATK);
+			BodyArmorMesh->GetAnimInstance()->Montage_JumpToSection("Default", BodyATK);
+			BracersMesh->GetAnimInstance()->Montage_JumpToSection("Default", BodyATK);
+			SkirtMesh->GetAnimInstance()->Montage_JumpToSection("Default", BodyATK);
+			LegArmorMesh->GetAnimInstance()->Montage_JumpToSection("Default", BodyATK);
+
+			SwordMesh->GetAnimInstance()->Montage_JumpToSection("Default", WeaponATK);
+			ShieldMesh->GetAnimInstance()->Montage_JumpToSection("Default", WeaponATK);
+			break;
+
+		case 2:
+			GetMesh()->GetAnimInstance()->Montage_JumpToSection("Slash", BodyATK);
+			HeadMesh->GetAnimInstance()->Montage_JumpToSection("Slash", BodyATK);
+			BodyArmorMesh->GetAnimInstance()->Montage_JumpToSection("Slash", BodyATK);
+			BracersMesh->GetAnimInstance()->Montage_JumpToSection("Slash", BodyATK);
+			SkirtMesh->GetAnimInstance()->Montage_JumpToSection("Slash", BodyATK);
+			LegArmorMesh->GetAnimInstance()->Montage_JumpToSection("Slash", BodyATK);
+
+			SwordMesh->GetAnimInstance()->Montage_JumpToSection("Slash", WeaponATK);
+			ShieldMesh->GetAnimInstance()->Montage_JumpToSection("Slash", WeaponATK);
+			break;
+		}
+	}	
+}
+
+void AMMGoblinWarrior::Monsterdie()
+{
+	this->Destroy();
 }
