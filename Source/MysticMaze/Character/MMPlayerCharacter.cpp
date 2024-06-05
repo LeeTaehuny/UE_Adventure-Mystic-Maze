@@ -340,15 +340,15 @@ void AMMPlayerCharacter::BeginPlay()
 	ChangeClass(ClassType);
 
 	// TEST
-	FTransform SpawnTransform;
-	SpawnTransform.SetLocation(GetActorLocation() - GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
-	AMMItemBox* ItemBox = GetWorld()->SpawnActorDeferred<AMMItemBox>(AMMItemBox::StaticClass(), SpawnTransform);
-	if (ItemBox)
-	{
-		ItemBox->AddItemQuantity(50);
-		ItemBox->AddMoney(1000);
-		ItemBox->FinishSpawning(SpawnTransform);
-	}
+	//FTransform SpawnTransform;
+	//SpawnTransform.SetLocation(GetActorLocation() - GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+	//AMMItemBox* ItemBox = GetWorld()->SpawnActorDeferred<AMMItemBox>(AMMItemBox::StaticClass(), SpawnTransform);
+	//if (ItemBox)
+	//{
+	//	ItemBox->AddItemQuantity(50);
+	//	ItemBox->AddMoney(1000);
+	//	ItemBox->FinishSpawning(SpawnTransform);
+	//}
 }
 
 void AMMPlayerCharacter::Tick(float DeltaSeconds)
@@ -1002,6 +1002,7 @@ void AMMPlayerCharacter::ChangeClass(EClassType Class)
 
 void AMMPlayerCharacter::ConvertWeapon()
 {
+	if (bIsRoll) return;
 	if (bIsChange) return;
 	if (bIsHold) return;
 
