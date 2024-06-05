@@ -67,6 +67,9 @@ public:
 	void EquipItem(int32 InCurrentIndex);
 	void UnEquipItem();
 
+	// Save
+	void SaveInventory();
+
 // Inventory Section
 protected:
 	// 인벤토리 초기화

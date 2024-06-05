@@ -47,6 +47,9 @@ public:
 	// 퀵슬롯 등록
 	void SetQuickSlot(ESlotType InPrevSlotType, int32 InPrevIndex, int32 InCurrentIndex);
 
+	// Save
+	void SaveSkill();
+
 protected:
 	// 스킬 매니저 초기화
 	void InitSkillManager();

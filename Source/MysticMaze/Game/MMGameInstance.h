@@ -23,8 +23,21 @@ public:
 	{
 		return PlayerStatTable.IsValidIndex(InLevel - 1) ? PlayerStatTable[InLevel - 1] : FMMCharacterStat();
 	}
+	FORCEINLINE int32 GetMaxLevel() { return MaxLevel; }
+	FORCEINLINE FString GetSlotName() { return SaveSlotName; }
+	FORCEINLINE class UMMSaveGameData* GetSaveData() { return SaveDataInstance; }
+
+	void Exit();
+	void SetSaveSlot(int32 InIndex);
 
 private:
 	TArray<FMMCharacterStat> PlayerStatTable;
 	int32 MaxLevel;
+	FString SaveSlotName;
+	
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class UMMSaveInitData> InItData;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class UMMSaveGameData> SaveDataInstance;
 };

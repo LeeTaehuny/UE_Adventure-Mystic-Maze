@@ -9,6 +9,7 @@
 #include "NavigationSystem.h"
 #include "NavMesh/NavMeshBoundsVolume.h"
 #include "Monster/MMMonsterSpawnType.h"
+#include "Monster/MMMonsterSpawner.h"
 #include "MMRoomBase.generated.h"
 
 UCLASS()

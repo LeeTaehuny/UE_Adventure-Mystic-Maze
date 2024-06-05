@@ -307,6 +307,8 @@ protected:
 	float RunSpeed;
 	float RidingSpeed;
 
+	float AutoSaveTime;
+
 	// 플레이어 입력 방향
 	FVector2D MovementVector;
 

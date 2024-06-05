@@ -2,6 +2,10 @@
 
 
 #include "Game/MMGameInstance.h"
+#include "Game/MMSaveGameData.h"
+#include "GameData/MMSaveInitData.h"
+
+#include "Kismet/GameplayStatics.h"
 
 UMMGameInstance::UMMGameInstance()
 {
@@ -22,6 +26,46 @@ UMMGameInstance::UMMGameInstance()
 			}
 		);
 	}
-
 	MaxLevel = PlayerStatTable.Num();
+
+	// Save
+	static ConstructorHelpers::FObjectFinder<UMMSaveInitData> SaveInitDataRef(TEXT("/Script/MysticMaze.MMSaveInitData'/Game/MysticMaze/Game/DA_StartData.DA_StartData'"));
+	if (SaveInitDataRef.Object)
+	{
+		InItData = SaveInitDataRef.Object;
+	}
+	SaveSlotName = TEXT("SaveSlot");
+}
+
+void UMMGameInstance::Exit()
+{
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	if (PlayerController)
+	{
+		// 게임 종료
+		PlayerController->ConsoleCommand("quit");
+	}
+}
+
+void UMMGameInstance::SetSaveSlot(int32 InIndex)
+{
+	SaveSlotName += FString::FromInt(InIndex);
+	UE_LOG(LogTemp, Warning, TEXT("Save %s"), *SaveSlotName);
+
+	if (UGameplayStatics::DoesSaveGameExist(SaveSlotName, 0))
+	{
+		SaveDataInstance = Cast<UMMSaveGameData>(UGameplayStatics::LoadGameFromSlot(SaveSlotName, 0));
+	}
+	else
+	{
+		SaveDataInstance = Cast<UMMSaveGameData>(UGameplayStatics::CreateSaveGameObject(UMMSaveGameData::StaticClass()));
+
+		SaveDataInstance->SaveSlotName = SaveSlotName;
+		SaveDataInstance->SaveIndex = 0;
+		SaveDataInstance->Level = InItData->Level;
+		SaveDataInstance->Gold = InItData->Gold;
+		SaveDataInstance->Class = InItData->Class;
+		SaveDataInstance->CurrentFloor = InItData->CurrentFloor;
+		UGameplayStatics::SaveGameToSlot(SaveDataInstance, SaveDataInstance->SaveSlotName, SaveDataInstance->SaveIndex);
+	}
 }

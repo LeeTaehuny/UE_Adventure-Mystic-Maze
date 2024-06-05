@@ -15,9 +15,6 @@
 #include "UI/MMHUDWidget.h"
 #include "Player/MMStatComponent.h"
 #include "Player/MMSkillComponent.h"
-
-// TEST
-#include "Skill/Warrior/MMSkill_ComboSlash.h"
 #include "Skill/MMSkillBase.h"
 
 #include "Components/CapsuleComponent.h"
@@ -56,6 +53,7 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 		WalkSpeed = 230.0f;
 		RunSpeed = 600.0f;
 		RidingSpeed = 1500.0f;
+		AutoSaveTime = 15.0f;
 		SumTime = 0.0f;
 
 		ClassType = EClassType::CT_None;
@@ -342,15 +340,15 @@ void AMMPlayerCharacter::BeginPlay()
 	ChangeClass(ClassType);
 
 	// TEST
-	FTransform SpawnTransform;
-	SpawnTransform.SetLocation(GetActorLocation() - GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
-	AMMItemBox* ItemBox = GetWorld()->SpawnActorDeferred<AMMItemBox>(AMMItemBox::StaticClass(), SpawnTransform);
-	if (ItemBox)
-	{
-		ItemBox->AddItemQuantity(50);
-		ItemBox->AddMoney(1000);
-		ItemBox->FinishSpawning(SpawnTransform);
-	}
+	//FTransform SpawnTransform;
+	//SpawnTransform.SetLocation(GetActorLocation() - GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+	//AMMItemBox* ItemBox = GetWorld()->SpawnActorDeferred<AMMItemBox>(AMMItemBox::StaticClass(), SpawnTransform);
+	//if (ItemBox)
+	//{
+	//	ItemBox->AddItemQuantity(50);
+	//	ItemBox->AddMoney(1000);
+	//	ItemBox->FinishSpawning(SpawnTransform);
+	//}
 }
 
 void AMMPlayerCharacter::Tick(float DeltaSeconds)
@@ -381,6 +379,15 @@ void AMMPlayerCharacter::Tick(float DeltaSeconds)
 			Stat->HealHp(0.1f);
 			Stat->HealMp(0.1f);
 		}
+	}
+
+	AutoSaveTime -= DeltaSeconds;
+	if (AutoSaveTime <= 0.0f)
+	{
+		AutoSaveTime = 15.0f;
+		Inventory->SaveInventory();
+		Skill->SaveSkill();
+		Stat->SaveStat();
 	}
 }
 
@@ -657,6 +664,11 @@ void AMMPlayerCharacter::ConvertRiding()
 		GetCharacterMovement()->MaxWalkSpeed = RidingSpeed;
 		// 달리기 상태 초기화
 		bIsDash = false;
+		// 만약 착용한 무기가 있다면?
+		if (IsValid(CurrentWeapon))
+		{
+			CurrentWeapon->SetHidden(true);
+		}
 	}
 	// 탈것이 비활성화 되었다면?
 	else
@@ -668,6 +680,11 @@ void AMMPlayerCharacter::ConvertRiding()
 		GetMesh()->SetVisibility(true);
 		// 이동속도 조정
 		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+		// 만약 착용한 무기가 있다면?
+		if (IsValid(CurrentWeapon))
+		{
+			CurrentWeapon->SetHidden(false);
+		}
 	}
 
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
@@ -985,6 +1002,7 @@ void AMMPlayerCharacter::ChangeClass(EClassType Class)
 
 void AMMPlayerCharacter::ConvertWeapon()
 {
+	if (bIsRoll) return;
 	if (bIsChange) return;
 	if (bIsHold) return;
 
@@ -1314,6 +1332,9 @@ void AMMPlayerCharacter::ApplyMovementSpeed(float MovementSpeed)
 
 void AMMPlayerCharacter::Interaction()
 {
+	// TEST 경험치 증가
+	Stat->SetExp(500.0f);
+
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (!AnimInstance) return;
 	if (AnimInstance->Montage_IsPlaying(PickUpMontage)) return;
