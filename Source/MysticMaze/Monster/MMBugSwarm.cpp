@@ -60,8 +60,24 @@ void AMMBugSwarm::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AMMBugSwarm::GoblindDieMontage()
+void AMMBugSwarm::MonsterDieMontage()
 {
+	GetMesh()->GetAnimInstance()->Montage_Play(DieMontage);
+
+	int RandomATKMotionStart = FMath::RandRange(1, 2);
+	switch (RandomATKMotionStart)
+	{
+	case 1:
+		GetMesh()->GetAnimInstance()->Montage_JumpToSection("Die1", DieMontage);
+		break;
+
+	case 2:
+		GetMesh()->GetAnimInstance()->Montage_JumpToSection("Die2", DieMontage);
+		break;
+
+	default:
+		break;
+	}
 }
 
 void AMMBugSwarm::ATKChecking()
@@ -126,4 +142,9 @@ void AMMBugSwarm::ATKOff()
 {
 	ATK_Collision->SetCollisionProfileName(TEXT("NoCollision"));
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("MMCapsule"));
+}
+
+void AMMBugSwarm::Monsterdie()
+{
+	this->Destroy();
 }

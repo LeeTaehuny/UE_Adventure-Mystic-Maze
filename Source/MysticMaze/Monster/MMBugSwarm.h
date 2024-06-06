@@ -11,6 +11,7 @@
 #include "Interface/MMBugSwarmAIDataInterface.h"
 #include "Interface/MMMugSpeedATKInterface.h"			// 속도 공격을 위한 인터페이스
 #include "Interface/MMMonsterATKModeInterface.h"		// 공격 모드 변수의 값을 전달하기 위함
+#include "Interface/MMMonsterDieInterface.h"			// 몬스터가 죽었을 때 정보를 주고 받기 위한 인터페이스
 
 #include "MonsterAI/AIController/MMBugSwarmAIController.h"
 #include "MMBugSwarm.generated.h"
@@ -25,7 +26,8 @@ class MYSTICMAZE_API AMMBugSwarm : public AMMMonsterBase,
 	public IMMBugSwarmAIDataInterface,
 	public IMMMonsterATKChekInterface,
 	public IMMMugSpeedATKInterface,
-	public IMMMonsterATKModeInterface
+	public IMMMonsterATKModeInterface,
+	public IMMMonsterDieInterface
 {
 	GENERATED_BODY()
 
@@ -39,7 +41,7 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-	virtual void GoblindDieMontage() override;
+	virtual void MonsterDieMontage() override;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Monster")
@@ -73,6 +75,9 @@ protected:
 
 	// IMMMonsterATKModeInterface : 공격 모드 변수의 값을 전달하기 위한 함수
 	FORCEINLINE virtual void SetATKMode(bool INData) override { ATK_Mode = INData; };
+
+	// IMMMonsterDieInterface : 몬스터가 죽었을때 작동하는 함수
+	virtual void Monsterdie() override;
 
 protected: // AI 전용 변수들
 	// 스폰지점을 저장하기 위한 변수

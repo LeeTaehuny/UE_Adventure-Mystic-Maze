@@ -132,6 +132,12 @@ void AMMRoom_Class_B::Tick(float DeltaTime)
 
 void AMMRoom_Class_B::NorthBeginOverlap_0(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	AMMMonsterBase* Monster = Cast<AMMMonsterBase>(OtherActor);
+	if (Monster)
+	{
+		return;
+	}
+
 	// 문제의 콜리전에 충돌했을 경우 잠금 풀기
 	if ((bMonsterAlive && !bFirstContact) ||
 		(!bMonsterAlive && bFirstContact))
@@ -160,6 +166,12 @@ void AMMRoom_Class_B::NorthEndOverlap_0(UPrimitiveComponent* HitComp, AActor* Ot
 
 void AMMRoom_Class_B::NorthBeginOverlap_1(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	AMMMonsterBase* Monster = Cast<AMMMonsterBase>(OtherActor);
+	if (Monster)
+	{
+		return;
+	}
+
 	// 문제의 콜리전에 충돌했을 경우 잠금 풀기
 	if ((bMonsterAlive && !bFirstContact) ||
 		(!bMonsterAlive && bFirstContact))
@@ -188,6 +200,12 @@ void AMMRoom_Class_B::NorthEndOverlap_1(UPrimitiveComponent* HitComp, AActor* Ot
 
 void AMMRoom_Class_B::SouthBeginOverlap_0(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	AMMMonsterBase* Monster = Cast<AMMMonsterBase>(OtherActor);
+	if (Monster)
+	{
+		return;
+	}
+
 	// 문제의 콜리전에 충돌했을 경우 잠금 풀기
 	if ((bMonsterAlive && !bFirstContact) ||
 		(!bMonsterAlive && bFirstContact))
@@ -216,6 +234,12 @@ void AMMRoom_Class_B::SouthEndOverlap_0(UPrimitiveComponent* HitComp, AActor* Ot
 
 void AMMRoom_Class_B::SouthBeginOverlap_1(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	AMMMonsterBase* Monster = Cast<AMMMonsterBase>(OtherActor);
+	if (Monster)
+	{
+		return;
+	}
+
 	// 문제의 콜리전에 충돌했을 경우 잠금 풀기
 	if ((bMonsterAlive && !bFirstContact) ||
 		(!bMonsterAlive && bFirstContact))
@@ -244,6 +268,12 @@ void AMMRoom_Class_B::SouthEndOverlap_1(UPrimitiveComponent* HitComp, AActor* Ot
 
 void AMMRoom_Class_B::WastBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	AMMMonsterBase* Monster = Cast<AMMMonsterBase>(OtherActor);
+	if (Monster)
+	{
+		return;
+	}
+
 	// 문제의 콜리전에 충돌했을 경우 잠금 풀기
 	if ((bMonsterAlive && !bFirstContact) ||
 		(!bMonsterAlive && bFirstContact))
@@ -272,6 +302,12 @@ void AMMRoom_Class_B::WastEndOverlap(UPrimitiveComponent* HitComp, AActor* Other
 
 void AMMRoom_Class_B::EastBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* otherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	AMMMonsterBase* Monster = Cast<AMMMonsterBase>(OtherActor);
+	if (Monster)
+	{
+		return;
+	}
+
 	// 문제의 콜리전에 충돌했을 경우 잠금 풀기
 	if ((bMonsterAlive && !bFirstContact) ||
 		(!bMonsterAlive && bFirstContact))

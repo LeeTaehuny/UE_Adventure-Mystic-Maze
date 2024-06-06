@@ -28,6 +28,7 @@ EBTNodeResult::Type UMM_Mechanite_RushATK_Task::ExecuteTask(UBehaviorTreeCompone
 		MonsterInterface->SettingMoveSpeed(4);
 		MonsterInterface->StartMechaniteAnim(2);
 		MonsterInterface->ChangeCollision();
+		MonsterInterface->SetRusingTime(0.0f);
 	}
 
 	FHitResult HitResult;
@@ -88,6 +89,25 @@ void UMM_Mechanite_RushATK_Task::TickTask(UBehaviorTreeComponent& OwnerComp, uin
 
 	FPathFollowingRequestResult MoveResult = OwnerComp.GetAIOwner()->MoveTo(MoveRequest);
 	IMMMechaniteRushATKInterface* MonsterInterface = Cast<IMMMechaniteRushATKInterface>(OwnerComp.GetAIOwner()->GetPawn());
+	
+	float Timer = MonsterInterface->GetRusingTime();
+	Timer += DeltaSeconds;
+	MonsterInterface->SetRusingTime(Timer);
+	if (MonsterInterface->GetRusingTime() >= 10.0f)
+	{
+		MonsterInterface->AnimEnd(false);
+		MonsterInterface->SettingMoveSpeed(1);
+		MonsterInterface->EndMechaniteAnim();
+
+		OwnerComp.GetAIOwner()->GetBlackboardComponent()->SetValueAsBool("bNormalATK", true);
+		OwnerComp.GetAIOwner()->GetBlackboardComponent()->SetValueAsBool("bRushATK", false);
+
+		OwnerComp.GetAIOwner()->GetPawn()->GetMovementComponent();
+
+		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+	}
+
+
 	if (MoveResult.Code == EPathFollowingRequestResult::AlreadyAtGoal)
 	{
 		if (MonsterInterface)

@@ -25,13 +25,21 @@ bool AMMMonsterArea::IfMonsterNull(float DeltaTime)
 	if (player_Serch_timer >= 0.5f)
 	{
 		player_Serch_timer = 0;
-		MonsterDAta.RemoveAll([](AMMMonsterBase* Monster)
+		//MonsterDAta.RemoveAll([](AMMMonsterBase* Monster)
+		//	{
+		//		return Monster == nullptr || Monster->IsPendingKill();
+		//	});
+
+		TArray<AMMMonsterBase*> TempMonsterData = MonsterDAta;
+		TempMonsterData.RemoveAll([](AMMMonsterBase* Monster)
 			{
 				return Monster == nullptr || Monster->IsPendingKill();
 			});
 
+		MonsterDAta = TempMonsterData;
+
 		// 몬스터 배열에 아무도 없으면 해당 클래스 삭제
-		if (MonsterDAta.Num() <= 0)
+		if (MonsterDAta.Num() == 0)
 		{
 			//this->Destroy();
 			return true;

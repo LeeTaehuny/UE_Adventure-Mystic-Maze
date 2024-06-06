@@ -40,7 +40,6 @@ float AMMMonsterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 	FTransform Transform;
 	Transform.SetLocation(spawnLocation);
 	AMM_MonsterDamageText* DamageText = GetWorld()->SpawnActor<AMM_MonsterDamageText>(Monster_Damage, Transform);
-
 	DamageText->DamageText(DamageAmount, CameraLocation);
 
 	return DamageAmount;
@@ -64,8 +63,9 @@ void AMMMonsterBase::PostInitializeComponents()
 	// ChargeParticleSystemComponent->SetActive(false);
 }
 
-void AMMMonsterBase::GoblindDieMontage()
+void AMMMonsterBase::MonsterDieMontage()
 {
+
 }
 
 // 돌진 공격에 관련된 함수
@@ -103,13 +103,16 @@ void AMMMonsterBase::ApplyMovementSpeed(float MovementSpeed)
 void AMMMonsterBase::Die()
 {
 	UE_LOG(LogTemp, Display, TEXT("Dying"));
-	bDie = true;
-	GetCharacterMovement()->StopMovementImmediately();
-	AAIController* AIController = Cast<AAIController>(GetController());
-	if (AIController)
+	if (!bDie)
 	{
-		AIController->GetBlackboardComponent()->SetValueAsBool("Die", true);
-		GoblindDieMontage();
+		bDie = true;
+		GetCharacterMovement()->StopMovementImmediately();
+		AAIController* AIController = Cast<AAIController>(GetController());
+		if (AIController)
+		{
+			AIController->GetBlackboardComponent()->SetValueAsBool("Die", true);
+			MonsterDieMontage();
+		}
 	}
 }
 

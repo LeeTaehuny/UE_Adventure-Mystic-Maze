@@ -174,32 +174,32 @@ void AMMGoblinWarrior::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AMMGoblinWarrior::GoblindDieMontage()
+void AMMGoblinWarrior::MonsterDieMontage()
 {
-	MontageAutoPlay(Die1Montage, Die2Montage);
+	MontageAutoPlay(DieMontage, Die2Montage);
 
 	int RandomATKMotionStart = FMath::RandRange(1, 2);
 	switch (RandomATKMotionStart)
 	{
 	case 1:
-		GetMesh()->GetAnimInstance()->Montage_JumpToSection("Die1", Die1Montage);
-		HeadMesh->GetAnimInstance()->Montage_JumpToSection("Die1", Die1Montage);
-		BodyArmorMesh->GetAnimInstance()->Montage_JumpToSection("Die1", Die1Montage);
-		BracersMesh->GetAnimInstance()->Montage_JumpToSection("Die1", Die1Montage);
-		SkirtMesh->GetAnimInstance()->Montage_JumpToSection("Die1", Die1Montage);
-		LegArmorMesh->GetAnimInstance()->Montage_JumpToSection("Die1", Die1Montage);
+		GetMesh()->GetAnimInstance()->Montage_JumpToSection("Die1", DieMontage);
+		HeadMesh->GetAnimInstance()->Montage_JumpToSection("Die1", DieMontage);
+		BodyArmorMesh->GetAnimInstance()->Montage_JumpToSection("Die1", DieMontage);
+		BracersMesh->GetAnimInstance()->Montage_JumpToSection("Die1", DieMontage);
+		SkirtMesh->GetAnimInstance()->Montage_JumpToSection("Die1", DieMontage);
+		LegArmorMesh->GetAnimInstance()->Montage_JumpToSection("Die1", DieMontage);
 
 		SwordMesh->GetAnimInstance()->Montage_JumpToSection("Die1", Die2Montage);
 		ShieldMesh->GetAnimInstance()->Montage_JumpToSection("Die1", Die2Montage);
 		break;
 
 	case 2:
-		GetMesh()->GetAnimInstance()->Montage_JumpToSection("Die2", Die1Montage);
-		HeadMesh->GetAnimInstance()->Montage_JumpToSection("Die2", Die1Montage);
-		BodyArmorMesh->GetAnimInstance()->Montage_JumpToSection("Die2", Die1Montage);
-		BracersMesh->GetAnimInstance()->Montage_JumpToSection("Die2", Die1Montage);
-		SkirtMesh->GetAnimInstance()->Montage_JumpToSection("Die2", Die1Montage);
-		LegArmorMesh->GetAnimInstance()->Montage_JumpToSection("Die2", Die1Montage);
+		GetMesh()->GetAnimInstance()->Montage_JumpToSection("Die2", DieMontage);
+		HeadMesh->GetAnimInstance()->Montage_JumpToSection("Die2", DieMontage);
+		BodyArmorMesh->GetAnimInstance()->Montage_JumpToSection("Die2", DieMontage);
+		BracersMesh->GetAnimInstance()->Montage_JumpToSection("Die2", DieMontage);
+		SkirtMesh->GetAnimInstance()->Montage_JumpToSection("Die2", DieMontage);
+		LegArmorMesh->GetAnimInstance()->Montage_JumpToSection("Die2", DieMontage);
 
 		SwordMesh->GetAnimInstance()->Montage_JumpToSection("Die2", Die2Montage);
 		ShieldMesh->GetAnimInstance()->Montage_JumpToSection("Die2", Die2Montage);

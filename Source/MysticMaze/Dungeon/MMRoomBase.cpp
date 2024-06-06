@@ -13,6 +13,8 @@
 #include "Monster/MMMonsterSpawner.h"
 #include "Monster/MMMonsterArea.h"
 
+#include "Monster/MMMonsterBase.h"
+
 
 // Sets default values
 AMMRoomBase::AMMRoomBase()

@@ -72,8 +72,38 @@ void AMMMechanite::Tick(float DeltaTime)
 	}
 }
 
-void AMMMechanite::GoblindDieMontage()
+void AMMMechanite::MonsterDieMontage()
 {
+	//GetMesh()->GetAnimInstance()->Montage_Stop(0.1f);
+	GetMesh()->GetAnimInstance()->Montage_Play(DieMontage);
+	AnimEnd(false);
+
+	int RandomATKMotionStart = FMath::RandRange(1, 5);
+	switch (RandomATKMotionStart)
+	{
+	case 1:
+		GetMesh()->GetAnimInstance()->Montage_JumpToSection("Die1", DieMontage);
+		break;
+
+	case 2:
+		GetMesh()->GetAnimInstance()->Montage_JumpToSection("Die2", DieMontage);
+		break;
+
+	case 3:
+		GetMesh()->GetAnimInstance()->Montage_JumpToSection("Die3", DieMontage);
+		break;
+
+	case 4:
+		GetMesh()->GetAnimInstance()->Montage_JumpToSection("Die4", DieMontage);
+		break;
+
+	case 5:
+		GetMesh()->GetAnimInstance()->Montage_JumpToSection("Die5", DieMontage);
+		break;
+
+	default:
+		break;
+	}
 }
 
 void AMMMechanite::RushATK_End(class UAnimMontage* Montage, bool IsEnded)
@@ -276,5 +306,10 @@ void AMMMechanite::ChangeCollision()
 {
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("MMTrigger"));
 	ATK_Collision->SetCollisionProfileName(TEXT("MMLongATK"));
+}
+
+void AMMMechanite::Monsterdie()
+{
+	this->Destroy();
 }
 

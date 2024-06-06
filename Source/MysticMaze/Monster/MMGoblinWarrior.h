@@ -36,7 +36,7 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-	virtual void GoblindDieMontage() override;
+	virtual void MonsterDieMontage() override;
 
 protected:
 	void MontageAutoPlay(UAnimMontage* INBodyData, UAnimMontage* INWeaponData);
@@ -89,6 +89,9 @@ protected:
 	TObjectPtr<class UAnimMontage> BodyATK;
 	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> WeaponATK;
+
+	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> Die2Montage;
 
 protected:
 

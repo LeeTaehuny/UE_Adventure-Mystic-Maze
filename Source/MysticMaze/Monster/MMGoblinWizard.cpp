@@ -157,19 +157,19 @@ void AMMGoblinWizard::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AMMGoblinWizard::GoblindDieMontage()
+void AMMGoblinWizard::MonsterDieMontage()
 {
-	MontageAutoPlay(Die1Montage, Die2Montage);
+	MontageAutoPlay(DieMontage, Die2Montage);
 
 	int RandomATKMotionStart = FMath::RandRange(1, 2);
 	switch (RandomATKMotionStart)
 	{
 	case 1:
-		MontageAutoSection(Die1Montage, Die2Montage, "Die1");
+		MontageAutoSection(DieMontage, Die2Montage, "Die1");
 		break;
 
 	case 2:
-		MontageAutoSection(Die1Montage, Die2Montage, "Die2");
+		MontageAutoSection(DieMontage, Die2Montage, "Die2");
 		break;
 	}
 }
