@@ -11,6 +11,7 @@
 #include "Monster/MMMonsterSpawnType.h"
 #include "Monster/MMMonsterSpawner.h"
 #include "Monster/MMMonsterArea.h"
+#include "Dungeon/MMRoomDesignBase.h"
 
 #include "MMRoomBase.generated.h"
 
@@ -122,4 +123,9 @@ protected:
 	TObjectPtr<class AMMMonsterSpawner> Spawner;
 
 	TObjectPtr<class AMMMonsterArea> MonsterArea;
+
+	UPROPERTY(EditAnywhere, Category = "Design", Meta = (AllowPrivateAccess = "true"))
+	TArray<TSubclassOf<AMMRoomDesignBase>> Designs;
+	void Structure_Installation(FVector INData);
+
 };

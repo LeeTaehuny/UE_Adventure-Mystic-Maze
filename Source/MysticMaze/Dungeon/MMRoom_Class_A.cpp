@@ -85,6 +85,8 @@ void AMMRoom_Class_A::BeginPlay()
 	South->OnComponentEndOverlap.AddDynamic(this, &AMMRoom_Class_A::SouthEndOverlap);
 
 	RoomCenter->OnComponentBeginOverlap.AddDynamic(this, &AMMRoomBase::RoomBeginOverlap);
+
+	Structure_Installation(this->GetActorLocation());
 }
 
 // Called every frame

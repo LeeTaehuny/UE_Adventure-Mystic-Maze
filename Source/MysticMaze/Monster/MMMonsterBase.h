@@ -67,5 +67,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> Die2Montage;
+
+
+	UPROPERTY(EditAnywhere, Category = "Damage Text", Meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class AMM_MonsterDamageText> Monster_Damage;
+
+	UPROPERTY(EditAnywhere, Category = "Damage Text", Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UStaticMeshComponent> LocationData;
 	
 };

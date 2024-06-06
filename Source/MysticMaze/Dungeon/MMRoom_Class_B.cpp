@@ -96,6 +96,10 @@ void AMMRoom_Class_B::BeginPlay()
 	South_1->OnComponentEndOverlap.AddDynamic(this, &AMMRoom_Class_B::SouthEndOverlap_1);
 
 	RoomCenter->OnComponentBeginOverlap.AddDynamic(this, &AMMRoomBase::RoomBeginOverlap);
+
+	FVector spawnLocation = this->GetActorLocation();
+	Structure_Installation(spawnLocation + FVector(-2000, 0, 0));
+	Structure_Installation(spawnLocation + FVector(2000, 0, 0));
 }
 
 // Called every frame

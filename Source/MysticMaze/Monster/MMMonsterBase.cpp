@@ -9,11 +9,14 @@
 #include "BehaviorTree/BlackboardComponent.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Monster/Monster_DamageText/MM_MonsterDamageText.h"
 
 AMMMonsterBase::AMMMonsterBase()
 {
 	ATK_Mode = false;
 	bDie = false;
+
+	LocationData = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Save Location"));
 }
 
 float AMMMonsterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -24,6 +27,21 @@ float AMMMonsterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 
 	// 데미지 적용하기
 	Stat->ApplyDamage(DamageAmount);
+
+	FVector spawnLocation = LocationData->GetComponentLocation() + this->GetActorLocation();
+
+	FVector CameraLocation;
+	FRotator CameraRotation;
+	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (PlayerController)
+	{
+		PlayerController->GetPlayerViewPoint(CameraLocation, CameraRotation);
+	}
+	FTransform Transform;
+	Transform.SetLocation(spawnLocation);
+	AMM_MonsterDamageText* DamageText = GetWorld()->SpawnActor<AMM_MonsterDamageText>(Monster_Damage, Transform);
+
+	DamageText->DamageText(DamageAmount, CameraLocation);
 
 	return DamageAmount;
 

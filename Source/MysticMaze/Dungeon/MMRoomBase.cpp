@@ -180,11 +180,13 @@ bool AMMRoomBase::SpawnNrothRoom(FVector INCenterLocation)
 
 		AMMRoomBase* aa;
 		int LocationReadJust = 0;
+		FTransform Transform;
 		switch (SpawnRoomNumber)
 		{
 		case 0:
 			CenterLocation = INCenterLocation + FVector(0, RoomSize, 0);
-			aa = World->SpawnActor<AMMRoomBase>(ATypeData);
+			Transform.SetLocation(CenterLocation);
+			aa = World->SpawnActor<AMMRoomBase>(ATypeData, Transform);
 			aa->SetActorLocation(CenterLocation);
 			aa->SetSpawner(Spawner);
 			return true;
@@ -209,7 +211,8 @@ bool AMMRoomBase::SpawnNrothRoom(FVector INCenterLocation)
 			{
 				CenterLocation = INCenterLocation + FVector(-RoomSize * 0.5f, RoomSize, 0);
 			}
-			aa = World->SpawnActor<AMMRoomBase>(BTypeData);
+			Transform.SetLocation(CenterLocation);
+			aa = World->SpawnActor<AMMRoomBase>(BTypeData, Transform);
 			aa->SetActorLocation(CenterLocation);
 			aa->SetSpawner(Spawner);
 			return true;
@@ -231,7 +234,8 @@ bool AMMRoomBase::SpawnNrothRoom(FVector INCenterLocation)
 				CenterLocation = INCenterLocation + FVector(-RoomSize * 0.5f, RoomSize, 0);
 			}
 
-			aa = World->SpawnActor<AMMRoomBase>(CTypeData);
+			Transform.SetLocation(CenterLocation);
+			aa = World->SpawnActor<AMMRoomBase>(CTypeData, Transform);
 			aa->SetActorLocation(CenterLocation);
 			aa->SetSpawner(Spawner);
 			return true;
@@ -257,7 +261,8 @@ bool AMMRoomBase::SpawnNrothRoom(FVector INCenterLocation)
 				CenterLocation = INCenterLocation + FVector(-RoomSize * 0.5f, RoomSize, 0);
 			}
 
-			aa = World->SpawnActor<AMMRoomBase>(DTypeData);
+			Transform.SetLocation(CenterLocation);
+			aa = World->SpawnActor<AMMRoomBase>(DTypeData, Transform);
 			aa->SetActorLocation(CenterLocation);
 			aa->SetSpawner(Spawner);
 			return true;
@@ -394,6 +399,7 @@ bool AMMRoomBase::SpawnSouthRoom(FVector INCenterLocation)
 		}
 
 		int SpawnRoomNumber = 0;
+		FTransform Transform;
 		while (true)
 		{
 			SpawnRoomNumber = FMath::RandRange(0, 3);
@@ -420,7 +426,8 @@ bool AMMRoomBase::SpawnSouthRoom(FVector INCenterLocation)
 		{
 		case 0:
 			CenterLocation = INCenterLocation + FVector(0, -RoomSize, 0);
-			aa = World->SpawnActor<AMMRoomBase>(ATypeData);
+			Transform.SetLocation(CenterLocation);
+			aa = World->SpawnActor<AMMRoomBase>(ATypeData, Transform);
 			aa->SetActorLocation(CenterLocation);
 			aa->SetSpawner(Spawner);
 			return true;
@@ -445,7 +452,9 @@ bool AMMRoomBase::SpawnSouthRoom(FVector INCenterLocation)
 			{
 				CenterLocation = INCenterLocation + FVector(-RoomSize * 0.5f, -RoomSize, 0);
 			}
-			aa = World->SpawnActor<AMMRoomBase>(BTypeData);
+
+			Transform.SetLocation(CenterLocation);
+			aa = World->SpawnActor<AMMRoomBase>(BTypeData, Transform);
 			aa->SetActorLocation(CenterLocation);
 			aa->SetSpawner(Spawner);
 			return true;
@@ -471,9 +480,8 @@ bool AMMRoomBase::SpawnSouthRoom(FVector INCenterLocation)
 				CenterLocation = INCenterLocation + FVector(-RoomSize * 0.5f, -RoomSize, 0);
 			}
 
-			
-
-			aa = World->SpawnActor<AMMRoomBase>(CTypeData);
+			Transform.SetLocation(CenterLocation);
+			aa = World->SpawnActor<AMMRoomBase>(CTypeData, Transform);
 			aa->SetActorLocation(CenterLocation);
 			aa->SetSpawner(Spawner);
 			return true;
@@ -495,7 +503,8 @@ bool AMMRoomBase::SpawnSouthRoom(FVector INCenterLocation)
 				CenterLocation = INCenterLocation + FVector(RoomSize * 0.5f, -RoomSize, 0);
 			}
 
-			aa = World->SpawnActor<AMMRoomBase>(DTypeData);
+			Transform.SetLocation(CenterLocation);
+			aa = World->SpawnActor<AMMRoomBase>(DTypeData, Transform);
 			aa->SetActorLocation(CenterLocation);
 			aa->SetSpawner(Spawner);
 			return true;
@@ -645,18 +654,21 @@ bool AMMRoomBase::SpawnEastRoom(FVector INCenterLocation)
 
 		AMMRoomBase* aa;
 		int LocationReadJust = 0;
+		FTransform Transform;
 		switch (SpawnRoomNumber)
 		{
 		case 0:
 			CenterLocation = INCenterLocation + FVector(-RoomSize, 0, 0);
-			aa = World->SpawnActor<AMMRoomBase>(ATypeData);
+			Transform.SetLocation(CenterLocation);
+			aa = World->SpawnActor<AMMRoomBase>(ATypeData, Transform);
 			aa->SetActorLocation(CenterLocation);
 			aa->SetSpawner(Spawner);
 			return true;
 
 		case 1:
 			CenterLocation = INCenterLocation + FVector(-RoomSize * 1.5f, 0, 0);
-			aa = World->SpawnActor<AMMRoomBase>(BTypeData);
+			Transform.SetLocation(CenterLocation);
+			aa = World->SpawnActor<AMMRoomBase>(BTypeData, Transform);
 			aa->SetActorLocation(CenterLocation);
 			aa->SetSpawner(Spawner);
 			return true;
@@ -682,7 +694,8 @@ bool AMMRoomBase::SpawnEastRoom(FVector INCenterLocation)
 				CenterLocation = INCenterLocation + FVector(-RoomSize * 1.5f, 0, 0);
 			}
 
-			aa = World->SpawnActor<AMMRoomBase>(CTypeData);
+			Transform.SetLocation(CenterLocation);
+			aa = World->SpawnActor<AMMRoomBase>(CTypeData, Transform);
 			aa->SetActorLocation(CenterLocation);
 			aa->SetSpawner(Spawner);
 			return true;
@@ -708,7 +721,8 @@ bool AMMRoomBase::SpawnEastRoom(FVector INCenterLocation)
 				CenterLocation = INCenterLocation + FVector(-RoomSize * 1.5f, -RoomSize, 0);
 			}
 
-			aa = World->SpawnActor<AMMRoomBase>(DTypeData);
+			Transform.SetLocation(CenterLocation);
+			aa = World->SpawnActor<AMMRoomBase>(DTypeData, Transform);
 			aa->SetActorLocation(CenterLocation);
 			aa->SetSpawner(Spawner);
 			return true;
@@ -852,18 +866,21 @@ bool AMMRoomBase::SpawnWestRoom(FVector INCenterLocation)
 
 		AMMRoomBase* aa;
 		int LocationReadJust = 0;
+		FTransform Transform;
 		switch (SpawnRoomNumber)
 		{
 		case 0:
 			CenterLocation = INCenterLocation + FVector(RoomSize, 0, 0);
-			aa = World->SpawnActor<AMMRoomBase>(ATypeData);
+			Transform.SetLocation(CenterLocation);
+			aa = World->SpawnActor<AMMRoomBase>(ATypeData, Transform);
 			aa->SetActorLocation(CenterLocation);
 			aa->SetSpawner(Spawner);
 			return true;
 
 		case 1:
 			CenterLocation = INCenterLocation + FVector(RoomSize * 1.5f, 0, 0);
-			aa = World->SpawnActor<AMMRoomBase>(BTypeData);
+			Transform.SetLocation(CenterLocation);
+			aa = World->SpawnActor<AMMRoomBase>(BTypeData, Transform);
 			aa->SetActorLocation(CenterLocation);
 			aa->SetSpawner(Spawner);
 			return true;
@@ -889,7 +906,8 @@ bool AMMRoomBase::SpawnWestRoom(FVector INCenterLocation)
 				CenterLocation = INCenterLocation + FVector(RoomSize * 1.5f, 0, 0);
 			}
 
-			aa = World->SpawnActor<AMMRoomBase>(CTypeData);
+			Transform.SetLocation(CenterLocation);
+			aa = World->SpawnActor<AMMRoomBase>(CTypeData, Transform);
 			aa->SetActorLocation(CenterLocation);
 			aa->SetSpawner(Spawner);
 			return true;
@@ -915,7 +933,8 @@ bool AMMRoomBase::SpawnWestRoom(FVector INCenterLocation)
 				CenterLocation = INCenterLocation + FVector(RoomSize * 1.5f, 0, 0);
 			}
 
-			aa = World->SpawnActor<AMMRoomBase>(DTypeData);
+			Transform.SetLocation(CenterLocation);
+			aa = World->SpawnActor<AMMRoomBase>(DTypeData, Transform);
 			aa->SetActorLocation(CenterLocation);
 			aa->SetSpawner(Spawner);
 			return true;
@@ -1210,4 +1229,13 @@ SpawnType AMMRoomBase::GetRandomEnumValue()
 	int32 EnumRange = static_cast<int32>(SpawnType::StrongGrux) + 1; // 마지막 Enum 값
 	int32 RandomIndex = FMath::RandRange(0, EnumRange - 1);
 	return static_cast<SpawnType>(RandomIndex);
+}
+
+void AMMRoomBase::Structure_Installation(FVector INData)
+{
+	int RandomSpawn = FMath::RandRange(0, Designs.Num() - 1);
+	{
+		AMMRoomDesignBase* Struc = GetWorld()->SpawnActor<AMMRoomDesignBase>(Designs[RandomSpawn]);
+		Struc->SetActorLocation(INData);
+	}
 }
