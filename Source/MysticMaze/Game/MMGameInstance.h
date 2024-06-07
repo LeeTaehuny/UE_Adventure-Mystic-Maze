@@ -26,13 +26,17 @@ public:
 	FORCEINLINE int32 GetMaxLevel() { return MaxLevel; }
 	FORCEINLINE FString GetSlotName() { return SaveSlotName; }
 	FORCEINLINE class UMMSaveGameData* GetSaveData() { return SaveDataInstance; }
+	FORCEINLINE int32 GetCurrentFloor() { return CurrentFloor; }
+	FORCEINLINE void SetCurrentFloor(int32 InValue) { CurrentFloor = InValue; }
 
 	void Exit();
 	void SetSaveSlot(int32 InIndex);
+	void SaveDungeonFloor();
 
 private:
 	TArray<FMMCharacterStat> PlayerStatTable;
 	int32 MaxLevel;
+	int32 CurrentFloor;
 	FString SaveSlotName;
 	
 	UPROPERTY(VisibleAnywhere)

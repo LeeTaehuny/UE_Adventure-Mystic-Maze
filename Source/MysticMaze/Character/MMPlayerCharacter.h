@@ -13,6 +13,7 @@
 #include "Interface/MMInventoryInterface.h"
 #include "Interface/MMStatusInterface.h"
 #include "Interface/MMSkillInterface.h"
+#include "Interface/MMSaveInterface.h"
 #include "MMPlayerCharacter.generated.h"
 
 /**
@@ -20,7 +21,7 @@
  */
 UCLASS()
 class MYSTICMAZE_API AMMPlayerCharacter : public AMMCharacterBase, public IMMAnimationAttackInterface, public IMMAnimationUpdateInterface, public IMMAnimationWeaponInterface, public IMMPlayerVisualInterface, public IMMInventoryInterface,
-	public IMMPlayerClassInterface, public IMMStatusInterface, public IMMSkillInterface
+	public IMMPlayerClassInterface, public IMMStatusInterface, public IMMSkillInterface, public IMMSaveInterface
 {
 	GENERATED_BODY()
 	
@@ -49,6 +50,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = Camera, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UCameraComponent> Camera;
 
+// Save
+public:
+	virtual void Save() override;
+
 // Input Section
 protected:
 	// 공용
@@ -61,6 +66,7 @@ protected:
 	void ConvertEquipmentVisibility();
 	void ConvertSkillVisibility();
 	void ConvertRiding();
+	void ConvertSetting();
 	void Interaction();
 	void UseQuickSlot(int32 InNum);
 
@@ -108,6 +114,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_ConvertRiding;
+
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_ConvertSetting;
 
 	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_QuickSlot1;
