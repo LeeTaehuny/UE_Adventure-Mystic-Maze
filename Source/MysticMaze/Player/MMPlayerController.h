@@ -22,6 +22,7 @@ protected:
 
 public:
 	FORCEINLINE class UMMHUDWidget* GetHUDWidget() { return HUDWidget; }
+	FORCEINLINE class UMMSettingWidget* GetSettingWidget() { return SettingWidget; }
 
 	void SetUIInputMode();
 	void SetGameInputMode();
@@ -36,4 +37,10 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Widget)
 	TObjectPtr<class UMMHUDWidget> HUDWidget;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Widget)
+	TSubclassOf<class UMMSettingWidget> SettingWidgetClass;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Widget)
+	TObjectPtr<class UMMSettingWidget> SettingWidget;
 };

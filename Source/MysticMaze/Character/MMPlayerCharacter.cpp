@@ -16,6 +16,8 @@
 #include "Player/MMStatComponent.h"
 #include "Player/MMSkillComponent.h"
 #include "Skill/MMSkillBase.h"
+#include "UI/MMSettingWidget.h"
+#include "Game/MMGameInstance.h"
 
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
@@ -165,6 +167,12 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 		if (IA_ConvertRidingRef.Object)
 		{
 			IA_ConvertRiding = IA_ConvertRidingRef.Object;
+		}
+
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_ConvertSettingRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_ConvertSetting.IA_ConvertSetting'"));
+		if (IA_ConvertSettingRef.Object)
+		{
+			IA_ConvertSetting = IA_ConvertSettingRef.Object;
 		}
 
 		static ConstructorHelpers::FObjectFinder<UInputAction>IA_QuickSlot1Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_QuickSlot1.IA_QuickSlot1'"));
@@ -385,9 +393,7 @@ void AMMPlayerCharacter::Tick(float DeltaSeconds)
 	if (AutoSaveTime <= 0.0f)
 	{
 		AutoSaveTime = 15.0f;
-		Inventory->SaveInventory();
-		Skill->SaveSkill();
-		Stat->SaveStat();
+		Save();
 	}
 }
 
@@ -448,6 +454,7 @@ void AMMPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(IA_QuickSlot5, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 5);
 	EnhancedInputComponent->BindAction(IA_QuickSlot6, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 6);
 	EnhancedInputComponent->BindAction(IA_ConvertEquipment, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertEquipmentVisibility);
+	EnhancedInputComponent->BindAction(IA_ConvertSetting, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertSetting);
 	
 	// Warrior
 	EnhancedInputComponent->BindAction(IA_WarriorGuard, ETriggerEvent::Started, this, &AMMPlayerCharacter::GuardStart);
@@ -462,6 +469,19 @@ void AMMPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(IA_MageSave, ETriggerEvent::Completed, this, &AMMPlayerCharacter::SaveEnd);
 }
 
+void AMMPlayerCharacter::Save()
+{
+	Inventory->SaveInventory();
+	Skill->SaveSkill();
+	Stat->SaveStat();
+
+	UMMGameInstance* GM = Cast<UMMGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (GM)
+	{
+		GM->SaveDungeonFloor();
+	}
+}
+	
 void AMMPlayerCharacter::DashStart()
 {
 	if (bIsHold) return;
@@ -707,6 +727,22 @@ void AMMPlayerCharacter::ConvertRiding()
 				UInputMappingContext* NewMappingContext = IMC_Array[ClassType];
 				SubSystem->AddMappingContext(NewMappingContext, 0);
 			}
+		}
+	}
+}
+
+void AMMPlayerCharacter::ConvertSetting()
+{
+	// 설정 위젯 On/Off 설정
+	AMMPlayerController* PlayerController = Cast<AMMPlayerController>(GetController());
+	if (PlayerController)
+	{
+		if (PlayerController->GetSettingWidget()->GetVisibility() == ESlateVisibility::Hidden)
+		{
+			PlayerController->GetSettingWidget()->SetVisibility(ESlateVisibility::Visible);
+
+			// 활성화된 위젯이 있으므로 UI모드로 설정합니다.
+			PlayerController->SetUIInputMode();
 		}
 	}
 }

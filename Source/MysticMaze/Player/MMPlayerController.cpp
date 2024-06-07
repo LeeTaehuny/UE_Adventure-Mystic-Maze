@@ -5,6 +5,7 @@
 #include "UI/MMInventoryWidget.h"
 #include "Player/MMInventoryComponent.h"
 #include "UI/MMHUDWidget.h"
+#include "UI/MMSettingWidget.h"
 
 AMMPlayerController::AMMPlayerController()
 {
@@ -14,6 +15,13 @@ AMMPlayerController::AMMPlayerController()
 	{
 		HUDWidgetClass = HUDWidgetClassRef.Class;
 	}
+
+	// Setting Widget Class 찾기
+	static ConstructorHelpers::FClassFinder<UMMSettingWidget>SettingWidgetClassRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/MysticMaze/UI/WBP_Setting.WBP_Setting_C'"));
+	if (SettingWidgetClassRef.Succeeded())
+	{
+		SettingWidgetClass = SettingWidgetClassRef.Class;
+	}
 }
 
 void AMMPlayerController::BeginPlay()
@@ -21,6 +29,14 @@ void AMMPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	InitHUDWidget();
+
+	SettingWidget = CreateWidget<UMMSettingWidget>(GetWorld(), SettingWidgetClass);
+	if (SettingWidget)
+	{
+		SettingWidget->SetOwningActor(GetPawn());
+		SettingWidget->AddToViewport();
+		SettingWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
 }
 
 void AMMPlayerController::InitHUDWidget()

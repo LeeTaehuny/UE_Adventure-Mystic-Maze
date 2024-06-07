@@ -96,5 +96,8 @@ void AMMArrow::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* Other
 	// 맞은 물체에 화살 부착
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::KeepWorld, EAttachmentRule::KeepRelative, EAttachmentRule::KeepRelative, true);
 	this->AttachToActor(OtherActor, AttachmentRules);
+
+	// 콜리전 비활성화
+	ArrowCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 

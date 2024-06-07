@@ -55,6 +55,7 @@ void UMMGameInstance::SetSaveSlot(int32 InIndex)
 	if (UGameplayStatics::DoesSaveGameExist(SaveSlotName, 0))
 	{
 		SaveDataInstance = Cast<UMMSaveGameData>(UGameplayStatics::LoadGameFromSlot(SaveSlotName, 0));
+		CurrentFloor = SaveDataInstance->CurrentFloor;
 	}
 	else
 	{
@@ -67,5 +68,13 @@ void UMMGameInstance::SetSaveSlot(int32 InIndex)
 		SaveDataInstance->Class = InItData->Class;
 		SaveDataInstance->CurrentFloor = InItData->CurrentFloor;
 		UGameplayStatics::SaveGameToSlot(SaveDataInstance, SaveDataInstance->SaveSlotName, SaveDataInstance->SaveIndex);
+	}
+}
+
+void UMMGameInstance::SaveDungeonFloor()
+{
+	if (SaveDataInstance)
+	{
+		SaveDataInstance->CurrentFloor = CurrentFloor;
 	}
 }
