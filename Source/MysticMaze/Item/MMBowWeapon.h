@@ -23,9 +23,11 @@ protected:
 
 public:
 	FORCEINLINE void SetIsHold(bool InValue) { bIsHold = InValue; }
+	FORCEINLINE class AMMArrow* GetTempArrow() { return TempArrow; }
 	virtual void EquipWeapon() override;
 
 	void SpawnArrow();
+	void SpawnArrow(TSubclassOf<AActor> InArrowClass, float InDamage);
 	void ShootArrow();
 	void DestroyArrow();
 

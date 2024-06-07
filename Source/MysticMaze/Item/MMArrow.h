@@ -20,6 +20,7 @@ protected:
 
 public:
 	void Fire(FVector TargetLocation);
+	FORCEINLINE void SetDamage(float InDamage) { Damage = InDamage; }
 
 protected:
 	UFUNCTION()
@@ -42,4 +43,5 @@ protected:
 
 private:
 	float Speed = 5000.0f;
+	float Damage;
 };

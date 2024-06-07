@@ -43,6 +43,7 @@ public:
 // Camera Section
 protected:
 	FORCEINLINE virtual class UCameraComponent* GetPlayerCamera() override { return Camera; }
+	FORCEINLINE virtual class USpringArmComponent* GetSpringArm() override { return SpringArm; }
 
 	UPROPERTY(VisibleAnywhere, Category = Camera, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USpringArmComponent> SpringArm;

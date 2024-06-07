@@ -33,6 +33,9 @@ public:
 	UPROPERTY(meta = (BindWidget = "true"))
 	TObjectPtr<class UMMSkillWidget> SkillWidget;
 
+	UPROPERTY(meta = (BindWidget = "true"))
+	TObjectPtr<class UBorder> BorderWidget;
+
 public:
 	void Init();
 

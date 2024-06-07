@@ -57,9 +57,9 @@ void UMMSkill_ComboSlash::SkillAttack()
 		TArray<FHitResult> OutHitResults;
 
 		// 공격 반경
-		float AttackRange = 150.0f * SkillLevel;
+		float AttackRange = 150.0f;
 		// 공격 체크를 위한 구체의 반지름
-		float AttackRadius = 50.0f * SkillLevel;
+		float AttackRadius = 150.0f;
 
 		// 충돌 탐지를 위한 시작 지점 (플레이어 현재 위치 + 전방 방향 플레이어의 CapsuleComponent의 반지름 거리)
 		FVector Start = PlayerCharacter->GetActorLocation() + (PlayerCharacter->GetActorForwardVector() * PlayerCharacter->GetCapsuleComponent()->GetScaledCapsuleRadius());
