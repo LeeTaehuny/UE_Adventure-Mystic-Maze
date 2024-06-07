@@ -2,7 +2,7 @@
 
 
 #include "MonsterAI/AIController/MMGruxAIController.h"
-#include "Interface/MMBugSwarmAIDataInterface.h"
+#include "Interface/MMGruxAIDataInterface.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -31,11 +31,14 @@ void AMMGruxAIController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	IMMBugSwarmAIDataInterface* Monster = Cast<IMMBugSwarmAIDataInterface>(GetPawn());
+	IMMGruxAIDataInterface* Monster = Cast<IMMGruxAIDataInterface>(GetPawn());
 	if (Monster)
 	{
 		Blackboard->SetValueAsBool("Die", Monster->GetDie());
 		Blackboard->SetValueAsBool("Spawn", Monster->GetSpawn());
 		Blackboard->SetValueAsBool("ATK_Mode", Monster->GetATKMode());
+		Blackboard->SetValueAsBool("LeftHook_RightHook", Monster->GetGruxNormalATK());
+		Blackboard->SetValueAsBool("AngryMode", Monster->GetAngryMode());
+		Blackboard->SetValueAsBool("AngryModeChangeComplete", Monster->GetAngryModeChangeComplete());
 	}
 }

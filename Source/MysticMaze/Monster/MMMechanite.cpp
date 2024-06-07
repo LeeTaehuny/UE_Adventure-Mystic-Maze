@@ -8,6 +8,7 @@
 #include "Animation/AnimNotify_MMBaseAttackCheck.h"
 #include "Collision/MMCollision.h"
 #include "Components/CapsuleComponent.h"
+#include "Item/MMItemBox.h"
 
 AMMMechanite::AMMMechanite()
 {
@@ -65,10 +66,53 @@ void AMMMechanite::Tick(float DeltaTime)
 		if (RushATKCoolDown >= RushATKCoolDown_MaxTime)
 		{
 			RushATKCoolDown = 0;
-			RushATKCoolDown_MaxTime = FMath::RandRange(5, 16);
+			RushATKCoolDown_MaxTime = FMath::RandRange(18, 25);
 
 			RushATKCoolOn = true;
 		}
+	}
+
+	if (bDie)
+	{
+		Ding += DeltaTime;
+		if (Ding >= 1.5f)
+		{
+			Monsterdie();
+		}
+	}
+}
+
+void AMMMechanite::MonsterDieMontage()
+{
+	//GetMesh()->GetAnimInstance()->Montage_Stop(0.1f);
+	GetMesh()->GetAnimInstance()->Montage_Play(DieMontage);
+	AnimEnd(false);
+
+	int RandomATKMotionStart = FMath::RandRange(1, 5);
+	switch (RandomATKMotionStart)
+	{
+	case 1:
+		GetMesh()->GetAnimInstance()->Montage_JumpToSection("Die1", DieMontage);
+		break;
+
+	case 2:
+		GetMesh()->GetAnimInstance()->Montage_JumpToSection("Die2", DieMontage);
+		break;
+
+	case 3:
+		GetMesh()->GetAnimInstance()->Montage_JumpToSection("Die3", DieMontage);
+		break;
+
+	case 4:
+		GetMesh()->GetAnimInstance()->Montage_JumpToSection("Die4", DieMontage);
+		break;
+
+	case 5:
+		GetMesh()->GetAnimInstance()->Montage_JumpToSection("Die5", DieMontage);
+		break;
+
+	default:
+		break;
 	}
 }
 
@@ -256,7 +300,6 @@ void AMMMechanite::RushATKCheck()
 		// TODO : 데미지 전달
 		for (FHitResult Result : OutHitResults)
 		{
-
 			UE_LOG(LogTemp, Warning, TEXT("%s"), *Result.GetActor()->GetName());
 		}
 	}
@@ -273,5 +316,25 @@ void AMMMechanite::ChangeCollision()
 {
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("MMTrigger"));
 	ATK_Collision->SetCollisionProfileName(TEXT("MMLongATK"));
+}
+
+void AMMMechanite::Monsterdie()
+{
+	FTransform SpawnTransform;
+	SpawnTransform.SetLocation(GetActorLocation() - GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+	AMMItemBox* ItemBox = GetWorld()->SpawnActorDeferred<AMMItemBox>(AMMItemBox::StaticClass(), SpawnTransform);
+	if (ItemBox)
+	{
+		int RandomNumber = FMath::RandRange(1, 100);
+		if (RandomNumber <= 15)
+		{
+			ItemBox->AddItemQuantity(1);
+		}
+
+		ItemBox->AddMoney(3);
+		ItemBox->FinishSpawning(SpawnTransform);
+	}
+
+	this->Destroy();
 }
 

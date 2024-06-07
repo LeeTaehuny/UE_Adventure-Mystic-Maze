@@ -13,7 +13,13 @@ enum class SpawnType : uint8
 	BugswarmAndMechanite,
 	BugswarmAndGrux,
 	MechaniteAndGrux,
-	StrongGrux
+	StrongGrux,
+
+	GoblinWarriorOnly,
+	GoblinWizardOnly,
+	GoblinWWHalf,
+	Warrior23__Wizard13,
+	Warrior13__Wizard23,
 };
 
 /**

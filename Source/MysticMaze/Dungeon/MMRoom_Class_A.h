@@ -73,5 +73,8 @@ private: // 룸 작동 변수
 	uint8 bWest_Blocking : 1;
 	uint8 bEast_Blocking : 1;
 
+private:
+	//UPROPERTY(EditAnywhere, Category = "Design", Meta = (AllowPrivateAccess = "true"))
+	//TObjectPtr<AMMRoomDesignBase> Design_one;
 	
 };

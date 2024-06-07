@@ -28,4 +28,7 @@ public:
 	virtual void EndMechaniteAnim() = 0;
 	virtual void ChangeCollision() = 0;
 
+	virtual float GetRusingTime() = 0;
+	virtual void SetRusingTime(float INData) = 0;
+
 };

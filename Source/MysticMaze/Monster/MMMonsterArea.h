@@ -19,7 +19,7 @@ public:
 	FORCEINLINE void SetCheckLocation(FVector INData) { CheckLocation = INData; }
 	void AddMonsterData(AMMMonsterBase* INData);
 
-	void IfMonsterNull(float DeltaTime);
+	bool IfMonsterNull(float DeltaTime);
 
 protected:
 	// Called when the game starts or when spawned
@@ -30,6 +30,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SpawnLocation")
 	FVector CheckLocation;
 
 	TArray<TObjectPtr<AMMMonsterBase>> MonsterDAta;

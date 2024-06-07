@@ -35,4 +35,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimBP")
 	uint8 bRandomDieMotion : 1;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimBP")
+	uint8 bAngryMode : 1;
+
+	// 모드 변경에 관련된 모든 애니메이션 재생이 끝나면 true로 변경
+	// 변경될 경우 분노 모드의 idle 애니메이션 스테이트 재생
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimBP")
+	uint8 bAngryModeChangeComplete : 1;
+
 };
