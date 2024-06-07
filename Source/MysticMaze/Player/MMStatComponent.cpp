@@ -4,6 +4,7 @@
 #include "Player/MMStatComponent.h"
 #include "Interface/MMPlayerClassInterface.h"
 #include "Game/MMGameInstance.h"
+#include "Game/MMSaveGameData.h"
 
 #include "Kismet/GameplayStatics.h"
 
@@ -18,6 +19,7 @@ UMMStatComponent::UMMStatComponent()
 	MaxAdditiveMovementSpeed = 400.0f;
 	MaxAdditiveAttackSpeed = 1.5f;
 	MaxAdditiveCriticalHitRate = 100.0f;
+	AdditiveStatPoint = 3;
 }
 
 void UMMStatComponent::Init()
@@ -46,36 +48,28 @@ void UMMStatComponent::BeginPlay()
 
 void UMMStatComponent::InitPlayerStatus()
 {
-	// TODO : 세이브 파일로부터 데이터 읽어오기 (레벨, 초기 스탯 정보(ModifierStat))
+	// GameInstance에서 Save파일 받아오기
+	UMMGameInstance* GameInstance = Cast<UMMGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (!GameInstance) return;
+
+	UMMSaveGameData* GameData = GameInstance->GetSaveData();
+	// 저장된 게임 데이터가 있는 경우라면?
+	if (GameData)
 	{
 		// 레벨 및 스탯 포인트 초기화
-		CurrentLevel = 1;
-		AvailableStatPoint = 5;
+		CurrentLevel = GameData->Level;
+		AvailableStatPoint = GameData->StatPoint;
 
 		// ModifierStat 초기화
-		FMMCharacterStat LoadModifierStatus;
-		LoadModifierStatus.STR = 5;
-		LoadModifierStatus.DEX = 5;
-		LoadModifierStatus.CON = 5;
-		LoadModifierStatus.INT = 5;
-
-		ModifierStat = LoadModifierStatus;
-
-		// WeaponStat 초기화 (무기가 있는 경우라면 나중에 인벤쪽에서 해주자..!)
-		//FMMCharacterStat LoadWeaponStatus;
-		//
-		//LoadWeaponStatus.STR = 10;
-		//LoadWeaponStatus.DEX = 10;
-		//LoadWeaponStatus.CON = 10;
-		//LoadWeaponStatus.INT = 10;
-		//
-		//WeaponStat = LoadWeaponStatus;
+		ModifierStat = GameData->ModifierStatus;
 
 		// 클래스 정보 초기화
-		ClassType = EClassType::CT_Archer;
+		EClassType Type = GameData->Class;
+
+		SetClass(Type);
 
 		// 현재 경험치 초기화
-		CurrentExp = 10.0f;
+		CurrentExp = GameData->CurrentExp;
 	}
 	
 	// 레벨별 기본 스탯 적용하기
@@ -86,12 +80,7 @@ void UMMStatComponent::InitPlayerStatus()
 		MaxExp = BaseStat.EXP;
 	}
 
-	// 플레이어 직업 설정
-	IMMPlayerClassInterface* PlayerCharacter = Cast<IMMPlayerClassInterface>(GetOwner());
-	if (PlayerCharacter)
-	{
-		PlayerCharacter->SetClass(ClassType);
-	}
+	OnClassChanged.Broadcast();
 }
 
 void UMMStatComponent::InitMonsterStatus(int32 InLevel)
@@ -101,6 +90,11 @@ void UMMStatComponent::InitMonsterStatus(int32 InLevel)
 	if (GameMode)
 	{
 		BaseStat = GameMode->GetPlayerStat(CurrentLevel);
+
+		UpdateDetailStatus();
+
+		// 현재 체력 초기화
+		SetHp(MaxHp);
 	}
 }
 
@@ -122,10 +116,68 @@ void UMMStatComponent::SetMp(float NewMp)
 
 void UMMStatComponent::SetExp(float NewExp)
 {
-	CurrentExp = FMath::Clamp<float>(NewExp, 0.0f, MaxExp);
+	CurrentExp += NewExp;
+
+	if (MaxExp && CurrentExp >= MaxExp)
+	{
+		while (CurrentExp >= MaxExp)
+		{
+			UMMGameInstance* GameInstance = Cast<UMMGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+			if (!GameInstance) return;
+			
+			if (GameInstance->GetMaxLevel() == CurrentLevel)
+				return;
+
+			// 레벨 증가
+			CurrentLevel++;
+			// 스탯 포인트 증가
+			AvailableStatPoint += AdditiveStatPoint;
+			// 현재 경험치 감소
+			CurrentExp -= MaxExp;
+			// 최대 스탯 레벨에 맞춰 지정
+			BaseStat = GameInstance->GetPlayerStat(CurrentLevel);
+			// 최대 경험치 초기화
+			MaxExp = BaseStat.EXP;
+		}
+		// TODO : 이펙트 or 사운드 추가하기
+
+		// 세부 스탯 업데이트
+		UpdateDetailStatus();
+
+		// 레벨업 이벤트 발생 (전직 교관 위젯에서 사용할 예정)
+		OnLevelUp.Broadcast();
+	}
 
 	// 변경 이벤트 발생
 	OnExpChanged.Broadcast(CurrentExp, MaxExp);
+}
+
+void UMMStatComponent::SaveStat()
+{
+	// GameInstance에서 Save파일 이름 받아오기
+	UMMGameInstance* GameInstance = Cast<UMMGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (!GameInstance) return;
+
+	// 게임 데이터 인스턴스 받아오기
+	UMMSaveGameData* GameData = GameInstance->GetSaveData();
+	if (GameData)
+	{
+		// 직업 저장
+		GameData->Class = ClassType;
+
+		// 레벨 및 경험치 저장
+		GameData->Level = CurrentLevel;
+		GameData->CurrentExp = CurrentExp;
+
+		// 스탯 잔여 포인트 저장
+		GameData->StatPoint = AvailableStatPoint;
+
+		// 분배된 스탯 저장
+		GameData->ModifierStatus = ModifierStat;
+
+		// 게임 저장하기
+		UGameplayStatics::SaveGameToSlot(GameData, GameData->SaveSlotName, GameData->SaveIndex);
+	}
 }
 
 void UMMStatComponent::UpdateDetailStatus()
@@ -272,6 +324,21 @@ void UMMStatComponent::SetWeaponStat(FMMCharacterStat InWeaponStat)
 	UpdateDetailStatus();
 
 	OnWeaponChanged.Broadcast(WeaponStat);
+}
+
+void UMMStatComponent::SetClass(EClassType Type)
+{
+	if (ClassType == Type) return;
+
+	ClassType = Type;
+
+	IMMPlayerClassInterface* PlayerCharacter = Cast<IMMPlayerClassInterface>(GetOwner());
+	if (PlayerCharacter)
+	{
+		PlayerCharacter->SetClass(ClassType);
+	}
+
+	OnClassChanged.Broadcast();
 }
 
 void UMMStatComponent::SetLevel(int32 InLevel)

@@ -40,6 +40,7 @@ public:
 	void ToggleStatusWidget();
 	void ToggleEquipmentWidget();
 	void ToggleSkillWidget();
+	void ToggleStatusBarWidget();
 	void ToggleInteractionWidget(bool InValue);
 	void InteractionWidgetHelpText(FString HelpText);
 

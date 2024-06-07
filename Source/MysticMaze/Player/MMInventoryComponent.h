@@ -40,13 +40,22 @@ public:
 	FORCEINLINE TArray<TObjectPtr<class UMMInventoryItem>>& GetPotionQuickSlots() { return PotionQuickSlots; }
 	FORCEINLINE TObjectPtr<class UMMInventoryItem> GetEquipmentItem() { return EquipmentItem; }
 	FORCEINLINE int32 GetCurrentGold() { return CurrentGold; }
+	
+	// Setter
+	FORCEINLINE void SetSellable(bool InValue) { bIsSellable = InValue; }
 
 	// 아이템 추가
 	bool AddItem(FName InItemName, int32 InItemQuantity, int32& OutItemQuantity);
 	// 아이템 사용
 	void UseItem(int32 InSlotIndex, ESlotType InventoryType);
+	// 아이템 판매
+	void SellItem(int32 InSlotIndex, ESlotType InventoryType);
+	// 아이템(무기) 구매
+	bool PurchaseWeapon(int32 InQuantity, int32 InPrice);
 	// 골드 추가
 	void AddGold(int32 InGold);
+	// 골드 소모
+	bool UseGold(int32 InGold);
 	// 슬롯 교체
 	void SwapItem(int32 InPrevIndex, int32 InCurrentIndex, ESlotType InPrevSlotType, ESlotType InCurrentSlotType);
 	// 슬롯 정렬
@@ -57,6 +66,9 @@ public:
 	// 장비 착용 & 해제
 	void EquipItem(int32 InCurrentIndex);
 	void UnEquipItem();
+
+	// Save
+	void SaveInventory();
 
 // Inventory Section
 protected:
@@ -98,4 +110,7 @@ protected:
 protected:
 	UPROPERTY(VisibleAnywhere, Category = "EquipmentSlot", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UMMInventoryItem> EquipmentItem;
+
+protected:
+	uint8 bIsSellable : 1;
 };

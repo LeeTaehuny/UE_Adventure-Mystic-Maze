@@ -5,8 +5,12 @@
 #include "Skill/MMSkillData.h"
 #include "Skill/MMSkillBase.h"
 #include "Skill/Warrior/MMSkill_ComboSlash.h"
+#include "GameData/MMStructures.h"
+#include "Game/MMSaveGameData.h"
+#include "Game/MMGameInstance.h"
 
 #include "Engine/AssetManager.h"
+#include "Kismet/GameplayStatics.h"
 
 UMMSkillComponent::UMMSkillComponent()
 {
@@ -137,6 +141,29 @@ void UMMSkillComponent::SetSkillEnd(FString SkillName)
 	}
 }
 
+void UMMSkillComponent::AddSkill(FString SkillName)
+{
+	// 해당 이름의 스킬이 존재한다면 내 리스트에 추가하기
+	if (SkillManager.Find(SkillName))
+	{
+		UMMSkillBase* NewSkill = NewObject<UMMSkillBase>(this, SkillManager[SkillName]->SkillClass);
+		if (NewSkill)
+		{
+			NewSkill->Init(SkillManager[SkillName], 1, GetOwner());
+
+			for (auto& TempSkill : SkillList)
+			{
+				if (!IsValid(TempSkill))
+				{
+					TempSkill = NewSkill;
+					OnSkillChanged.Broadcast();
+					break;
+				}
+			}
+		}
+	}
+}
+
 void UMMSkillComponent::SetQuickSlot(ESlotType InPrevSlotType, int32 InPrevIndex, int32 InCurrentIndex)
 {
 	if (InPrevSlotType == ESlotType::ST_SkillSlot)
@@ -168,6 +195,54 @@ void UMMSkillComponent::SetQuickSlot(ESlotType InPrevSlotType, int32 InPrevIndex
 			SkillQuickSlots[InCurrentIndex] = SkillList[InPrevIndex];
 			OnChangedSkillSlot.Broadcast();
 		}
+	}
+}
+
+void UMMSkillComponent::SaveSkill()
+{
+	// GameInstance에서 Save파일 이름 받아오기
+	UMMGameInstance* GameInstance = Cast<UMMGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (!GameInstance) return;
+
+	// 게임 데이터 인스턴스 받아오기
+	UMMSaveGameData* GameData = GameInstance->GetSaveData();
+	if (GameData)
+	{
+		// 스킬 데이터 및 퀵슬롯 저장
+		{
+			TArray<FMMSkillSaveData> SaveSkills;
+			for (int i = 0; i < SkillList.Num(); i++)
+			{
+				// 스킬이 존재한다면?
+				if (IsValid(SkillList[i]))
+				{
+					FMMSkillSaveData SaveData;
+					SaveData.SkillName = SkillList[i]->GetSkillData()->GetName();
+					SaveData.SkillLevel = SkillList[i]->GetSkillLevel();
+					SaveData.QuickSlotIndex = -1;
+
+					for (int j = 0; j < SkillQuickSlots.Num(); j++)
+					{
+						if (IsValid(SkillQuickSlots[j]))
+						{
+							// 같은 스킬이 퀵슬롯에 존재한다면?
+							if (SkillList[i] == SkillQuickSlots[j])
+							{
+								// 스킬 인덱스 저장
+								SaveData.QuickSlotIndex = j;
+							}
+						}
+					}
+
+					SaveSkills.Add(SaveData);
+				}
+			}
+			// 세이브 파일에 저장
+			GameData->SkillData = SaveSkills;
+		}
+
+		// 게임 저장하기
+		UGameplayStatics::SaveGameToSlot(GameData, GameData->SaveSlotName, GameData->SaveIndex);
 	}
 }
 
@@ -204,38 +279,41 @@ void UMMSkillComponent::InitSkillManager()
 
 void UMMSkillComponent::InitSkillList()
 {
-	// TODO : 파일로부터 정보 읽어와서 설정하기
-	TArray<TPair<FString, TPair<int32, int32>>> SkillData;
-	{
-		// 스킬의 이름, 레벨, 퀵슬롯 등록 정보 저장
-		SkillData.Add({TEXT("DA_Warrior_ComboSlash"), TPair<int32, int32>(1, 0)});
-		SkillData.Add({TEXT("DA_Mage_MagicMissile"), TPair<int32, int32>(1, 1)});
-		SkillData.Add({TEXT("DA_Mage_Flamethrower"), TPair<int32, int32>(1, 3)});
-	}
+	// GameInstance에서 Save파일 받아오기
+	UMMGameInstance* GameInstance = Cast<UMMGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (!GameInstance) return;
 
-	for (const auto& Skill : SkillData)
+	UMMSaveGameData* GameData = GameInstance->GetSaveData();
+	// 저장된 게임 데이터가 있는 경우라면?
+	if (GameData)
 	{
-		// 해당 이름의 스킬이 존재한다면 내 리스트에 추가하기
-		if (SkillManager.Find(Skill.Key))
+		// 파일로부터 읽어오기
+		TArray<FMMSkillSaveData> SkillSaveData = GameData->SkillData;
+
+		for (const auto& Skill : SkillSaveData)
 		{
-			UMMSkillBase* NewSkill = NewObject<UMMSkillBase>(this, SkillManager[Skill.Key]->SkillClass);
-			if (NewSkill)
+			// 해당 이름의 스킬이 존재한다면 내 리스트에 추가하기
+			if (SkillManager.Find(Skill.SkillName))
 			{
-				NewSkill->Init(SkillManager[Skill.Key], Skill.Value.Key, GetOwner());
-				for (auto& TempSkill : SkillList)
+				UMMSkillBase* NewSkill = NewObject<UMMSkillBase>(this, SkillManager[Skill.SkillName]->SkillClass);
+				if (NewSkill)
 				{
-					if (!IsValid(TempSkill))
+					NewSkill->Init(SkillManager[Skill.SkillName], Skill.SkillLevel, GetOwner());
+					for (auto& TempSkill : SkillList)
 					{
-						TempSkill = NewSkill;
-						break;
+						if (!IsValid(TempSkill))
+						{
+							TempSkill = NewSkill;
+							break;
+						}
+					}
+
+					// 퀵슬롯에 등록되어 있다면 자동으로 추가하기
+					if (Skill.QuickSlotIndex != -1)
+					{
+						SkillQuickSlots[Skill.QuickSlotIndex] = NewSkill;
 					}
 				}
-
-				// TEST : 퀵슬롯에 등록되어 있다면 자동으로 추가하기
-				//if (Skill.Value.Value != -1)
-				//{
-				//	SkillQuickSlots[Skill.Value.Value] = NewSkill;
-				//}
 			}
 		}
 	}

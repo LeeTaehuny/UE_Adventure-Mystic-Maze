@@ -10,6 +10,8 @@
 
 DECLARE_MULTICAST_DELEGATE(FOnHpZeroDelegate);
 DECLARE_MULTICAST_DELEGATE(FOnHitDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnLevelUpDelegate);
+DECLARE_MULTICAST_DELEGATE(FOnClassChangedDelegate);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnHpChangedDelegate, float /* CurrentHp */, float /* MaxHp */);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnMpChangedDelegate, float /* CurrentMp */, float /* MaxMp */);
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnExpChangedDelegate, float /* CurrentMp */, float /* MaxExp */);
@@ -56,6 +58,14 @@ public:
 	// 장비 스탯 설정
 	void SetWeaponStat(FMMCharacterStat InWeaponStat = FMMCharacterStat());
 
+	// 전직
+	void SetClass(EClassType Type);
+	// 경험치 획득
+	void SetExp(float NewExp);
+
+	// Save
+	void SaveStat();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -65,12 +75,13 @@ protected:
 
 	void SetHp(float NewHp);
 	void SetMp(float NewMp);
-	void SetExp(float NewExp);
 
 // Delegate
 public:
 	FOnHpZeroDelegate OnHpZero;
 	FOnHitDelegate OnHit;
+	FOnLevelUpDelegate OnLevelUp;
+	FOnClassChangedDelegate OnClassChanged;
 	FOnStatChangedDelegate OnStatChanged;
 	FOnWeaponChangedDelegate OnWeaponChanged;
 	FOnHpChangedDelegate OnHpChanged;
@@ -173,6 +184,7 @@ private:
 	float MaxAdditiveMovementSpeed;
 	float MaxAdditiveAttackSpeed;
 	float MaxAdditiveCriticalHitRate;
+	int32 AdditiveStatPoint;
 
 	EClassType ClassType;
 };

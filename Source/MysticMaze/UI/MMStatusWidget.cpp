@@ -87,6 +87,7 @@ void UMMStatusWidget::Init()
 
 	IMMStatusInterface* StatPlayer = Cast<IMMStatusInterface>(OwningActor);
 	UpdateStat(StatPlayer->GetStatComponent()->GetTotalStat());
+	UpdateClass();
 }
 
 void UMMStatusWidget::UpdateStat(const FMMCharacterStat& InTotalStat)
@@ -113,6 +114,28 @@ void UMMStatusWidget::UpdateStat(const FMMCharacterStat& InTotalStat)
 	TXT_CurrentLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"), StatPlayer->GetStatComponent()->GetCurrentLevel())));
 	TXT_StatPoint->SetText(FText::FromString(FString::Printf(TEXT("%d"), StatPlayer->GetStatComponent()->GetAvailableStatPoint())));
 
+	// Button Setting (스탯 잔여 포인트에 따른 활성화 / 비활성화)
+	if (StatPlayer->GetStatComponent()->GetAvailableStatPoint() > 0)
+	{
+		BTN_UpgradeSTR->SetIsEnabled(true);
+		BTN_UpgradeDEX->SetIsEnabled(true);
+		BTN_UpgradeCON->SetIsEnabled(true);
+		BTN_UpgradeINT->SetIsEnabled(true);
+	}
+	else
+	{
+		BTN_UpgradeSTR->SetIsEnabled(false);
+		BTN_UpgradeDEX->SetIsEnabled(false);
+		BTN_UpgradeCON->SetIsEnabled(false);
+		BTN_UpgradeINT->SetIsEnabled(false);
+	}
+}
+
+void UMMStatusWidget::UpdateClass()
+{
+	IMMStatusInterface* StatPlayer = Cast<IMMStatusInterface>(OwningActor);
+	if (!StatPlayer) return;
+
 	// Class Update
 	FString ClassName;
 
@@ -136,22 +159,6 @@ void UMMStatusWidget::UpdateStat(const FMMCharacterStat& InTotalStat)
 	}
 
 	TXT_Class->SetText(FText::FromString(ClassName));
-
-	// Button Setting (스탯 잔여 포인트에 따른 활성화 / 비활성화)
-	if (StatPlayer->GetStatComponent()->GetAvailableStatPoint() > 0)
-	{
-		BTN_UpgradeSTR->SetIsEnabled(true);
-		BTN_UpgradeDEX->SetIsEnabled(true);
-		BTN_UpgradeCON->SetIsEnabled(true);
-		BTN_UpgradeINT->SetIsEnabled(true);
-	}
-	else
-	{
-		BTN_UpgradeSTR->SetIsEnabled(false);
-		BTN_UpgradeDEX->SetIsEnabled(false);
-		BTN_UpgradeCON->SetIsEnabled(false);
-		BTN_UpgradeINT->SetIsEnabled(false);
-	}
 }
 
 void UMMStatusWidget::MoveStart()

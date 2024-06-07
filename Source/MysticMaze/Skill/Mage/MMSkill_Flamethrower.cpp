@@ -73,7 +73,8 @@ void UMMSkill_Flamethrower::SkillAttackEnd()
 {
 	Super::SkillAttackEnd();
 
-	NiagaraComponent->Deactivate();
+	if (NiagaraComponent)
+		NiagaraComponent->Deactivate();
 	GetWorld()->GetTimerManager().PauseTimer(AttackCheckTimer);
 }
 

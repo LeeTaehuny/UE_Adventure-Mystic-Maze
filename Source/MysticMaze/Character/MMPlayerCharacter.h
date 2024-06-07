@@ -13,6 +13,7 @@
 #include "Interface/MMInventoryInterface.h"
 #include "Interface/MMStatusInterface.h"
 #include "Interface/MMSkillInterface.h"
+#include "Interface/MMSaveInterface.h"
 #include "MMPlayerCharacter.generated.h"
 
 /**
@@ -20,7 +21,7 @@
  */
 UCLASS()
 class MYSTICMAZE_API AMMPlayerCharacter : public AMMCharacterBase, public IMMAnimationAttackInterface, public IMMAnimationUpdateInterface, public IMMAnimationWeaponInterface, public IMMPlayerVisualInterface, public IMMInventoryInterface,
-	public IMMPlayerClassInterface, public IMMStatusInterface, public IMMSkillInterface
+	public IMMPlayerClassInterface, public IMMStatusInterface, public IMMSkillInterface, public IMMSaveInterface
 {
 	GENERATED_BODY()
 	
@@ -49,6 +50,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = Camera, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UCameraComponent> Camera;
 
+// Save
+public:
+	virtual void Save() override;
+
 // Input Section
 protected:
 	// 공용
@@ -60,6 +65,8 @@ protected:
 	void ConvertStatusVisibility();
 	void ConvertEquipmentVisibility();
 	void ConvertSkillVisibility();
+	void ConvertRiding();
+	void ConvertSetting();
 	void Interaction();
 	void UseQuickSlot(int32 InNum);
 
@@ -106,6 +113,12 @@ protected:
 	TObjectPtr<class UInputAction> IA_ConvertSkill;
 
 	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_ConvertRiding;
+
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_ConvertSetting;
+
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_QuickSlot1;
 
 	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
@@ -122,6 +135,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_QuickSlot6;
+
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputMappingContext> IMC_Riding;
 
 	// InputMappingContext
 	TMap<EClassType, TObjectPtr<class UInputMappingContext>> IMC_Array;
@@ -210,7 +226,7 @@ protected:
 protected:
 	FORCEINLINE virtual EClassType GetClassType() override { return ClassType; };
 	FORCEINLINE virtual EClassType GetClass() override { return ClassType; }
-	FORCEINLINE virtual void SetClass(EClassType Class) override { ClassType = Class; }
+	FORCEINLINE virtual void SetClass(EClassType Class) override { ClassType = Class; ChangeClass(ClassType); }
 	void ChangeClass(EClassType Class);
 
 	EClassType ClassType;
@@ -251,7 +267,7 @@ protected:
 	FORCEINLINE virtual bool GetIsCharge() override { return bIsCharge; }
 
 	uint8 bIsCharge : 1;		// 마나 축적 여부
-	float ChargeNum;			// 축적된 마나 량
+	float SumTime;
 
 	UPROPERTY(EditAnywhere, Category = "Particle", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UParticleSystem> ChargeParticle;
@@ -276,6 +292,14 @@ protected:
 
 	void ApplyMovementSpeed(float MovementSpeed);
 
+// Riding Section
+protected:
+	UPROPERTY(VisibleAnywhere, Category = "Ride", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USkeletalMeshComponent> RideMesh;
+
+	UPROPERTY(VisibleAnywhere, Category = "Ride", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USkeletalMeshComponent> RideActorMesh;
+
 // Member Variable
 protected:
 	FORCEINLINE virtual bool GetIsEquip() override { return bIsEquip; }
@@ -286,9 +310,13 @@ protected:
 	uint8 bIsAttacking : 1;		// 공격중인지 체크
 	uint8 bIsStop : 1;			// 애니메이션 스탑 여부
 	uint8 bIsEquip : 1;			// 무기 장착 여부
+	uint8 bIsRide : 1;			// 탈것 활성화 여부
 
 	float WalkSpeed;
 	float RunSpeed;
+	float RidingSpeed;
+
+	float AutoSaveTime;
 
 	// 플레이어 입력 방향
 	FVector2D MovementVector;

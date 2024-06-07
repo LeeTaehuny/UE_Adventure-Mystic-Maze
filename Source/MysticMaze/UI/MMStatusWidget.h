@@ -22,6 +22,7 @@ protected:
 public:
 	void Init();
 	void UpdateStat(const FMMCharacterStat& InTotalStat);
+	void UpdateClass();
 
 private:
 	UFUNCTION()

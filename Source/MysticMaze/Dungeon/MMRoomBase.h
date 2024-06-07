@@ -12,7 +12,6 @@
 #include "Monster/MMMonsterSpawner.h"
 #include "Monster/MMMonsterArea.h"
 #include "Dungeon/MMRoomDesignBase.h"
-
 #include "MMRoomBase.generated.h"
 
 UCLASS()

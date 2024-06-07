@@ -38,7 +38,7 @@ bool UMMSkillBase::UseSkill()
 		// 마나 감소
 		StatPlayer->GetStatComponent()->UseMp(SkillData->ManaCost);
 		// 데미지 저장
-		BaseDamage = StatPlayer->GetStatComponent()->GetAttackDamage() * SkillData->Multiplier[SkillLevel];
+		BaseDamage = StatPlayer->GetStatComponent()->GetAttackDamage() * SkillData->Multiplier[SkillLevel - 1];
 		// 치명타 확률 저장
 		CriticalRate = StatPlayer->GetStatComponent()->GetCriticalHitRate();
 

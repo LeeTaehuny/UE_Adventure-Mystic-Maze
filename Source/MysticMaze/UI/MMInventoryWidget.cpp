@@ -103,6 +103,8 @@ void UMMInventoryWidget::Init()
 			Slots[InvSlot->SlotIndex] = InvSlot;
 		}
 	}
+
+	UpdateInventoryGold();
 }
 
 void UMMInventoryWidget::UpdateInventorySlot()

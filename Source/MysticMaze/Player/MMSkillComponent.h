@@ -11,6 +11,8 @@
 DECLARE_MULTICAST_DELEGATE(FOnChangedSkillSlotDelegate);
 // 스킬 쿨타임 변경 델리게이트
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnCooltimeChangedDelegate, int32 /* QuickSlot Index */);
+// 스킬 변경 델리게이트
+DECLARE_MULTICAST_DELEGATE(FOnChangedSkillDelegate);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class MYSTICMAZE_API UMMSkillComponent : public UActorComponent
@@ -31,6 +33,7 @@ public:
 public:
 	FOnCooltimeChangedDelegate OnCooltimeChanged;
 	FOnChangedSkillSlotDelegate OnChangedSkillSlot;
+	FOnChangedSkillDelegate OnSkillChanged;
 
 public:
 	FORCEINLINE const TArray<TObjectPtr<class UMMSkillBase>>& GetSkillQuickSlot() { return SkillQuickSlots; }
@@ -39,9 +42,13 @@ public:
 	class UMMSkillBase* GetUsingSkill();
 	void UseSkill(int32 Index);
 	void SetSkillEnd(FString SkillName);
+	void AddSkill(FString SkillName);
 
 	// 퀵슬롯 등록
 	void SetQuickSlot(ESlotType InPrevSlotType, int32 InPrevIndex, int32 InCurrentIndex);
+
+	// Save
+	void SaveSkill();
 
 protected:
 	// 스킬 매니저 초기화

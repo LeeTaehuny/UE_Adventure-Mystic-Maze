@@ -16,6 +16,9 @@
 #include "Skill/MMSkillData.h"
 #include "Skill/MMSkillBase.h"
 #include "UI/MMDragSlot.h"
+#include "NPC/MMShopNPC.h"
+#include "NPC/MMBlacksmithNPC.h"
+#include "NPC/MMClassTrainerNPC.h"
 
 #include "UI/ToolTip/MMToolTip.h"
 #include "UI/ToolTip/MMEquipmentToolTip.h"
@@ -49,9 +52,11 @@ FReply UMMSlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPoin
 
 		switch (SlotType)
 		{
+		case ESlotType::ST_InventoryEquipment:
 		case ESlotType::ST_InventoryConsumable:
-			// 소비 아이템을 사용합니다.
-			InvPlayer->GetInventoryComponent()->UseItem(SlotIndex, SlotType);
+		case ESlotType::ST_InventoryOther:
+			// 아이템을 판매합니다.
+			InvPlayer->GetInventoryComponent()->SellItem(SlotIndex, SlotType);
 			UpdateSlot();
 			break;
 
@@ -212,6 +217,13 @@ void UMMSlot::Init()
 	SlotUpdateActions.Add(ESlotType::ST_SkillQuickSlot, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateSkillQuickSlot)));
 	SlotUpdateActions.Add(ESlotType::ST_PotionSlot, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdatePotionSlot)));
 	SlotUpdateActions.Add(ESlotType::ST_Equipment, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateEquipment)));
+	SlotUpdateActions.Add(ESlotType::ST_ShopPotion, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateShopPotion)));
+	SlotUpdateActions.Add(ESlotType::ST_ShopWarriorWeapon, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateShopWarriorWeapon)));
+	SlotUpdateActions.Add(ESlotType::ST_ShopArcherWeapon, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateShopArcherWeapon)));
+	SlotUpdateActions.Add(ESlotType::ST_ShopMageWeapon, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateShopMageWeapon)));
+	SlotUpdateActions.Add(ESlotType::ST_ClassSkillWarrior, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateClassSkillWarrior)));
+	SlotUpdateActions.Add(ESlotType::ST_ClassSkillArcher, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateClassSkillArcher)));
+	SlotUpdateActions.Add(ESlotType::ST_ClassSkillMage, FUpdateSlotDelegateWrapper(FOnUpdateSlotDelegate::CreateUObject(this, &UMMSlot::UpdateClassSkillMage)));
 
 	UpdateSlot();
 }
@@ -223,6 +235,8 @@ void UMMSlot::SetType(ESlotType Type)
 
 void UMMSlot::UpdateSlot()
 {
+	if (!SlotUpdateActions.Find(SlotType)) return;
+
 	// 슬롯 타입에 따라 실행되는 함수 설정
 	SlotUpdateActions[SlotType].SlotDelegate.ExecuteIfBound();
 }
@@ -459,6 +473,183 @@ void UMMSlot::UpdateEquipment()
 	}
 }
 
+void UMMSlot::UpdateShopPotion()
+{
+	AMMShopNPC* ShopNpc = Cast<AMMShopNPC>(OwningActor);
+	
+	if (ShopNpc)
+	{
+		TArray<UMMInventoryItem*> ShopItems = ShopNpc->GetItems();
+
+		// 현재 Slot의 인덱스가 유효한지 체크합니다.
+		if (ShopItems.IsValidIndex(SlotIndex))
+		{
+			// 해당 슬롯에 아이템이 존재하는지 확인합니다.
+			if (IsValid(ShopItems[SlotIndex]))
+			{
+				// 존재하는 경우 아이템의 텍스쳐와 수량을 반영해주도록 합니다.
+				IMG_Item->SetBrushFromTexture(ShopItems[SlotIndex]->ItemData->ItemTexture);
+				TXT_Quantity->SetText(FText::FromString(TEXT("")));
+			}
+		}
+	}
+	else
+	{
+		IMG_Item->SetBrushFromTexture(DefaultTexture);
+		TXT_Quantity->SetText(FText::FromString(TEXT("")));
+	}
+}
+
+void UMMSlot::UpdateShopWarriorWeapon()
+{
+	AMMBlacksmithNPC* ShopNpc = Cast<AMMBlacksmithNPC>(OwningActor);
+
+	if (ShopNpc)
+	{
+		TArray<UMMInventoryItem*> ShopItems = ShopNpc->GetWarriorItems();
+
+		// 현재 Slot의 인덱스가 유효한지 체크합니다.
+		if (ShopItems.IsValidIndex(SlotIndex))
+		{
+			// 해당 슬롯에 아이템이 존재하는지 확인합니다.
+			if (IsValid(ShopItems[SlotIndex]))
+			{
+				// 존재하는 경우 아이템의 텍스쳐와 수량을 반영해주도록 합니다.
+				IMG_Item->SetBrushFromTexture(ShopItems[SlotIndex]->ItemData->ItemTexture);
+				TXT_Quantity->SetText(FText::FromString(TEXT("")));
+			}
+		}
+	}
+	else
+	{
+		IMG_Item->SetBrushFromTexture(DefaultTexture);
+		TXT_Quantity->SetText(FText::FromString(TEXT("")));
+	}
+}
+
+void UMMSlot::UpdateShopArcherWeapon()
+{
+	AMMBlacksmithNPC* ShopNpc = Cast<AMMBlacksmithNPC>(OwningActor);
+
+	if (ShopNpc)
+	{
+		TArray<UMMInventoryItem*> ShopItems = ShopNpc->GetArcherItems();
+
+		// 현재 Slot의 인덱스가 유효한지 체크합니다.
+		if (ShopItems.IsValidIndex(SlotIndex))
+		{
+			// 해당 슬롯에 아이템이 존재하는지 확인합니다.
+			if (IsValid(ShopItems[SlotIndex]))
+			{
+				// 존재하는 경우 아이템의 텍스쳐와 수량을 반영해주도록 합니다.
+				IMG_Item->SetBrushFromTexture(ShopItems[SlotIndex]->ItemData->ItemTexture);
+				TXT_Quantity->SetText(FText::FromString(TEXT("")));
+			}
+		}
+	}
+	else
+	{
+		IMG_Item->SetBrushFromTexture(DefaultTexture);
+		TXT_Quantity->SetText(FText::FromString(TEXT("")));
+	}
+}
+
+void UMMSlot::UpdateShopMageWeapon()
+{
+	AMMBlacksmithNPC* ShopNpc = Cast<AMMBlacksmithNPC>(OwningActor);
+
+	if (ShopNpc)
+	{
+		TArray<UMMInventoryItem*> ShopItems = ShopNpc->GetMageItems();
+
+		// 현재 Slot의 인덱스가 유효한지 체크합니다.
+		if (ShopItems.IsValidIndex(SlotIndex))
+		{
+			// 해당 슬롯에 아이템이 존재하는지 확인합니다.
+			if (IsValid(ShopItems[SlotIndex]))
+			{
+				// 존재하는 경우 아이템의 텍스쳐와 수량을 반영해주도록 합니다.
+				IMG_Item->SetBrushFromTexture(ShopItems[SlotIndex]->ItemData->ItemTexture);
+				TXT_Quantity->SetText(FText::FromString(TEXT("")));
+			}
+		}
+	}
+	else
+	{
+		IMG_Item->SetBrushFromTexture(DefaultTexture);
+		TXT_Quantity->SetText(FText::FromString(TEXT("")));
+	}
+}
+
+void UMMSlot::UpdateClassSkillWarrior()
+{
+	AMMClassTrainerNPC* ShopNpc = Cast<AMMClassTrainerNPC>(OwningActor);
+
+	if (ShopNpc)
+	{
+		TArray<UMMSkillData*> WarriorSkillData = ShopNpc->GetWarriorSkillData();
+
+		// 현재 Slot의 인덱스가 유효한지 체크하고, 스킬이 존재하는지 확인합니다.
+		if (WarriorSkillData.IsValidIndex(SlotIndex) && IsValid(WarriorSkillData[SlotIndex]))
+		{
+			// 존재하는 경우이므로 스킬 텍스쳐를 반영해주도록 합니다.
+			IMG_Item->SetBrushFromTexture(WarriorSkillData[SlotIndex]->SkillIcon);
+			TXT_Quantity->SetText(FText::FromString(TEXT("")));
+		}
+	}
+	else
+	{
+		IMG_Item->SetBrushFromTexture(DefaultTexture);
+		TXT_Quantity->SetText(FText::FromString(TEXT("")));
+	}
+}
+
+void UMMSlot::UpdateClassSkillArcher()
+{
+	AMMClassTrainerNPC* ShopNpc = Cast<AMMClassTrainerNPC>(OwningActor);
+
+	if (ShopNpc)
+	{
+		TArray<UMMSkillData*> ArcherSkillData = ShopNpc->GetArcherSkillData();
+
+		// 현재 Slot의 인덱스가 유효한지 체크하고, 스킬이 존재하는지 확인합니다.
+		if (ArcherSkillData.IsValidIndex(SlotIndex) && IsValid(ArcherSkillData[SlotIndex]))
+		{
+			// 존재하는 경우이므로 스킬 텍스쳐를 반영해주도록 합니다.
+			IMG_Item->SetBrushFromTexture(ArcherSkillData[SlotIndex]->SkillIcon);
+			TXT_Quantity->SetText(FText::FromString(TEXT("")));
+		}
+	}
+	else
+	{
+		IMG_Item->SetBrushFromTexture(DefaultTexture);
+		TXT_Quantity->SetText(FText::FromString(TEXT("")));
+	}
+}
+
+void UMMSlot::UpdateClassSkillMage()
+{
+	AMMClassTrainerNPC* ShopNpc = Cast<AMMClassTrainerNPC>(OwningActor);
+
+	if (ShopNpc)
+	{
+		TArray<UMMSkillData*> MageSkillData = ShopNpc->GetMageSkillData();
+
+		// 현재 Slot의 인덱스가 유효한지 체크하고, 스킬이 존재하는지 확인합니다.
+		if (MageSkillData.IsValidIndex(SlotIndex) && IsValid(MageSkillData[SlotIndex]))
+		{
+			// 존재하는 경우이므로 스킬 텍스쳐를 반영해주도록 합니다.
+			IMG_Item->SetBrushFromTexture(MageSkillData[SlotIndex]->SkillIcon);
+			TXT_Quantity->SetText(FText::FromString(TEXT("")));
+		}
+	}
+	else
+	{
+		IMG_Item->SetBrushFromTexture(DefaultTexture);
+		TXT_Quantity->SetText(FText::FromString(TEXT("")));
+	}
+}
+
 void UMMSlot::SetEquipmentToolTip(UMMToolTip* EquipmentToolTipWidget, UMMItemData* ItemData)
 {
 	UMMEquipmentToolTip* EquipmentToolTip = Cast<UMMEquipmentToolTip>(EquipmentToolTipWidget);
@@ -552,6 +743,7 @@ void UMMSlot::SetSkillToolTip(UMMToolTip* SkillToolTipWidget, UMMSkillBase* Skil
 	{
 		SkillToolTip->TXT_ItemName->SetText(FText::FromString(SkillData->SkillName));
 		SkillToolTip->TXT_RequireLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"),SkillData->RequiredLevel)));
+		SkillToolTip->TXT_SkillLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"),Skill->GetSkillLevel())));
 		SkillToolTip->TXTB_SkillDesc->SetText(FText::FromString(SkillData->SkillDescription));
 		SkillToolTip->TXT_SkillCoolTime->SetText(FText::FromString(FString::Printf(TEXT("%.1f"), SkillData->CoolTime)));
 		SkillToolTip->TXT_ManaCost->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), SkillData->ManaCost)));
