@@ -30,7 +30,7 @@ AMMPortal::AMMPortal()
 	Particle->SetupAttachment(Trigger);
 
 	HelpText = TEXT("Press F to use the Portal.");
-	OpenLevelName = TEXT("DungeonLevel");
+	OpenLevelName = TEXT("TownLevel");
 }
 
 // Called when the game starts or when spawned
