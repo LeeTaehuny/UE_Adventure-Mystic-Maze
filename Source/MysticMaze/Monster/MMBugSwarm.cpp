@@ -6,6 +6,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Collision/MMCollision.h"
+#include "Item/MMItemBox.h"
 
 AMMBugSwarm::AMMBugSwarm()
 {
@@ -146,5 +147,20 @@ void AMMBugSwarm::ATKOff()
 
 void AMMBugSwarm::Monsterdie()
 {
+	FTransform SpawnTransform;
+	SpawnTransform.SetLocation(GetActorLocation() - GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+	AMMItemBox* ItemBox = GetWorld()->SpawnActorDeferred<AMMItemBox>(AMMItemBox::StaticClass(), SpawnTransform);
+	if (ItemBox)
+	{
+		int RandomNumber = FMath::RandRange(1, 100);
+		if (RandomNumber <= 5)
+		{
+			ItemBox->AddItemQuantity(1);
+		}
+		
+		ItemBox->AddMoney(1);
+		ItemBox->FinishSpawning(SpawnTransform);
+	}
+
 	this->Destroy();
 }

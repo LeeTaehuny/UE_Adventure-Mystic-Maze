@@ -7,6 +7,7 @@
 
 #include "Components/CapsuleComponent.h"
 #include "Collision/MMCollision.h"
+#include "Item/MMItemBox.h"
 
 AMMGoblinWarrior::AMMGoblinWarrior()
 {
@@ -316,5 +317,20 @@ void AMMGoblinWarrior::WarriorNormalATK()
 
 void AMMGoblinWarrior::Monsterdie()
 {
+	FTransform SpawnTransform;
+	SpawnTransform.SetLocation(GetActorLocation() - GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+	AMMItemBox* ItemBox = GetWorld()->SpawnActorDeferred<AMMItemBox>(AMMItemBox::StaticClass(), SpawnTransform);
+	if (ItemBox)
+	{
+		int RandomNumber = FMath::RandRange(1, 100);
+		if (RandomNumber <= 10)
+		{
+			ItemBox->AddItemQuantity(1);
+		}
+
+		ItemBox->AddMoney(2);
+		ItemBox->FinishSpawning(SpawnTransform);
+	}
+
 	this->Destroy();
 }

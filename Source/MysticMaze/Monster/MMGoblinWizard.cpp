@@ -9,6 +9,7 @@
 #include "Collision/MMCollision.h"
 #include "Monster/Magic/MMFireBall.h"
 #include "Components/SceneComponent.h"
+#include "Item/MMItemBox.h"
 
 AMMGoblinWizard::AMMGoblinWizard()
 {
@@ -257,6 +258,21 @@ void AMMGoblinWizard::PlayingHowl()
 
 void AMMGoblinWizard::Monsterdie()
 {
+	FTransform SpawnTransform;
+	SpawnTransform.SetLocation(GetActorLocation() - GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+	AMMItemBox* ItemBox = GetWorld()->SpawnActorDeferred<AMMItemBox>(AMMItemBox::StaticClass(), SpawnTransform);
+	if (ItemBox)
+	{
+		int RandomNumber = FMath::RandRange(1, 100);
+		if (RandomNumber <= 10)
+		{
+			ItemBox->AddItemQuantity(1);
+		}
+
+		ItemBox->AddMoney(2);
+		ItemBox->FinishSpawning(SpawnTransform);
+	}
+
 	this->Destroy();
 }
 

@@ -9,6 +9,7 @@
 #include "Components/CapsuleComponent.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Item/MMItemBox.h"
 
 AMMGrux::AMMGrux()
 {
@@ -91,6 +92,21 @@ void AMMGrux::MonsterDieMontage()
 
 void AMMGrux::Monsterdie()
 {
+	FTransform SpawnTransform;
+	SpawnTransform.SetLocation(GetActorLocation() - GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+	AMMItemBox* ItemBox = GetWorld()->SpawnActorDeferred<AMMItemBox>(AMMItemBox::StaticClass(), SpawnTransform);
+	if (ItemBox)
+	{
+		int RandomNumber = FMath::RandRange(1, 100);
+		if (RandomNumber <= 20)
+		{
+			ItemBox->AddItemQuantity(1);
+		}
+
+		ItemBox->AddMoney(10);
+		ItemBox->FinishSpawning(SpawnTransform);
+	}
+
 	this->Destroy();
 }
 

@@ -100,4 +100,6 @@ private:
 
 	float Rushing = 0.0f;
 
+	float Ding = 0.0f;
+
 };

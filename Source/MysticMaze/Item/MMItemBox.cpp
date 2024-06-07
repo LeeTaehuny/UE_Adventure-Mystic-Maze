@@ -107,10 +107,10 @@ void AMMItemBox::Interaction(ACharacter* PlayerCharacter)
 		// 남은 아이템의 수량을 저장하기 위한 변수
 		int32 TempItemQuantity = 0;
 
-		// 인벤토리에 추가 가능한지 여부 확인하며 인벤토리에 추가하기
-		if (InvPlayer->GetInventoryComponent()->AddItem(ItemName, ItemQuantity, TempItemQuantity))
+		// 만약 아이템 수량이 0이라면?
+		if (ItemQuantity == 0)
 		{
-			// 성공적으로 추가한 경우 골드를 인벤토리에 추가하기
+			// 골드만 추가합니다.
 			InvPlayer->GetInventoryComponent()->AddGold(Gold);
 
 			// 플레이어 HUD 위젯에 접근하여 InteractionWidget을 비활성화 시켜줍니다.
@@ -123,13 +123,34 @@ void AMMItemBox::Interaction(ACharacter* PlayerCharacter)
 			// 상자 소멸시키기
 			Destroy();
 		}
-		// 인벤토리 공간이 모자라서 추가하지 못한 경우
+		// 아이템의 수량이 존재한다면?
 		else
 		{
-			// 골드만 인벤토리에 추가하고 아이템 수량 재설정하기
-			InvPlayer->GetInventoryComponent()->AddGold(Gold);
-			Gold = 0;
-			ItemQuantity = TempItemQuantity;
+			// 인벤토리에 추가 가능한지 여부 확인하며 인벤토리에 추가하기
+			if (InvPlayer->GetInventoryComponent()->AddItem(ItemName, ItemQuantity, TempItemQuantity))
+			{
+				// 성공적으로 추가한 경우 골드를 인벤토리에 추가하기
+				InvPlayer->GetInventoryComponent()->AddGold(Gold);
+
+				// 플레이어 HUD 위젯에 접근하여 InteractionWidget을 비활성화 시켜줍니다.
+				AMMPlayerController* PlayerController = Cast<AMMPlayerController>(PlayerCharacter->GetController());
+				if (PlayerController)
+				{
+					PlayerController->GetHUDWidget()->ToggleInteractionWidget(false);
+				}
+
+				// 상자 소멸시키기
+				Destroy();
+			}
+			// 인벤토리 공간이 모자라서 추가하지 못한 경우
+			else
+			{
+				// 골드만 인벤토리에 추가하고 아이템 수량 재설정하기
+				InvPlayer->GetInventoryComponent()->AddGold(Gold);
+				Gold = 0;
+				ItemQuantity = TempItemQuantity;
+			}
 		}
+		
 	}
 }

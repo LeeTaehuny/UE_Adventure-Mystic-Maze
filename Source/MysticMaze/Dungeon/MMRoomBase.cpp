@@ -3,7 +3,7 @@
 
 #include "Dungeon/MMRoomBase.h"
 
-
+#include "Kismet/GameplayStatics.h"
 #include "Components/BrushComponent.h"
 
 #include "AI/NavigationSystemBase.h"
@@ -14,6 +14,8 @@
 #include "Monster/MMMonsterArea.h"
 
 #include "Monster/MMMonsterBase.h"
+
+#include "Game/MM_Dungeon_GameMode.h"
 
 
 // Sets default values
@@ -1114,6 +1116,13 @@ void AMMRoomBase::ClearSignal()
 	// 클리어 했다는 것을 알림
 	bMonsterAlive = false;
 	bClear = true;
+
+	AMM_Dungeon_GameMode* GameMode = Cast<AMM_Dungeon_GameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+	{
+		GameMode->SetRoomCount();
+		UE_LOG(LogTemp, Display, TEXT("Count : %d"), GameMode->GetRoomCount());
+	}
 }
 
 /*

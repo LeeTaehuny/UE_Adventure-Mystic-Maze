@@ -8,6 +8,7 @@
 #include "Animation/AnimNotify_MMBaseAttackCheck.h"
 #include "Collision/MMCollision.h"
 #include "Components/CapsuleComponent.h"
+#include "Item/MMItemBox.h"
 
 AMMMechanite::AMMMechanite()
 {
@@ -68,6 +69,15 @@ void AMMMechanite::Tick(float DeltaTime)
 			RushATKCoolDown_MaxTime = FMath::RandRange(18, 25);
 
 			RushATKCoolOn = true;
+		}
+	}
+
+	if (bDie)
+	{
+		Ding += DeltaTime;
+		if (Ding >= 1.5f)
+		{
+			Monsterdie();
 		}
 	}
 }
@@ -310,6 +320,21 @@ void AMMMechanite::ChangeCollision()
 
 void AMMMechanite::Monsterdie()
 {
+	FTransform SpawnTransform;
+	SpawnTransform.SetLocation(GetActorLocation() - GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+	AMMItemBox* ItemBox = GetWorld()->SpawnActorDeferred<AMMItemBox>(AMMItemBox::StaticClass(), SpawnTransform);
+	if (ItemBox)
+	{
+		int RandomNumber = FMath::RandRange(1, 100);
+		if (RandomNumber <= 15)
+		{
+			ItemBox->AddItemQuantity(1);
+		}
+
+		ItemBox->AddMoney(3);
+		ItemBox->FinishSpawning(SpawnTransform);
+	}
+
 	this->Destroy();
 }
 
