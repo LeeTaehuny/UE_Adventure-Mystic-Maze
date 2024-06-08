@@ -24,4 +24,5 @@ class MYSTICMAZE_API IMMPlayerVisualInterface
 public:
 	virtual class UCameraComponent* GetPlayerCamera() = 0;
 	virtual class USpringArmComponent* GetSpringArm() = 0;
+	virtual FVector2D GetMovementVector() = 0;
 };

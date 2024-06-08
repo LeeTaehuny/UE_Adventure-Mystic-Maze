@@ -103,8 +103,15 @@ void UMMSkill_LightningBolt::Cancel()
 		// 스킬 몽타주 재생 종료하기
 		PlayerCharacter->GetMesh()->GetAnimInstance()->Montage_Stop(0.1f, SkillMontage);
 
-		// 스킬 종료
-		SkillAttackEnd();
+		// 플레이어 이동 가능하게 설정
+		PlayerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+
+		// 스킬 종료 알림
+		IMMSkillInterface* SkillCharacter = Cast<IMMSkillInterface>(Owner);
+		if (Owner)
+		{
+			SkillCharacter->GetSkillComponent()->SetSkillEnd(SkillData->SkillName);
+		}
 	}
 }
 

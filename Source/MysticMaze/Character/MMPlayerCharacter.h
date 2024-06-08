@@ -304,6 +304,7 @@ protected:
 // Member Variable
 protected:
 	FORCEINLINE virtual bool GetIsEquip() override { return bIsEquip; }
+	FORCEINLINE virtual FVector2D GetMovementVector() override { return MovementVector; }
 
 	uint8 bIsChange : 1;		// 무기 교체
 	uint8 bIsDash : 1;			// 달리기 여부

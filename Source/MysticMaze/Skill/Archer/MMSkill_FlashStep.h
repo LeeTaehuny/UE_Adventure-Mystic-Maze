@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "Skill/MMSkillBase.h"
-#include "MMSkill_Sniping.generated.h"
+#include "MMSkill_FlashStep.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class MYSTICMAZE_API UMMSkill_Sniping : public UMMSkillBase
+class MYSTICMAZE_API UMMSkill_FlashStep : public UMMSkillBase
 {
 	GENERATED_BODY()
 	
 public:
-	UMMSkill_Sniping();
+	UMMSkill_FlashStep();
 
 public:
 	virtual bool UseSkill() override;
@@ -28,11 +28,8 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Details")
 	TObjectPtr<class UAnimMontage> SkillMontage;
 
-	UPROPERTY(VisibleAnywhere, Category = "Skill")
-	TObjectPtr<class AMMArrow> Arrow;
+	UPROPERTY(VisibleAnywhere, Category = "Effect")
+	TObjectPtr<class UNiagaraSystem> NiagaraEffect;
 
-	UPROPERTY(VisibleAnywhere, Category = "Skill")
-	TSubclassOf<AActor> ArrowClass;
-
-	void FireArrow();
+	float StepDistance;
 };
