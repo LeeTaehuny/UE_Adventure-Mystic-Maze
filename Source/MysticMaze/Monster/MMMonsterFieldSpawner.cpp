@@ -449,7 +449,7 @@ void AMMMonsterFieldSpawner::EastBeginOverlap(UPrimitiveComponent* HitComp, AAct
 		{
 			PlLevel = PlayerData->GetStatComponent()->GetCurrentLevel();
 
-			PlLevel += 4;
+			PlLevel += 2;
 		}
 
 		TArray<TObjectPtr<class AMMMonsterBase>> SpawnMonsterData;
@@ -514,7 +514,7 @@ void AMMMonsterFieldSpawner::SouthBeginOverlap(UPrimitiveComponent* HitComp, AAc
 		if (PlayerData)
 		{
 			PlLevel = PlayerData->GetStatComponent()->GetCurrentLevel();
-			PlLevel += 2;
+			PlLevel += 1;
 		}
 
 		TArray<TObjectPtr<class AMMMonsterBase>> SpawnMonsterData;
