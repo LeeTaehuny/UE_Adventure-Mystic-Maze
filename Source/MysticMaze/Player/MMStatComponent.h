@@ -104,6 +104,7 @@ public:
 	FORCEINLINE float GetAttackSpeed() { return AttackSpeed; }
 	FORCEINLINE float GetCriticalHitRate() { return CriticalHitRate; }
 	FORCEINLINE int32 GetAvailableStatPoint() { return AvailableStatPoint; }
+	FORCEINLINE int32 GetExp() { return BaseStat.EXP; }
 	FORCEINLINE FMMCharacterStat GetTotalStat() { return TotalStat; }
 	FORCEINLINE FMMCharacterStat GetWeaponStat() { return WeaponStat; }
 	FORCEINLINE EClassType GetClass() { return ClassType; }

@@ -61,6 +61,8 @@ public:
 	UFUNCTION()
 	void EastEndOverlap_1(UPrimitiveComponent* HitComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+
+	virtual void DungeonClear() override;
 private:
 
 	UPROPERTY(EditAnywhere, Category = "Door", Meta = (AllowPrivateAccess = "true"))

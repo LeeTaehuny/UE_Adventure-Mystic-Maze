@@ -29,4 +29,6 @@ public:
 	virtual bool GetGruxNormalATK() = 0;
 	virtual bool GetAngryMode() = 0;
 	virtual bool GetAngryModeChangeComplete() = 0;
+
+	virtual float GetHPPercent() = 0;
 };

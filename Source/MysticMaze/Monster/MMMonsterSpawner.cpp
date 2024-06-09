@@ -22,6 +22,7 @@ AMMMonsterSpawner::AMMMonsterSpawner()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
+	
 }
 
 TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnType INType, int INLevel, FVector INCenterLocation)
@@ -62,6 +63,8 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 				INCenterLocation.Y + RandomYLocation,
 				1100));
 		
+			
+			MonsterBugSwarm->SetStatLevel(INLevel);
 			MonsterBugSwarm->SetCenterLocation(INCenterLocation);
 			SpawnMonsters.Add(MonsterBugSwarm);
 		}
@@ -86,6 +89,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 				INCenterLocation.Y + RandomYLocation,
 				1200));
 
+			MonsterMechanite->SetStatLevel(INLevel);
 			MonsterMechanite->SetCenterLocation(INCenterLocation);
 			SpawnMonsters.Add(MonsterMechanite);
 		}
@@ -110,6 +114,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 				INCenterLocation.Y + RandomYLocation,
 				1200));
 
+			MonsterGrux->SetStatLevel(INLevel);
 			MonsterGrux->SetCenterLocation(INCenterLocation);
 			SpawnMonsters.Add(MonsterGrux);
 		}
@@ -134,6 +139,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 				INCenterLocation.Y + RandomYLocation,
 				1100));
 		
+			MonsterBugSwarm->SetStatLevel(INLevel);
 			MonsterBugSwarm->SetCenterLocation(INCenterLocation);
 			SpawnMonsters.Add(MonsterBugSwarm);
 		}
@@ -156,6 +162,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 				INCenterLocation.Y + RandomYLocation,
 				1200));
 
+			MonsterMechanite->SetStatLevel(INLevel);
 			MonsterMechanite->SetCenterLocation(INCenterLocation);
 			SpawnMonsters.Add(MonsterMechanite);
 		}
@@ -180,6 +187,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 				INCenterLocation.Y + RandomYLocation,
 				1100));
 		
+			MonsterBugSwarm->SetStatLevel(INLevel);
 			MonsterBugSwarm->SetCenterLocation(INCenterLocation);
 			SpawnMonsters.Add(MonsterBugSwarm);
 		}
@@ -226,6 +234,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 				INCenterLocation.Y + RandomYLocation,
 				1100));
 
+			MonsterMechanite->SetStatLevel(INLevel);
 			MonsterMechanite->SetCenterLocation(INCenterLocation);
 			SpawnMonsters.Add(MonsterMechanite);
 		}
@@ -248,6 +257,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 				INCenterLocation.Y + RandomYLocation,
 				1200));
 
+			MonsterGrux->SetStatLevel(INLevel);
 			MonsterGrux->SetCenterLocation(INCenterLocation);
 			SpawnMonsters.Add(MonsterGrux);
 		}
@@ -272,6 +282,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 				INCenterLocation.Y + RandomYLocation,
 				1200));
 
+			MonsterGrux->SetStatLevel(INLevel);
 			MonsterGrux->SetCenterLocation(INCenterLocation);
 			SpawnMonsters.Add(MonsterGrux);
 		}
@@ -300,6 +311,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 				INCenterLocation.Y + RandomYLocation,
 				1100));
 
+			MonsterGobinWarrior->SetStatLevel(INLevel);
 			MonsterGobinWarrior->SetCenterLocation(INCenterLocation);
 			SpawnMonsters.Add(MonsterGobinWarrior);
 			MonsterGoblinCommander->SerchGoblin(MonsterGobinWarrior);
@@ -327,6 +339,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 				INCenterLocation.Y + RandomYLocation,
 				1100));
 
+			MonsterGobinWizard->SetStatLevel(INLevel);
 			MonsterGobinWizard->SetCenterLocation(INCenterLocation);
 			SpawnMonsters.Add(MonsterGobinWizard);
 			MonsterGoblinCommander->SerchGoblin(MonsterGobinWizard);
@@ -354,6 +367,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 				INCenterLocation.Y + RandomYLocation,
 				1200));
 
+			MonsterGobinWizard->SetStatLevel(INLevel);
 			MonsterGobinWizard->SetCenterLocation(INCenterLocation);
 			SpawnMonsters.Add(MonsterGobinWizard);
 			MonsterGoblinCommander->SerchGoblin(MonsterGobinWizard);
@@ -377,6 +391,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 
 			UE_LOG(LogTemp, Display, TEXT("X : %f, Y : %f, Z : %f"), MonsterGobinWarrior->GetActorLocation().X, MonsterGobinWarrior->GetActorLocation().Y, MonsterGobinWarrior->GetActorLocation().Z);
 
+			MonsterGobinWarrior->SetStatLevel(INLevel);
 			MonsterGobinWarrior->SetCenterLocation(INCenterLocation);
 			SpawnMonsters.Add(MonsterGobinWarrior);
 			MonsterGoblinCommander->SerchGoblin(MonsterGobinWarrior);
@@ -405,6 +420,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 				INCenterLocation.Y + RandomYLocation,
 				1200));
 
+			MonsterGobinWizard->SetStatLevel(INLevel);
 			MonsterGobinWizard->SetCenterLocation(INCenterLocation);
 			SpawnMonsters.Add(MonsterGobinWizard);
 			MonsterGoblinCommander->SerchGoblin(MonsterGobinWizard);
@@ -428,6 +444,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 
 			UE_LOG(LogTemp, Display, TEXT("X : %f, Y : %f, Z : %f"), MonsterGobinWarrior->GetActorLocation().X, MonsterGobinWarrior->GetActorLocation().Y, MonsterGobinWarrior->GetActorLocation().Z);
 
+			MonsterGobinWarrior->SetStatLevel(INLevel);
 			MonsterGobinWarrior->SetCenterLocation(INCenterLocation);
 			SpawnMonsters.Add(MonsterGobinWarrior);
 			MonsterGoblinCommander->SerchGoblin(MonsterGobinWarrior);
@@ -455,6 +472,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 				INCenterLocation.Y + RandomYLocation,
 				1200));
 
+			MonsterGobinWizard->SetStatLevel(INLevel);
 			MonsterGobinWizard->SetCenterLocation(INCenterLocation);
 			SpawnMonsters.Add(MonsterGobinWizard);
 			MonsterGoblinCommander->SerchGoblin(MonsterGobinWizard);
@@ -478,6 +496,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 
 			UE_LOG(LogTemp, Display, TEXT("X : %f, Y : %f, Z : %f"), MonsterGobinWarrior->GetActorLocation().X, MonsterGobinWarrior->GetActorLocation().Y, MonsterGobinWarrior->GetActorLocation().Z);
 
+			MonsterGobinWarrior->SetStatLevel(INLevel);
 			MonsterGobinWarrior->SetCenterLocation(INCenterLocation);
 			SpawnMonsters.Add(MonsterGobinWarrior);
 			MonsterGoblinCommander->SerchGoblin(MonsterGobinWarrior);

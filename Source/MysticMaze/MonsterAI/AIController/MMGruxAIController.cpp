@@ -40,5 +40,6 @@ void AMMGruxAIController::Tick(float DeltaTime)
 		Blackboard->SetValueAsBool("LeftHook_RightHook", Monster->GetGruxNormalATK());
 		Blackboard->SetValueAsBool("AngryMode", Monster->GetAngryMode());
 		Blackboard->SetValueAsBool("AngryModeChangeComplete", Monster->GetAngryModeChangeComplete());
+		Blackboard->SetValueAsFloat("HP_Percent", Monster->GetHPPercent());
 	}
 }

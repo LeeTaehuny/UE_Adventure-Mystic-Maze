@@ -333,4 +333,18 @@ void AMMRoom_Class_B::EastEndOverlap(UPrimitiveComponent* HitComp, AActor* Other
 	bEast_Switch = false;
 }
 
+void AMMRoom_Class_B::DungeonClear()
+{
+	bNorth_Blocking_0 = true;
+	bNorth_Blocking_1 = true;
+	bSouth_Blocking_0 = true;
+	bSouth_Blocking_1 = true;
+	bWest_Blocking = true;
+	bEast_Blocking = true;
+
+	bMonsterAlive = true;
+
+	bDoorRock = true;
+}
+
 

@@ -40,6 +40,7 @@ public:
 	FORCEINLINE void SetATKMode(bool INData) { ATK_Mode = INData; }
 	FORCEINLINE bool GetATKMode() { return ATK_Mode; }
 
+	void SetStatLevel(int32 INData);
 
 	void ApplyMovementSpeed(float MovementSpeed);
 	void Die();
@@ -65,13 +66,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> DieMontage;
 
-	
-
-
 	UPROPERTY(EditAnywhere, Category = "Damage Text", Meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class AMM_MonsterDamageText> Monster_Damage;
 
 	UPROPERTY(EditAnywhere, Category = "Damage Text", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStaticMeshComponent> LocationData;
+
+	float HP_Percent = 0.0f;
 	
 };

@@ -99,6 +99,7 @@ protected: // 그룩스의 애니메이션 몽타주 데이터를 저장하기 �
 	// IMMGruxAIDataInterface : AI 컨트롤러에 값을 전달하기 위한 함수들
 	FORCEINLINE virtual bool GetGruxNormalATK() override { return bNormalRightATK; }
 	FORCEINLINE virtual bool GetAngryMode() override { return bAngryMode; }
+	FORCEINLINE virtual float GetHPPercent() override { return HP_Percent; }
 
 	// IMMMonsterATKChekInterface : 공격용 노티파이 (호출시 적을 공격할 수 있음)
 	virtual void ATKChecking() override;
@@ -128,5 +129,7 @@ protected: // 그룩스 개인의 스킬 쿨타임
 	
 	float RushCoolDown = 0.0f;
 	uint8 RushCoolOn : 1;
+
+	
 
 };

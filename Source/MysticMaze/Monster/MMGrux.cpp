@@ -10,6 +10,7 @@
 
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Item/MMItemBox.h"
+#include "Interface/MMStatusInterface.h"
 
 AMMGrux::AMMGrux()
 {
@@ -107,6 +108,13 @@ void AMMGrux::Monsterdie()
 		ItemBox->FinishSpawning(SpawnTransform);
 	}
 
+	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	IMMStatusInterface* PlayerData = Cast<IMMStatusInterface>(PlayerPawn);
+	if (PlayerData)
+	{
+		PlayerData->GetStatComponent()->SetExp(Stat->GetExp());
+	}
+
 	this->Destroy();
 }
 
@@ -198,7 +206,7 @@ void AMMGrux::ATKChecking()
 			}
 
 			UGameplayStatics::ApplyDamage(Result.GetActor(),
-				100.0f, GetController(),
+				Stat->GetAttackDamage(), GetController(),
 				this,
 				UDamageType::StaticClass());
 

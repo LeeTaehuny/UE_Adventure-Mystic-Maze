@@ -45,6 +45,7 @@ public:
 	UFUNCTION()
 	void SouthEndOverlap(UPrimitiveComponent* HitComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	virtual void DungeonClear() override;
 private: // 뷰포트에서 사용되는 변수들
 
 	UPROPERTY(EditAnywhere, Category = "Door", Meta = (AllowPrivateAccess = "true"))

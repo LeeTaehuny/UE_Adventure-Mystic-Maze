@@ -127,4 +127,6 @@ protected:
 	TArray<TSubclassOf<AMMRoomDesignBase>> Designs;
 	void Structure_Installation(FVector INData);
 
+	virtual void DungeonClear();
+
 };

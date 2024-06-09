@@ -89,7 +89,7 @@ void UMMStatComponent::InitMonsterStatus(int32 InLevel)
 	UMMGameInstance* GameMode = Cast<UMMGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	if (GameMode)
 	{
-		BaseStat = GameMode->GetPlayerStat(CurrentLevel);
+		BaseStat = GameMode->GetMonsterStat(CurrentLevel);
 
 		UpdateDetailStatus();
 

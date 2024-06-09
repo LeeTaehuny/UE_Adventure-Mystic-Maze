@@ -10,6 +10,7 @@
 #include "Monster/Magic/MMFireBall.h"
 #include "Components/SceneComponent.h"
 #include "Item/MMItemBox.h"
+#include "Interface/MMStatusInterface.h"
 
 AMMGoblinWizard::AMMGoblinWizard()
 {
@@ -237,7 +238,7 @@ void AMMGoblinWizard::ATKChecking()
 			UE_LOG(LogTemp, Warning, TEXT("%s"), *Result.GetActor()->GetName());
 
 			UGameplayStatics::ApplyDamage(Result.GetActor(),
-				100.0f, GetController(),
+				Stat->GetAttackDamage(), GetController(),
 				this,
 				UDamageType::StaticClass());
 		}
@@ -271,6 +272,13 @@ void AMMGoblinWizard::Monsterdie()
 
 		ItemBox->AddMoney(2);
 		ItemBox->FinishSpawning(SpawnTransform);
+	}
+
+	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	IMMStatusInterface* PlayerData = Cast<IMMStatusInterface>(PlayerPawn);
+	if (PlayerData)
+	{
+		PlayerData->GetStatComponent()->SetExp(Stat->GetExp());
 	}
 
 	this->Destroy();

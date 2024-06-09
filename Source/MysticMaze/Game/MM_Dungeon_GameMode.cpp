@@ -5,6 +5,9 @@
 
 #include "Dungeon/MMRoomBase.h"
 #include "UI/MM_Dungeon_UI.h"
+#include "Game/MMGameInstance.h"
+#include "Dungeon/MMPortal.h"
+#include "Engine/GameInstance.h"
 
 AMM_Dungeon_GameMode::AMM_Dungeon_GameMode()
 {
@@ -45,24 +48,23 @@ AMM_Dungeon_GameMode::AMM_Dungeon_GameMode()
 		DungeongUIOrigin = UIRef.Class;
 	}
 
+	static ConstructorHelpers::FClassFinder<AMMPortal> PortalRef(TEXT("/Script/Engine.Blueprint'/Game/MysticMaze/Dungeon/BP_Portal.BP_Portal_C'"));
+	if (PortalRef.Class)
+	{
+		PortalOrigin = PortalRef.Class;
+	}
+
 	SpawnStartRoom = 0;
 
 
 	
 }
 
-void AMM_Dungeon_GameMode::SetRoomCount()
+void AMM_Dungeon_GameMode::PreInitializeComponents()
 {
-	RoomCount++;
-	if (DungeongUI)
-	{
-		DungeongUI->UpdateText();
-	}
-}
+	Super::PreInitializeComponents();
 
-void AMM_Dungeon_GameMode::BeginPlay()
-{
-	Super::BeginPlay();
+	SpawnStartRoom = 1;
 
 	if (DungeongUIOrigin)
 	{
@@ -73,12 +75,59 @@ void AMM_Dungeon_GameMode::BeginPlay()
 			DungeongUI->AddToViewport();
 		}
 	}
-	
+}
+
+void AMM_Dungeon_GameMode::SetRoomCount(FVector INData)
+{
+	//RoomCount++;
+	RoomCount = 6;
+	if (RoomCount >= 5)
+	{
+		RoomCount = 5;
+
+		FVector PortalSpawnLocation = INData;
+		PortalSpawnLocation.Z += 400;
+		FTransform Transform;
+		Transform.SetLocation(PortalSpawnLocation);
+
+		AMMPortal* RoomPortal = GetWorld()->SpawnActor<AMMPortal>(PortalOrigin, Transform);
+
+		UMMGameInstance* GameInstanceData = Cast<UMMGameInstance>(GetGameInstance());
+		if (GameInstanceData)
+		{
+			int32 FloorData = GameInstanceData->GetCurrentFloor();
+			FloorData++;
+			if (FloorData >= 3)
+			{
+				FloorData = 3;
+			}
+
+			GameInstanceData->SetCurrentFloor(FloorData);
+		}
+
+	}
+
+	if (DungeongUI)
+	{
+		DungeongUI->UpdateText();
+	}
+}
+
+void AMM_Dungeon_GameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
 	RoomCount = 0;
+
 	FTransform SpawnTransform;
 	SpawnTransform.SetLocation(FVector(0, 0, 1000));
-
-	SpawnStartRoom = 1;
+	
+	UMMGameInstance* GameInstance = Cast<UMMGameInstance>(GetGameInstance());
+	if (GameInstance)
+	{
+		SpawnStartRoom = GameInstance->GetCurrentFloor();
+	}
+	
 	switch (SpawnStartRoom)
 	{
 	case 0:
@@ -96,4 +145,5 @@ void AMM_Dungeon_GameMode::BeginPlay()
 		GetWorld()->SpawnActor<AMMRoomBase>(ThirdRoomData, SpawnTransform);
 		break;
 	}
+	
 }

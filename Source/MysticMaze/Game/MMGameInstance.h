@@ -23,6 +23,10 @@ public:
 	{
 		return PlayerStatTable.IsValidIndex(InLevel - 1) ? PlayerStatTable[InLevel - 1] : FMMCharacterStat();
 	}
+	FORCEINLINE FMMCharacterStat GetMonsterStat(int32 InLevel) const
+	{
+		return MonsterStatTable.IsValidIndex(InLevel - 1) ? MonsterStatTable[InLevel - 1] : FMMCharacterStat();
+	}
 	FORCEINLINE int32 GetMaxLevel() { return MaxLevel; }
 	FORCEINLINE FString GetSlotName() { return SaveSlotName; }
 	FORCEINLINE class UMMSaveGameData* GetSaveData() { return SaveDataInstance; }
@@ -34,6 +38,7 @@ public:
 	void SaveDungeonFloor();
 
 private:
+	TArray<FMMCharacterStat> MonsterStatTable;
 	TArray<FMMCharacterStat> PlayerStatTable;
 	int32 MaxLevel;
 	int32 CurrentFloor;

@@ -984,7 +984,6 @@ void AMMRoomBase::RoomBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherAc
 		//SpawnerSumon(LocalLocation);
 
 		SpawnType RnadomValue;// = GetRandomEnumValue();
-
 		switch (RoomFloor)
 		{
 		case 1:
@@ -996,7 +995,7 @@ void AMMRoomBase::RoomBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherAc
 			break;
 
 		case 3:
-			RnadomValue = (SpawnType)FMath::RandRange(11, 11);
+			RnadomValue = (SpawnType)FMath::RandRange(0, 11);
 			break;
 
 		default:
@@ -1005,7 +1004,6 @@ void AMMRoomBase::RoomBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherAc
 
 		MonsterArea = GetWorld()->SpawnActor<AMMMonsterArea>(AMMMonsterArea::StaticClass());
 		TArray<TObjectPtr<class AMMMonsterBase>> MonsterData;
-
 		switch (RoomType)
 		{
 		case 0:
@@ -1120,8 +1118,12 @@ void AMMRoomBase::ClearSignal()
 	AMM_Dungeon_GameMode* GameMode = Cast<AMM_Dungeon_GameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode)
 	{
-		GameMode->SetRoomCount();
-		UE_LOG(LogTemp, Display, TEXT("Count : %d"), GameMode->GetRoomCount());
+		GameMode->SetRoomCount(this->GetActorLocation());
+
+		if (GameMode->GetRoomCount() == 5)
+		{
+			DungeonClear();
+		}
 	}
 }
 
@@ -1249,4 +1251,8 @@ void AMMRoomBase::Structure_Installation(FVector INData)
 		AMMRoomDesignBase* Struc = GetWorld()->SpawnActor<AMMRoomDesignBase>(Designs[RandomSpawn]);
 		Struc->SetActorLocation(INData);
 	}
+}
+
+void AMMRoomBase::DungeonClear()
+{
 }

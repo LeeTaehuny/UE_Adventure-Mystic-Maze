@@ -7,6 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Collision/MMCollision.h"
 #include "Item/MMItemBox.h"
+#include "Interface/MMStatusInterface.h"
 
 AMMBugSwarm::AMMBugSwarm()
 {
@@ -120,7 +121,7 @@ void AMMBugSwarm::ATKChecking()
 			UE_LOG(LogTemp, Warning, TEXT("%s"), *Result.GetActor()->GetName());
 
 			UGameplayStatics::ApplyDamage(Result.GetActor(),
-				100.0f, GetController(), 
+				Stat->GetAttackDamage(), GetController(),
 				this,
 				UDamageType::StaticClass());
 		}
@@ -160,6 +161,13 @@ void AMMBugSwarm::Monsterdie()
 		
 		ItemBox->AddMoney(1);
 		ItemBox->FinishSpawning(SpawnTransform);
+	}
+
+	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	IMMStatusInterface* PlayerData = Cast<IMMStatusInterface>(PlayerPawn);
+	if (PlayerData)
+	{
+		PlayerData->GetStatComponent()->SetExp(Stat->GetExp());
 	}
 
 	this->Destroy();

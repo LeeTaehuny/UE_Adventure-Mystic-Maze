@@ -57,7 +57,7 @@ public:
 
 	
 
-	
+	virtual void DungeonClear() override;
 	
 private: // 뷰포트에서 사용되는 변수들
 
