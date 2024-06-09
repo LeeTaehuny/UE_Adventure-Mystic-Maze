@@ -9,6 +9,8 @@
 #include "Interface/MMPlayerVisualInterface.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Player/MMPlayerController.h"
+#include "UI/MMHUDWidget.h"
 #include "Item/MMBowWeapon.h"
 
 #include "GameFramework/Character.h"
@@ -56,6 +58,17 @@ bool UMMSkill_RapidFire::UseSkill()
 		{
 			VisiblePlayer->GetSpringArm()->TargetArmLength = 100;
 			VisiblePlayer->GetPlayerCamera()->SetRelativeLocation(FVector(0.0f, 50.0f, 100.0f));
+		}
+
+		// 스테이터스바 위젯 감추기
+		AMMPlayerController* PlayerController = Cast<AMMPlayerController>(PlayerCharacter->GetController());
+		if (PlayerController)
+		{
+			if (PlayerController->GetHUDWidget())
+			{
+				// 스테이터스바 위젯 토글 함수를 호출합니다.
+				PlayerController->GetHUDWidget()->ToggleStatusBarWidget();
+			}
 		}
 	}
 
@@ -112,6 +125,17 @@ void UMMSkill_RapidFire::Cancel()
 			VisiblePlayer->GetSpringArm()->TargetArmLength = 800;
 			VisiblePlayer->GetPlayerCamera()->SetRelativeLocation(FVector(0.0f, 0.0f, 100.0f));
 		}
+
+		// 스테이터스바 위젯 출력
+		AMMPlayerController* PlayerController = Cast<AMMPlayerController>(PlayerCharacter->GetController());
+		if (PlayerController)
+		{
+			if (PlayerController->GetHUDWidget())
+			{
+				// 스테이터스바 위젯 토글 함수를 호출합니다.
+				PlayerController->GetHUDWidget()->ToggleStatusBarWidget();
+			}
+		}
 	}
 }
 
@@ -137,6 +161,17 @@ void UMMSkill_RapidFire::SkillEnd(UAnimMontage* Montage, bool IsEnded)
 	{
 		VisiblePlayer->GetSpringArm()->TargetArmLength = 800;
 		VisiblePlayer->GetPlayerCamera()->SetRelativeLocation(FVector(0.0f, 0.0f, 100.0f));
+	}
+
+	// 스테이터스바 위젯 출력
+	AMMPlayerController* PlayerController = Cast<AMMPlayerController>(PlayerCharacter->GetController());
+	if (PlayerController)
+	{
+		if (PlayerController->GetHUDWidget())
+		{
+			// 스테이터스바 위젯 토글 함수를 호출합니다.
+			PlayerController->GetHUDWidget()->ToggleStatusBarWidget();
+		}
 	}
 }
 
