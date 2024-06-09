@@ -88,7 +88,7 @@ void UMMSkill_FlashStrike::SkillAttack()
 	Objects.Add(UEngineTypes::ConvertToObjectType(ECC_GameTraceChannel1));
 
 	bool bHasHit = UKismetSystemLibrary::BoxTraceMultiForObjects(
-		GetWorld(), Start, End, FVector(0.0f, 45.0f, 90.0f), Owner->GetActorRotation(), Objects, false, Ignores, EDrawDebugTrace::ForDuration, MonsterResults, true);
+		GetWorld(), Start, End, FVector(0.0f, 100.0f, 90.0f), Owner->GetActorRotation(), Objects, false, Ignores, EDrawDebugTrace::ForDuration, MonsterResults, true);
 
 	if (bHasHit)
 	{

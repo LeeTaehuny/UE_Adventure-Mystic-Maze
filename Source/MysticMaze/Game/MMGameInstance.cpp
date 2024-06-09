@@ -67,6 +67,7 @@ void UMMGameInstance::SetSaveSlot(int32 InIndex)
 		SaveDataInstance->Gold = InItData->Gold;
 		SaveDataInstance->Class = InItData->Class;
 		SaveDataInstance->CurrentFloor = InItData->CurrentFloor;
+		CurrentFloor = SaveDataInstance->CurrentFloor;
 		UGameplayStatics::SaveGameToSlot(SaveDataInstance, SaveDataInstance->SaveSlotName, SaveDataInstance->SaveIndex);
 	}
 }

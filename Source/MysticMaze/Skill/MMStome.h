@@ -33,8 +33,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Particle", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UParticleSystemComponent> ParticleComponent;
-	
-	AActor* Owner;
+
 	float CriticalRate;
 	float Damage;
 	float IntervalTime;
