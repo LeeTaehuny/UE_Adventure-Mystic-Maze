@@ -1022,6 +1022,8 @@ void AMMPlayerCharacter::DeathEnd(UAnimMontage* Montage, bool IsEnded)
 {
 	// 캐릭터 안보이게 설정
 	GetMesh()->SetVisibility(false);
+	// 플레이어 충돌제거
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AMMPlayerCharacter::Respawn()

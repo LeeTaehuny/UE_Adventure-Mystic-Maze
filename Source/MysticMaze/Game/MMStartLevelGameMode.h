@@ -24,6 +24,9 @@ public:
 	void ChangeMainLevel();
 
 private:
+	UFUNCTION()
+	void OnSoundFinished();
+
 	void OpenLevel();
 
 	UPROPERTY(EditAnywhere, Category = "Level", meta = (PrivateAllowAccess = "true"))
@@ -37,4 +40,7 @@ private:
 	TSubclassOf<class UUserWidget> LoadingWidgetClass;
 
 	FTimerHandle LoadingTimerHandle;
+
+	UPROPERTY(VisibleAnywhere, Category = "Sound")
+	TObjectPtr<class UAudioComponent> AudioComponent;
 };

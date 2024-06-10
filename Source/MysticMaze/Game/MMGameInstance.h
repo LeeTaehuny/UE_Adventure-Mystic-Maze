@@ -33,6 +33,7 @@ public:
 	FORCEINLINE int32 GetCurrentFloor() { return CurrentFloor; }
 	FORCEINLINE void SetCurrentFloor(int32 InValue) { CurrentFloor = InValue; }
 
+	void InitSaveFileName();
 	void Exit();
 	void SetSaveSlot(int32 InIndex);
 	void SaveDungeonFloor();

@@ -2,8 +2,11 @@
 
 
 #include "Game/MMGameMode.h"
-
 #include "Monster/MMMonsterFieldSpawner.h"
+
+#include "Sound/SoundWave.h"
+#include "Kismet/GameplayStatics.h"
+#include "Components/AudioComponent.h"
 
 AMMGameMode::AMMGameMode()
 {
@@ -26,6 +29,17 @@ AMMGameMode::AMMGameMode()
 	{
 		SpawnerData = SpawnerClassRef.Class;
 	}
+
+
+	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("BGM"));
+	AudioComponent->bAutoActivate = false;
+	AudioComponent->OnAudioFinished.AddDynamic(this, &AMMGameMode::OnSoundFinished);
+
+	static ConstructorHelpers::FObjectFinder<USoundWave> SoundWaveAsset(TEXT("/Script/Engine.SoundWave'/Game/Sound/audio/Elven_Harmonies__no_percussion_.Elven_Harmonies__no_percussion_'"));
+	if (SoundWaveAsset.Succeeded())
+	{
+		AudioComponent->SetSound(SoundWaveAsset.Object);
+	}
 }
 
 void AMMGameMode::BeginPlay()
@@ -33,4 +47,17 @@ void AMMGameMode::BeginPlay()
 	Super::BeginPlay();
 
 	Spawner = GetWorld()->SpawnActor<AMMMonsterFieldSpawner>(SpawnerData);
+
+	if (AudioComponent && AudioComponent->GetSound())
+	{
+		AudioComponent->Play();
+	}
+}
+
+void AMMGameMode::OnSoundFinished()
+{
+	if (AudioComponent && AudioComponent->GetSound())
+	{
+		AudioComponent->Play();
+	}
 }
