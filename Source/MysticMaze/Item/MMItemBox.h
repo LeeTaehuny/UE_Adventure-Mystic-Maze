@@ -45,7 +45,7 @@ protected:
 	TObjectPtr<class UStaticMeshComponent> Mesh;
 
 private:
-	UPROPERTY(VisibleAnywhere, Category = Item)
+	UPROPERTY(EditAnywhere, Category = Item)
 	int32 ItemQuantity;
 
 	UPROPERTY(VisibleAnywhere, Category = Item)

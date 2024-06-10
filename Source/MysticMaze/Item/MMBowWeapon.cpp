@@ -4,6 +4,8 @@
 #include "Item/MMBowWeapon.h"
 #include "Item/MMArrow.h"
 #include "Interface/MMPlayerVisualInterface.h"
+#include "Interface/MMStatusInterface.h"
+#include "Player/MMStatComponent.h"
 #include "Collision/MMCollision.h"
 
 #include "GameFramework/Character.h"
@@ -91,7 +93,35 @@ void AMMBowWeapon::SpawnArrow()
 		ACharacter* PlayerCharacter = Cast<ACharacter>(GetOwner());
 		if (PlayerCharacter)
 		{
+			IMMStatusInterface* StatPlayer = Cast<IMMStatusInterface>(GetOwner());
+			if (StatPlayer)
+			{
+				// 화살 초기화
+				TempArrow->SetOwner(Owner);
+				// 데미지 설정
+				TempArrow->SetDamage(StatPlayer->GetStatComponent()->GetAttackDamage());
+				// 화살 부착
+				TempArrow->AttachToComponent(PlayerCharacter->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, ArrowSocketName);
+			}
+		}
+	}
+}
+
+void AMMBowWeapon::SpawnArrow(TSubclassOf<AActor> InArrowClass, float InDamage)
+{
+	TempArrow = Cast<AMMArrow>(GetWorld()->SpawnActor(InArrowClass));
+
+	if (TempArrow)
+	{
+		// 화살을 화살 소켓에 부착합니다.
+		ACharacter* PlayerCharacter = Cast<ACharacter>(GetOwner());
+		if (PlayerCharacter)
+		{
+			// 화살 초기화
 			TempArrow->SetOwner(Owner);
+			// 데미지 설정
+			TempArrow->SetDamage(InDamage);
+			// 화살 부착
 			TempArrow->AttachToComponent(PlayerCharacter->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, ArrowSocketName);
 		}
 	}

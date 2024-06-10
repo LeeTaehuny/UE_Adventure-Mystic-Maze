@@ -14,6 +14,7 @@
 #include "Player/MMInventoryComponent.h"
 #include "Player/MMStatComponent.h"
 #include "Player/MMSkillComponent.h"
+#include "Components/Border.h"
 
 void UMMHUDWidget::Init()
 {
@@ -196,10 +197,12 @@ void UMMHUDWidget::ToggleStatusBarWidget()
 	if (PlayerStatusBarWidget->GetVisibility() == ESlateVisibility::Visible)
 	{
 		PlayerStatusBarWidget->SetVisibility(ESlateVisibility::Hidden);
+		BorderWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 	else
 	{
 		PlayerStatusBarWidget->SetVisibility(ESlateVisibility::Visible);
+		BorderWidget->SetVisibility(ESlateVisibility::Visible);
 	}
 }
 

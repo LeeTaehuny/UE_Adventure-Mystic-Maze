@@ -175,6 +175,12 @@ AMMPlayerCharacter::AMMPlayerCharacter()
 			IA_ConvertSetting = IA_ConvertSettingRef.Object;
 		}
 
+		static ConstructorHelpers::FObjectFinder<UInputAction>IA_CheatRef(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_Cheat.IA_Cheat'"));
+		if (IA_CheatRef.Object)
+		{
+			IA_Cheat = IA_CheatRef.Object;
+		}
+
 		static ConstructorHelpers::FObjectFinder<UInputAction>IA_QuickSlot1Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/MysticMaze/Player/Control/InputAction/Common/IA_QuickSlot1.IA_QuickSlot1'"));
 		if (IA_QuickSlot1Ref.Object)
 		{
@@ -455,6 +461,8 @@ void AMMPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 	EnhancedInputComponent->BindAction(IA_QuickSlot6, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::UseQuickSlot, 6);
 	EnhancedInputComponent->BindAction(IA_ConvertEquipment, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertEquipmentVisibility);
 	EnhancedInputComponent->BindAction(IA_ConvertSetting, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::ConvertSetting);
+	
+	EnhancedInputComponent->BindAction(IA_Cheat, ETriggerEvent::Triggered, this, &AMMPlayerCharacter::Cheat);
 	
 	// Warrior
 	EnhancedInputComponent->BindAction(IA_WarriorGuard, ETriggerEvent::Started, this, &AMMPlayerCharacter::GuardStart);
@@ -1002,6 +1010,9 @@ void AMMPlayerCharacter::Death()
 
 	// 캐릭터 이동 기능 제한
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+
+	// 리스폰 연동
+	GetWorld()->GetTimerManager().SetTimer(RespawnTimer, this, &AMMPlayerCharacter::Respawn, 3.0f, false);
 }
 
 void AMMPlayerCharacter::DeathEnd(UAnimMontage* Montage, bool IsEnded)
@@ -1012,9 +1023,7 @@ void AMMPlayerCharacter::DeathEnd(UAnimMontage* Montage, bool IsEnded)
 
 void AMMPlayerCharacter::Respawn()
 {
-	// TODO : 리스폰 위치 지정하기 + 이펙트도?
-	// 캐릭터 이동 기능 활성화
-	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+	UGameplayStatics::OpenLevel(GetWorld(), TEXT("TownLevel"));
 }
 
 void AMMPlayerCharacter::ChangeClass(EClassType Class)
@@ -1368,9 +1377,6 @@ void AMMPlayerCharacter::ApplyMovementSpeed(float MovementSpeed)
 
 void AMMPlayerCharacter::Interaction()
 {
-	// TEST 경험치 증가
-	Stat->SetExp(500.0f);
-
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (!AnimInstance) return;
 	if (AnimInstance->Montage_IsPlaying(PickUpMontage)) return;
@@ -1426,4 +1432,17 @@ void AMMPlayerCharacter::UseQuickSlot(int32 InNum)
 		Inventory->UseItem(InNum - 5, ESlotType::ST_PotionSlot);
 		break;
 	}
+}
+
+void AMMPlayerCharacter::Cheat()
+{
+	// 경험치 증가
+	Stat->SetExp(100.0f);
+
+	// 골드 증가
+	Inventory->AddGold(100);
+	
+	// 마석 얻기
+	int32 Temp = 0;
+	Inventory->AddItem(TEXT("DA_ManaStone"), 3, Temp);
 }

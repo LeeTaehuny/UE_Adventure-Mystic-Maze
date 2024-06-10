@@ -43,6 +43,7 @@ public:
 // Camera Section
 protected:
 	FORCEINLINE virtual class UCameraComponent* GetPlayerCamera() override { return Camera; }
+	FORCEINLINE virtual class USpringArmComponent* GetSpringArm() override { return SpringArm; }
 
 	UPROPERTY(VisibleAnywhere, Category = Camera, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USpringArmComponent> SpringArm;
@@ -69,6 +70,9 @@ protected:
 	void ConvertSetting();
 	void Interaction();
 	void UseQuickSlot(int32 InNum);
+
+	// Cheat
+	void Cheat();
 
 	// Basic
 	void BasicMove(const FInputActionValue& Value);
@@ -117,6 +121,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_ConvertSetting;
+
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_Cheat;
 
 	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_QuickSlot1;
@@ -222,6 +229,8 @@ protected:
 	void DeathEnd(class UAnimMontage* Montage, bool IsEnded);
 	void Respawn();
 
+	FTimerHandle RespawnTimer;
+
 // Character Class Section
 protected:
 	FORCEINLINE virtual EClassType GetClassType() override { return ClassType; };
@@ -303,6 +312,7 @@ protected:
 // Member Variable
 protected:
 	FORCEINLINE virtual bool GetIsEquip() override { return bIsEquip; }
+	FORCEINLINE virtual FVector2D GetMovementVector() override { return MovementVector; }
 
 	uint8 bIsChange : 1;		// 무기 교체
 	uint8 bIsDash : 1;			// 달리기 여부

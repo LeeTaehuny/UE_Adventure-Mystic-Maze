@@ -78,7 +78,6 @@ void AMMArrow::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* Other
 		IMMStatusInterface* StatPlayer = Cast<IMMStatusInterface>(Owner);
 		if (!StatPlayer) return;
 
-		float Damage = StatPlayer->GetStatComponent()->GetAttackDamage();
 		bool Critical = FMath::FRand() < (StatPlayer->GetStatComponent()->GetCriticalHitRate() / 100);
 
 		if (Critical)

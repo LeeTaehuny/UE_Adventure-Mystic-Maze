@@ -271,7 +271,6 @@ void UMMSkillComponent::InitSkillManager()
 			if (Skill)
 			{
 				SkillManager.Add(AssetPtr->GetName(), Skill);
-				UE_LOG(LogTemp, Warning, TEXT("%s"), *AssetPtr->GetName());
 			}
 		}
 	}
