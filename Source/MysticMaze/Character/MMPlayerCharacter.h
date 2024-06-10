@@ -71,6 +71,9 @@ protected:
 	void Interaction();
 	void UseQuickSlot(int32 InNum);
 
+	// Cheat
+	void Cheat();
+
 	// Basic
 	void BasicMove(const FInputActionValue& Value);
 	void BasicLook(const FInputActionValue& Value);
@@ -118,6 +121,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_ConvertSetting;
+
+	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UInputAction> IA_Cheat;
 
 	UPROPERTY(VisibleAnywhere, Category = CommonInput, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UInputAction> IA_QuickSlot1;
@@ -222,6 +228,8 @@ protected:
 	void Death();
 	void DeathEnd(class UAnimMontage* Montage, bool IsEnded);
 	void Respawn();
+
+	FTimerHandle RespawnTimer;
 
 // Character Class Section
 protected:
