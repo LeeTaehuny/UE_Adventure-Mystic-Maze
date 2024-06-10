@@ -9,6 +9,7 @@
 #include "Interface/MMMonsterDieInterface.h"
 #include "Interface/MMMonsterATKChekInterface.h"
 #include "Interface/MMMonsterATKModeInterface.h"
+#include "Interface/MMWidgetInterface.h"
 #include "Kismet/GameplayStatics.h"
 
 #include "Player/MMStatComponent.h"
@@ -19,7 +20,7 @@
  * 
  */
 UCLASS()
-class MYSTICMAZE_API AMMMonsterBase : public AMMCharacterBase
+class MYSTICMAZE_API AMMMonsterBase : public AMMCharacterBase, public IMMWidgetInterface
 {
 	GENERATED_BODY()
 
@@ -45,6 +46,9 @@ public:
 	void ApplyMovementSpeed(float MovementSpeed);
 	void Die();
 	void Hit();
+
+	// IMMWidgetInterface : 몬스터 위젯을 초기화하기 위한 인터페이스 함수
+	virtual void SetupCharacterWidget(class UMMCustomWidget* InUserWidget) override;
 
 protected:
 
@@ -73,5 +77,9 @@ protected:
 	TObjectPtr<UStaticMeshComponent> LocationData;
 
 	float HP_Percent = 0.0f;
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Widget, Meta = (AllowPrivateAccess = true))
+	TObjectPtr<class UMMWidgetComponent> HpBar;
 	
 };

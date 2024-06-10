@@ -79,8 +79,7 @@ void AMM_Dungeon_GameMode::PreInitializeComponents()
 
 void AMM_Dungeon_GameMode::SetRoomCount(FVector INData)
 {
-	//RoomCount++;
-	RoomCount = 6;
+	RoomCount++;
 	if (RoomCount >= 5)
 	{
 		RoomCount = 5;

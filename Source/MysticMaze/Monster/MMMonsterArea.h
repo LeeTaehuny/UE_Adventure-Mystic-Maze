@@ -33,7 +33,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "SpawnLocation")
 	FVector CheckLocation;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Monsters Data")
 	TArray<TObjectPtr<AMMMonsterBase>> MonsterDAta;
+
 	TObjectPtr<APawn> Player;
 
 	float player_Serch_timer = 0.0f;

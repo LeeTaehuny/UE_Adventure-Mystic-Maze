@@ -14,14 +14,13 @@
 #include "Interface/MMStatusInterface.h"
 
 #include "Monster/MMMonsterArea.h"
-
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AMMMonsterFieldSpawner::AMMMonsterFieldSpawner()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 	beginerMonsterSpawnOn = false;
 	IntermediateMonsterSpawnOn = false;
 	ExpertMonsterSpawnOn = false;
@@ -77,7 +76,6 @@ AMMMonsterFieldSpawner::AMMMonsterFieldSpawner()
 	{
 		GoblinWizardData = WizardClassRef.Class;
 	}
-
 }
 
 // Called when the game starts or when spawned
@@ -155,8 +153,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterFieldSpawner::ExpertMonsterSp
 	switch (RandomSpawnNumber)
 	{
 	case 1:
-		//SpawnMonsters = GruxSpawn(2, INLevel, INCenterLocation);
-		SpawnMonsters = GruxSpawn(1, 10, INCenterLocation);
+		SpawnMonsters = GruxSpawn(1, INLevel, INCenterLocation);
 		break;
 
 	case 2:
@@ -288,7 +285,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterFieldSpawner::GoblinSpawn(int
 
 	int32 Random = FMath::RandRange(0, INNumber);
 
-	int32 Warrior = Random - INNumber;
+	int32 Warrior = INNumber - Random;
 	int32 Wizard = Random;
 
 	for (int i = 0; i < Wizard; i++)
@@ -388,27 +385,43 @@ void AMMMonsterFieldSpawner::WastBeginOverlap(UPrimitiveComponent* HitComp, AAct
 
 		TArray<TObjectPtr<class AMMMonsterBase>> SpawnMonsterData;
 		SpawnMonsterData = BeginerMonsterSpawn(PlLevel, FVector(13060.0f, 2060.0f, -440.0f));
+		AMMMonsterArea* Num1MonsterArea = GetWorld()->SpawnActor<AMMMonsterArea>(AMMMonsterArea::StaticClass());
 		for (int i = 0; i < SpawnMonsterData.Num(); i++)
 		{
 			SpawnMonster.Add(SpawnMonsterData[i]);
+
+			Num1MonsterArea->AddMonsterData(SpawnMonsterData[i]);
+			Num1MonsterArea->SetCheckLocation(FVector(-13060.0f, 2060.0f, -440.0f));
 		}
 
 		SpawnMonsterData = BeginerMonsterSpawn(PlLevel, FVector(11200.0, 10880.0, -440.0));
+		AMMMonsterArea* Num2MonsterArea = GetWorld()->SpawnActor<AMMMonsterArea>(AMMMonsterArea::StaticClass());
 		for (int i = 0; i < SpawnMonsterData.Num(); i++)
 		{
 			SpawnMonster.Add(SpawnMonsterData[i]);
+
+			Num2MonsterArea->AddMonsterData(SpawnMonsterData[i]);
+			Num2MonsterArea->SetCheckLocation(FVector(11200.0, 10880.0, -440.0));
 		}
 
 		SpawnMonsterData = BeginerMonsterSpawn(PlLevel, FVector(12430.0, 6440.0, -440.0));
+		AMMMonsterArea* Num3MonsterArea = GetWorld()->SpawnActor<AMMMonsterArea>(AMMMonsterArea::StaticClass());
 		for (int i = 0; i < SpawnMonsterData.Num(); i++)
 		{
 			SpawnMonster.Add(SpawnMonsterData[i]);
+
+			Num3MonsterArea->AddMonsterData(SpawnMonsterData[i]);
+			Num3MonsterArea->SetCheckLocation(FVector(12430.0, 6440.0, -440.0));
 		}
 
 		SpawnMonsterData = BeginerMonsterSpawn(PlLevel, FVector(14100.0, -6920.0, -440.0));
+		AMMMonsterArea* Num4MonsterArea = GetWorld()->SpawnActor<AMMMonsterArea>(AMMMonsterArea::StaticClass());
 		for (int i = 0; i < SpawnMonsterData.Num(); i++)
 		{
 			SpawnMonster.Add(SpawnMonsterData[i]);
+
+			Num4MonsterArea->AddMonsterData(SpawnMonsterData[i]);
+			Num4MonsterArea->SetCheckLocation(FVector(14100.0, -6920.0, -440.0));
 		}
 
 	}
@@ -454,27 +467,43 @@ void AMMMonsterFieldSpawner::EastBeginOverlap(UPrimitiveComponent* HitComp, AAct
 
 		TArray<TObjectPtr<class AMMMonsterBase>> SpawnMonsterData;
 		SpawnMonsterData = ExpertMonsterSpawn(PlLevel, FVector(-10660.0, 9000.0, -440.0));
+		AMMMonsterArea* Num1MonsterArea = GetWorld()->SpawnActor<AMMMonsterArea>(AMMMonsterArea::StaticClass());
 		for (int i = 0; i < SpawnMonsterData.Num(); i++)
 		{
 			SpawnMonster.Add(SpawnMonsterData[i]);
+			
+			Num1MonsterArea->AddMonsterData(SpawnMonsterData[i]);
+			Num1MonsterArea->SetCheckLocation(FVector(-10660.0, 9000.0, -440.0));
 		}
 
 		SpawnMonsterData = ExpertMonsterSpawn(PlLevel, FVector(-11890.0, 3710.0, -440.0));
+		AMMMonsterArea* Num2MonsterArea = GetWorld()->SpawnActor<AMMMonsterArea>(AMMMonsterArea::StaticClass());
 		for (int i = 0; i < SpawnMonsterData.Num(); i++)
 		{
 			SpawnMonster.Add(SpawnMonsterData[i]);
+
+			Num2MonsterArea->AddMonsterData(SpawnMonsterData[i]);
+			Num2MonsterArea->SetCheckLocation(FVector(-11890.0, 3710.0, -440.0));
 		}
 
 		SpawnMonsterData = ExpertMonsterSpawn(PlLevel, FVector(-11770.0, -2240.0, -440.0));
+		AMMMonsterArea* Num3MonsterArea = GetWorld()->SpawnActor<AMMMonsterArea>(AMMMonsterArea::StaticClass());
 		for (int i = 0; i < SpawnMonsterData.Num(); i++)
 		{
 			SpawnMonster.Add(SpawnMonsterData[i]);
+
+			Num3MonsterArea->AddMonsterData(SpawnMonsterData[i]);
+			Num3MonsterArea->SetCheckLocation(FVector(-11770.0, -2240.0, -440.0));
 		}
 
 		SpawnMonsterData = ExpertMonsterSpawn(PlLevel, FVector(-10820.0, -6210.0, -440.0));
+		AMMMonsterArea* Num4MonsterArea = GetWorld()->SpawnActor<AMMMonsterArea>(AMMMonsterArea::StaticClass());
 		for (int i = 0; i < SpawnMonsterData.Num(); i++)
 		{
 			SpawnMonster.Add(SpawnMonsterData[i]);
+
+			Num4MonsterArea->AddMonsterData(SpawnMonsterData[i]);
+			Num4MonsterArea->SetCheckLocation(FVector(-10820.0, -6210.0, -440.0));
 		}
 
 	}
@@ -506,6 +535,7 @@ void AMMMonsterFieldSpawner::SouthBeginOverlap(UPrimitiveComponent* HitComp, AAc
 	}
 	else
 	{
+		
 		IntermediateMonsterSpawnOn = true;
 
 		APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
@@ -519,27 +549,39 @@ void AMMMonsterFieldSpawner::SouthBeginOverlap(UPrimitiveComponent* HitComp, AAc
 
 		TArray<TObjectPtr<class AMMMonsterBase>> SpawnMonsterData;
 		SpawnMonsterData = IntermediateMonsterSpawn(PlLevel, FVector(-4090.0, -8200.0, -440.0));
+		AMMMonsterArea* Num1MonsterArea = GetWorld()->SpawnActor<AMMMonsterArea>(AMMMonsterArea::StaticClass());
 		for (int i = 0; i < SpawnMonsterData.Num(); i++)
 		{
 			SpawnMonster.Add(SpawnMonsterData[i]);
+			Num1MonsterArea->AddMonsterData(SpawnMonsterData[i]);
+			Num1MonsterArea->SetCheckLocation(FVector(4090.0, -8200.0, -440.0));
 		}
 
 		SpawnMonsterData = IntermediateMonsterSpawn(PlLevel, FVector(710.0, -10510.0, -440.0));
+		AMMMonsterArea* Num2MonsterArea = GetWorld()->SpawnActor<AMMMonsterArea>(AMMMonsterArea::StaticClass());
 		for (int i = 0; i < SpawnMonsterData.Num(); i++)
 		{
 			SpawnMonster.Add(SpawnMonsterData[i]);
+			Num2MonsterArea->AddMonsterData(SpawnMonsterData[i]);
+			Num2MonsterArea->SetCheckLocation(FVector(710.0, -10510.0, -440.0));
 		}
 
 		SpawnMonsterData = IntermediateMonsterSpawn(PlLevel, FVector(6400.0, -10150.0, -440.0));
+		AMMMonsterArea* Num3MonsterArea = GetWorld()->SpawnActor<AMMMonsterArea>(AMMMonsterArea::StaticClass());
 		for (int i = 0; i < SpawnMonsterData.Num(); i++)
 		{
 			SpawnMonster.Add(SpawnMonsterData[i]);
+			Num3MonsterArea->AddMonsterData(SpawnMonsterData[i]);
+			Num3MonsterArea->SetCheckLocation(FVector(6400.0, -10150.0, -440.0));
 		}
 
 		SpawnMonsterData = IntermediateMonsterSpawn(PlLevel, FVector(11820.0, -10360.0, -440.0));
+		AMMMonsterArea* Num4MonsterArea = GetWorld()->SpawnActor<AMMMonsterArea>(AMMMonsterArea::StaticClass());
 		for (int i = 0; i < SpawnMonsterData.Num(); i++)
 		{
 			SpawnMonster.Add(SpawnMonsterData[i]);
+			Num4MonsterArea->AddMonsterData(SpawnMonsterData[i]);
+			Num4MonsterArea->SetCheckLocation(FVector(11820.0, -10360.0, -440.0));
 		}
 
 	}
