@@ -3,9 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MMMonsterSpawnType.generated.h"
 
 UENUM(BlueprintType)
-enum class SpawnType : uint8
+enum class ESpawnType : uint8
 {
 	BugswarmOnly,
 	MechaniteOnly,
@@ -25,9 +26,9 @@ enum class SpawnType : uint8
 /**
  * 
  */
-class MYSTICMAZE_API MMMonsterSpawnType
-{
-public:
-	MMMonsterSpawnType();
-	~MMMonsterSpawnType();
-};
+//class MYSTICMAZE_API MMMonsterSpawnType
+//{
+//public:
+//	MMMonsterSpawnType();
+//	~MMMonsterSpawnType();
+//};

@@ -62,6 +62,8 @@ protected:
 	// IMMMonsterDieInterface : 몬스터가 죽을때 실행되는 함수
 	virtual void Monsterdie() override;
 
+	virtual void MonsterHitAnim() override;
+
 protected:
 	UPROPERTY(EditAnywhere, Category = "Goblin Armor", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USkeletalMeshComponent> HeadMesh;			// 헬멧 방어구
@@ -92,6 +94,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> Die2Montage;
+
+	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> Hit2Montage;
 
 protected:
 

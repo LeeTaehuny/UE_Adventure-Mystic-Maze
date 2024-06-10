@@ -82,6 +82,8 @@ protected:
 	// IMMMonsterDieInterface : 몬스터가 죽었을때 작동하는 함수
 	virtual void Monsterdie() override;
 
+	virtual void MonsterHitAnim() override;
+
 protected: // AI 전용 변수들
 	// 스폰지점을 저장하기 위한 변수
 	//FVector CenterLocation;

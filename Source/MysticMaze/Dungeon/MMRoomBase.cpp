@@ -983,19 +983,19 @@ void AMMRoomBase::RoomBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherAc
 		// 매개변수 : 액터의 원점 로케이션 정보 전달
 		//SpawnerSumon(LocalLocation);
 
-		SpawnType RnadomValue;// = GetRandomEnumValue();
+		ESpawnType RnadomValue;// = GetRandomEnumValue();
 		switch (RoomFloor)
 		{
 		case 1:
-			RnadomValue = (SpawnType)FMath::RandRange(0, 6);
+			RnadomValue = (ESpawnType)FMath::RandRange(0, 6);
 			break;
 
 		case 2:
-			RnadomValue = (SpawnType)FMath::RandRange(7, 11);
+			RnadomValue = (ESpawnType)FMath::RandRange(7, 11);
 			break;
 
 		case 3:
-			RnadomValue = (SpawnType)FMath::RandRange(0, 11);
+			RnadomValue = (ESpawnType)FMath::RandRange(0, 11);
 			break;
 
 		default:
@@ -1256,11 +1256,11 @@ void AMMRoomBase::SpawnerSumon(FVector INLocation)
 }
 */
 
-SpawnType AMMRoomBase::GetRandomEnumValue()
+ESpawnType AMMRoomBase::GetRandomEnumValue()
 {
-	int32 EnumRange = static_cast<int32>(SpawnType::StrongGrux) + 1; // 마지막 Enum 값
+	int32 EnumRange = static_cast<int32>(ESpawnType::StrongGrux) + 1; // 마지막 Enum 값
 	int32 RandomIndex = FMath::RandRange(0, EnumRange - 1);
-	return static_cast<SpawnType>(RandomIndex);
+	return static_cast<ESpawnType>(RandomIndex);
 }
 
 void AMMRoomBase::Structure_Installation(FVector INData)

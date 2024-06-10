@@ -36,6 +36,8 @@ private:
 protected:
 
 	virtual void BeginPlay() override;
+	UFUNCTION()
+	void OnSoundFinished();
 
 	TSubclassOf<class AMMRoomBase> FirstRoomData;
 	TSubclassOf<class AMMRoomBase> SecondRoomData;
@@ -44,10 +46,16 @@ protected:
 	TSubclassOf<class UMM_Dungeon_UI> DungeongUIOrigin;
 	TObjectPtr<class UMM_Dungeon_UI> DungeongUI;
 
+	TSubclassOf<class UMMClearWidget> DungeonClearOrigin;
+	TObjectPtr<class UMMClearWidget> DungeonClear;
+
 	TSubclassOf<class AMMPortal> PortalOrigin;
 
 
 	uint8 SpawnStartRoom : 2;
 	int32 RoomCount;
+
+	UPROPERTY(VisibleAnywhere, Category = "Sound")
+	TObjectPtr<class UAudioComponent> AudioComponent;
 
 };

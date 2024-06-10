@@ -173,3 +173,8 @@ void AMMBugSwarm::Monsterdie()
 
 	this->Destroy();
 }
+
+void AMMBugSwarm::MonsterHitAnim()
+{
+	GetMesh()->GetAnimInstance()->Montage_Play(HitMontage);
+}

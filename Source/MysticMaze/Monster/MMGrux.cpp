@@ -256,3 +256,8 @@ void AMMGrux::AngryNormalATKRight()
 		AnimInstance->Montage_SetEndDelegate(EndDelegate, AngryATKRight);
 	}
 }
+
+void AMMGrux::MonsterHitAnim()
+{
+	GetMesh()->GetAnimInstance()->Montage_Play(HitMontage);
+}

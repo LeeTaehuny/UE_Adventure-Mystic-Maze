@@ -43,7 +43,7 @@ public:
 
 	void SetSpawner(class AMMMonsterSpawner* INData) { Spawner = INData; }
 
-	SpawnType GetRandomEnumValue();
+	ESpawnType GetRandomEnumValue();
 	
 
 	// 몬스터 스포너 생성하기 위한 함수

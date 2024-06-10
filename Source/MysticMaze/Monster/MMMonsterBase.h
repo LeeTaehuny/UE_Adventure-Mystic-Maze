@@ -47,6 +47,8 @@ public:
 	void Die();
 	void Hit();
 
+	virtual void MonsterHitAnim();
+
 	// IMMWidgetInterface : 몬스터 위젯을 초기화하기 위한 인터페이스 함수
 	virtual void SetupCharacterWidget(class UMMCustomWidget* InUserWidget) override;
 

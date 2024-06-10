@@ -8,6 +8,11 @@
 #include "Game/MMGameInstance.h"
 #include "Dungeon/MMPortal.h"
 #include "Engine/GameInstance.h"
+#include "UI/MMClearWidget.h"
+
+#include "Sound/SoundWave.h"
+#include "Kismet/GameplayStatics.h"
+#include "Components/AudioComponent.h"
 
 AMM_Dungeon_GameMode::AMM_Dungeon_GameMode()
 {
@@ -54,10 +59,23 @@ AMM_Dungeon_GameMode::AMM_Dungeon_GameMode()
 		PortalOrigin = PortalRef.Class;
 	}
 
+	static ConstructorHelpers::FClassFinder<UMMClearWidget> ClearRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/MysticMaze/UI/WBP_ClearWidget.WBP_ClearWidget_C'"));
+	if (ClearRef.Class)
+	{
+		DungeonClearOrigin = ClearRef.Class;
+	}
+
+	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("BGM"));
+	AudioComponent->bAutoActivate = false;
+	AudioComponent->OnAudioFinished.AddDynamic(this, &AMM_Dungeon_GameMode::OnSoundFinished);
+
+	static ConstructorHelpers::FObjectFinder<USoundWave> SoundWaveAsset(TEXT("/Script/Engine.SoundWave'/Game/Sound/audio/Fantasy_Adventure.Fantasy_Adventure'"));
+	if (SoundWaveAsset.Succeeded())
+	{
+		AudioComponent->SetSound(SoundWaveAsset.Object);
+	}
+
 	SpawnStartRoom = 0;
-
-
-	
 }
 
 void AMM_Dungeon_GameMode::PreInitializeComponents()
@@ -89,16 +107,29 @@ void AMM_Dungeon_GameMode::SetRoomCount(FVector INData)
 		FTransform Transform;
 		Transform.SetLocation(PortalSpawnLocation);
 
-		AMMPortal* RoomPortal = GetWorld()->SpawnActor<AMMPortal>(PortalOrigin, Transform);
+		
 
 		UMMGameInstance* GameInstanceData = Cast<UMMGameInstance>(GetGameInstance());
 		if (GameInstanceData)
 		{
 			int32 FloorData = GameInstanceData->GetCurrentFloor();
 			FloorData++;
-			if (FloorData >= 3)
+			if (FloorData < 3)
+			{
+				AMMPortal* RoomPortal = GetWorld()->SpawnActor<AMMPortal>(PortalOrigin, Transform);
+			}
+			else if (FloorData >= 4)
 			{
 				FloorData = 3;
+
+				if (DungeonClearOrigin)
+				{
+					DungeonClear = CreateWidget<UMMClearWidget>(GetWorld(), DungeonClearOrigin);
+					if (DungeonClear)
+					{
+						DungeonClear->AddToViewport();
+					}
+				}
 			}
 
 			GameInstanceData->SetCurrentFloor(FloorData);
@@ -115,6 +146,11 @@ void AMM_Dungeon_GameMode::SetRoomCount(FVector INData)
 void AMM_Dungeon_GameMode::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (AudioComponent && AudioComponent->GetSound())
+	{
+		AudioComponent->Play();
+	}
 
 	RoomCount = 0;
 
@@ -145,4 +181,12 @@ void AMM_Dungeon_GameMode::BeginPlay()
 		break;
 	}
 	
+}
+
+void AMM_Dungeon_GameMode::OnSoundFinished()
+{
+	if (AudioComponent && AudioComponent->GetSound())
+	{
+		AudioComponent->Play();
+	}
 }

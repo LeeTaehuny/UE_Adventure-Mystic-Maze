@@ -154,12 +154,16 @@ void AMMMonsterBase::Hit()
 	if (HitMontage)
 	{
 		ATK_Mode = true;
-		GetMesh()->GetAnimInstance()->Montage_Play(HitMontage);
+		MonsterHitAnim();
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("hit Anim Not"));
 	}
+}
+
+void AMMMonsterBase::MonsterHitAnim()
+{
 }
 
 void AMMMonsterBase::SetupCharacterWidget(UMMCustomWidget* InUserWidget)

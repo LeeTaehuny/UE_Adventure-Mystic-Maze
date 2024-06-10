@@ -84,6 +84,7 @@ protected:
 	// IMMStatusInterface : 마법사의 스텟 컴포넌트를 반환하기 위한 인터페이스
 	FORCEINLINE virtual class UMMStatComponent* GetStatComponent() override { return Stat; }
 
+	virtual void MonsterHitAnim() override;
 protected:
 
 	UPROPERTY(EditAnywhere, Category = "Goblin Armor", Meta = (AllowPrivateAccess = "true"))
@@ -115,6 +116,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> Die2Montage;
+
+	UPROPERTY(EditAnywhere, Category = Montage, Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UAnimMontage> Hit2Montage;
 
 protected:
 	uint8 bRandomDieMotion : 1;
