@@ -55,6 +55,11 @@ UMMGameInstance::UMMGameInstance()
 	SaveSlotName = TEXT("SaveSlot");
 }
 
+void UMMGameInstance::InitSaveFileName()
+{
+	SaveSlotName = TEXT("SaveSlot");
+}
+
 void UMMGameInstance::Exit()
 {
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();

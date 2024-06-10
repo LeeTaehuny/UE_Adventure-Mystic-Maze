@@ -50,6 +50,8 @@ void AMMEnergyBall::PostInitializeComponents()
 
 void AMMEnergyBall::Fire(FVector TargetLocation)
 {
+	if (!IsValid(Owner)) return;
+
 	FVector LaunchDirection;
 
 	// 방향 구하기

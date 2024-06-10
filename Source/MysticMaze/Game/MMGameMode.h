@@ -20,7 +20,12 @@ public:
 	virtual void BeginPlay() override;
 
 protected:
+	UFUNCTION()
+	void OnSoundFinished();
 
 	TSubclassOf<class AMMMonsterFieldSpawner> SpawnerData;
 	TObjectPtr<class AMMMonsterFieldSpawner> Spawner;
+
+	UPROPERTY(VisibleAnywhere, Category = "Sound")
+	TObjectPtr<class UAudioComponent> AudioComponent;
 };
