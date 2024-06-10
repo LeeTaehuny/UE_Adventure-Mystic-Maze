@@ -984,7 +984,6 @@ void AMMRoomBase::RoomBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherAc
 		//SpawnerSumon(LocalLocation);
 
 		SpawnType RnadomValue;// = GetRandomEnumValue();
-
 		switch (RoomFloor)
 		{
 		case 1:
@@ -996,7 +995,26 @@ void AMMRoomBase::RoomBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherAc
 			break;
 
 		case 3:
-			RnadomValue = (SpawnType)FMath::RandRange(11, 11);
+			RnadomValue = (SpawnType)FMath::RandRange(0, 11);
+			break;
+
+		default:
+			break;
+		}
+
+		int32 MonsterLevel = 1;
+		switch (RoomFloor)
+		{
+		case 1:
+			MonsterLevel = 10;
+			break;
+
+		case 2:
+			MonsterLevel = 20;
+			break;
+
+		case 3:
+			MonsterLevel = 30;
 			break;
 
 		default:
@@ -1005,11 +1023,10 @@ void AMMRoomBase::RoomBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherAc
 
 		MonsterArea = GetWorld()->SpawnActor<AMMMonsterArea>(AMMMonsterArea::StaticClass());
 		TArray<TObjectPtr<class AMMMonsterBase>> MonsterData;
-
 		switch (RoomType)
 		{
 		case 0:
-			MonsterData = Spawner->MonsterSpawn(RnadomValue, 1, LocalLocation);
+			MonsterData = Spawner->MonsterSpawn(RnadomValue, MonsterLevel, LocalLocation);
 			for (int i = 0; i < MonsterData.Num(); i++)
 			{
 				MonsterArea->AddMonsterData(MonsterData[i]);
@@ -1018,13 +1035,13 @@ void AMMRoomBase::RoomBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherAc
 			break;
 
 		case 1:
-			MonsterData = Spawner->MonsterSpawn(RnadomValue, 1, LocalLocation + FVector(-2000, 0, 0));
+			MonsterData = Spawner->MonsterSpawn(RnadomValue, MonsterLevel, LocalLocation + FVector(-2000, 0, 0));
 			for (int i = 0; i < MonsterData.Num(); i++)
 			{
 				MonsterArea->AddMonsterData(MonsterData[i]);
 			}
 
-			MonsterData = Spawner->MonsterSpawn(RnadomValue, 1, LocalLocation + FVector(2000, 0, 0));
+			MonsterData = Spawner->MonsterSpawn(RnadomValue, MonsterLevel, LocalLocation + FVector(2000, 0, 0));
 			for (int i = 0; i < MonsterData.Num(); i++)
 			{
 				MonsterArea->AddMonsterData(MonsterData[i]);
@@ -1033,19 +1050,19 @@ void AMMRoomBase::RoomBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherAc
 			break;
 
 		case 2:
-			MonsterData = Spawner->MonsterSpawn(RnadomValue, 1, LocalLocation + FVector(-2000, 0, 0));
+			MonsterData = Spawner->MonsterSpawn(RnadomValue, MonsterLevel, LocalLocation + FVector(-2000, 0, 0));
 			for (int i = 0; i < MonsterData.Num(); i++)
 			{
 				MonsterArea->AddMonsterData(MonsterData[i]);
 			}
 
-			MonsterData = Spawner->MonsterSpawn(RnadomValue, 1, LocalLocation + FVector(2000, 0, 0));
+			MonsterData = Spawner->MonsterSpawn(RnadomValue, MonsterLevel, LocalLocation + FVector(2000, 0, 0));
 			for (int i = 0; i < MonsterData.Num(); i++)
 			{
 				MonsterArea->AddMonsterData(MonsterData[i]);
 			}
 
-			MonsterData = Spawner->MonsterSpawn(RnadomValue, 1, LocalLocation + FVector(-2000, -4000, 0));
+			MonsterData = Spawner->MonsterSpawn(RnadomValue, MonsterLevel, LocalLocation + FVector(-2000, -4000, 0));
 			for (int i = 0; i < MonsterData.Num(); i++)
 			{
 				MonsterArea->AddMonsterData(MonsterData[i]);
@@ -1054,19 +1071,19 @@ void AMMRoomBase::RoomBeginOverlap(UPrimitiveComponent* HitComp, AActor* OtherAc
 			break;
 
 		case 3:
-			MonsterData = Spawner->MonsterSpawn(RnadomValue, 1, LocalLocation + FVector(-2000, 0, 0));
+			MonsterData = Spawner->MonsterSpawn(RnadomValue, MonsterLevel, LocalLocation + FVector(-2000, 0, 0));
 			for (int i = 0; i < MonsterData.Num(); i++)
 			{
 				MonsterArea->AddMonsterData(MonsterData[i]);
 			}
 
-			MonsterData = Spawner->MonsterSpawn(RnadomValue, 1, LocalLocation + FVector(2000, 0, 0));
+			MonsterData = Spawner->MonsterSpawn(RnadomValue, MonsterLevel, LocalLocation + FVector(2000, 0, 0));
 			for (int i = 0; i < MonsterData.Num(); i++)
 			{
 				MonsterArea->AddMonsterData(MonsterData[i]);
 			}
 
-			MonsterData = Spawner->MonsterSpawn(RnadomValue, 1, LocalLocation + FVector(2000, 4000, 0));
+			MonsterData = Spawner->MonsterSpawn(RnadomValue, MonsterLevel, LocalLocation + FVector(2000, 4000, 0));
 			for (int i = 0; i < MonsterData.Num(); i++)
 			{
 				MonsterArea->AddMonsterData(MonsterData[i]);
@@ -1120,8 +1137,12 @@ void AMMRoomBase::ClearSignal()
 	AMM_Dungeon_GameMode* GameMode = Cast<AMM_Dungeon_GameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 	if (GameMode)
 	{
-		GameMode->SetRoomCount();
-		UE_LOG(LogTemp, Display, TEXT("Count : %d"), GameMode->GetRoomCount());
+		GameMode->SetRoomCount(this->GetActorLocation());
+
+		if (GameMode->GetRoomCount() == 5)
+		{
+			DungeonClear();
+		}
 	}
 }
 
@@ -1249,4 +1270,8 @@ void AMMRoomBase::Structure_Installation(FVector INData)
 		AMMRoomDesignBase* Struc = GetWorld()->SpawnActor<AMMRoomDesignBase>(Designs[RandomSpawn]);
 		Struc->SetActorLocation(INData);
 	}
+}
+
+void AMMRoomBase::DungeonClear()
+{
 }

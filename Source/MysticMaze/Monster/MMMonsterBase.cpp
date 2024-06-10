@@ -15,6 +15,7 @@ AMMMonsterBase::AMMMonsterBase()
 {
 	ATK_Mode = false;
 	bDie = false;
+	HP_Percent = 1.0f;
 
 	LocationData = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Save Location"));
 }
@@ -27,6 +28,9 @@ float AMMMonsterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageE
 
 	// 데미지 적용하기
 	Stat->ApplyDamage(DamageAmount);
+
+	HP_Percent = Stat->GetCurrentHp() / Stat->GetMaxHp();
+	UE_LOG(LogTemp, Display, TEXT("Cur Percent : %f"), HP_Percent);
 
 	FVector spawnLocation = LocationData->GetComponentLocation() + this->GetActorLocation();
 
@@ -77,7 +81,7 @@ void AMMMonsterBase::ATKBeginOverlap(UPrimitiveComponent* HitComp, AActor* Other
 	}
 
 	UGameplayStatics::ApplyDamage(OtherActor,
-		100.0f, GetController(),
+		Stat->GetAttackDamage(), GetController(),
 		this,
 		UDamageType::StaticClass());
 }
@@ -95,6 +99,11 @@ void AMMMonsterBase::SetCenterLocation(FVector InLocation)
 	}
 }
 
+void AMMMonsterBase::SetStatLevel(int32 INData)
+{
+	Stat->SetLevel(INData);
+}
+
 void AMMMonsterBase::ApplyMovementSpeed(float MovementSpeed)
 {
 
@@ -105,6 +114,8 @@ void AMMMonsterBase::Die()
 	UE_LOG(LogTemp, Display, TEXT("Dying"));
 	if (!bDie)
 	{
+		GetCapsuleComponent()->SetCollisionProfileName(TEXT("NoCollision"));
+
 		bDie = true;
 		GetCharacterMovement()->StopMovementImmediately();
 		AAIController* AIController = Cast<AAIController>(GetController());

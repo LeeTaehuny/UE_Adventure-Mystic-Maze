@@ -3,6 +3,8 @@
 
 #include "Game/MMGameMode.h"
 
+#include "Monster/MMMonsterFieldSpawner.h"
+
 AMMGameMode::AMMGameMode()
 {
 	// DefaultPawn 설정
@@ -18,4 +20,17 @@ AMMGameMode::AMMGameMode()
 	{
 		PlayerControllerClass = ControllerClassRef.Class;
 	}
+
+	static ConstructorHelpers::FClassFinder<AMMMonsterFieldSpawner> SpawnerClassRef(TEXT("/Script/Engine.Blueprint'/Game/MysticMaze/Monster/BP_MonsterFieldSpawner.BP_MonsterFieldSpawner_C'"));
+	if (SpawnerClassRef.Succeeded())
+	{
+		SpawnerData = SpawnerClassRef.Class;
+	}
+}
+
+void AMMGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+
+	Spawner = GetWorld()->SpawnActor<AMMMonsterFieldSpawner>(SpawnerData);
 }

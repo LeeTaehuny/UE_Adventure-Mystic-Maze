@@ -16,4 +16,11 @@ class MYSTICMAZE_API AMMGameMode : public AGameModeBase
 	
 public:
 	AMMGameMode();
+
+	virtual void BeginPlay() override;
+
+protected:
+
+	TSubclassOf<class AMMMonsterFieldSpawner> SpawnerData;
+	TObjectPtr<class AMMMonsterFieldSpawner> Spawner;
 };

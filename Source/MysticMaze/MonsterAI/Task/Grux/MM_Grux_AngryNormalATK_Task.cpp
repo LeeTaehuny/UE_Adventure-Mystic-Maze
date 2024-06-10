@@ -63,6 +63,7 @@ void UMM_Grux_AngryNormalATK_Task::TickTask(UBehaviorTreeComponent& OwnerComp, u
 	if (MoveResult.Code == EPathFollowingRequestResult::AlreadyAtGoal)
 	{
 		FRotator NewRotation = UKismetMathLibrary::FindLookAtRotation(OwnerComp.GetAIOwner()->GetPawn()->GetActorLocation(), PlayerData->GetActorLocation());
+		NewRotation = FRotator(0, 0, NewRotation.Roll);
 		OwnerComp.GetAIOwner()->GetPawn()->SetActorRotation(NewRotation);
 
 		// 根鸥林 局聪皋捞记 犁积

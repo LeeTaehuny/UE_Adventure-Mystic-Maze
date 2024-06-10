@@ -25,4 +25,8 @@ public:
 	virtual void ATKOn() = 0;
 	virtual void ATKOff() = 0;
 
+	virtual float GetcurTime() = 0;
+	virtual void SetcurTime(float INDAta) = 0;
+	virtual float GetMaxTime() = 0;
+
 };

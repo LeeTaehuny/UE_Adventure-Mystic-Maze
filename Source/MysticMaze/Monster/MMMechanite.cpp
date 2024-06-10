@@ -8,6 +8,7 @@
 #include "Animation/AnimNotify_MMBaseAttackCheck.h"
 #include "Collision/MMCollision.h"
 #include "Components/CapsuleComponent.h"
+#include "Interface/MMStatusInterface.h"
 #include "Item/MMItemBox.h"
 
 AMMMechanite::AMMMechanite()
@@ -189,7 +190,7 @@ void AMMMechanite::ATKChecking()
 			}
 
 			UGameplayStatics::ApplyDamage(Result.GetActor(),
-				100.0f, GetController(),
+				Stat->GetAttackDamage(), GetController(),
 				this,
 				UDamageType::StaticClass());
 
@@ -333,6 +334,13 @@ void AMMMechanite::Monsterdie()
 
 		ItemBox->AddMoney(3);
 		ItemBox->FinishSpawning(SpawnTransform);
+	}
+
+	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	IMMStatusInterface* PlayerData = Cast<IMMStatusInterface>(PlayerPawn);
+	if (PlayerData)
+	{
+		PlayerData->GetStatComponent()->SetExp(Stat->GetExp());
 	}
 
 	this->Destroy();

@@ -72,6 +72,9 @@ protected:
 	// IMMMugSpeedATKInterface : 단체 공격시 
 	virtual void ATKOn() override;
 	virtual void ATKOff() override;
+	FORCEINLINE virtual float GetcurTime() override { return ATKing_Timer; }
+	FORCEINLINE virtual void SetcurTime(float INDAta) override { ATKing_Timer = INDAta;	 }
+	FORCEINLINE virtual float GetMaxTime() override { return MAX_ATKing_Timer; }
 
 	// IMMMonsterATKModeInterface : 공격 모드 변수의 값을 전달하기 위한 함수
 	FORCEINLINE virtual void SetATKMode(bool INData) override { ATK_Mode = INData; };
@@ -84,5 +87,6 @@ protected: // AI 전용 변수들
 	//FVector CenterLocation;
 
 	// 설정된 시간마다 지면 좌표 탐색을 하기 위한 변수
-	float TickTime = 0;
+	float ATKing_Timer = 0.0f;
+	float MAX_ATKing_Timer = 5.0f;
 };

@@ -28,6 +28,24 @@ UMMGameInstance::UMMGameInstance()
 	}
 	MaxLevel = PlayerStatTable.Num();
 
+	// 몬스터 레벨 데이터 테이블을 불러와 레벨 테이블에 저장합니다.
+	static ConstructorHelpers::FObjectFinder<UDataTable> MonsterDataTableRef(TEXT("/Script/Engine.DataTable'/Game/MysticMaze/DataTable/Monster/MonsterStatusData.MonsterStatusData'"));
+	if (MonsterDataTableRef.Object)
+	{
+		const UDataTable* DataTable = MonsterDataTableRef.Object;
+		check(DataTable->GetRowMap().Num() > 0);
+
+		TArray<uint8*> ValueArray;
+		DataTable->GetRowMap().GenerateValueArray(ValueArray);
+
+		Algo::Transform(ValueArray, MonsterStatTable,
+			[](uint8* Value)
+			{
+				return *reinterpret_cast<FMMCharacterStat*>(Value);
+			}
+		);
+	}
+
 	// Save
 	static ConstructorHelpers::FObjectFinder<UMMSaveInitData> SaveInitDataRef(TEXT("/Script/MysticMaze.MMSaveInitData'/Game/MysticMaze/Game/DA_StartData.DA_StartData'"));
 	if (SaveInitDataRef.Object)

@@ -18,13 +18,15 @@ class MYSTICMAZE_API AMM_Dungeon_GameMode : public AGameModeBase
 public:
 	AMM_Dungeon_GameMode();
 
+	virtual void PreInitializeComponents() override;
+
 public:
 	FORCEINLINE FMMCharacterStat GetPlayerStat(int32 InLevel) const
 	{
 		return PlayerStatTable.IsValidIndex(InLevel - 1) ? PlayerStatTable[InLevel - 1] : FMMCharacterStat();
 	}
 
-	void SetRoomCount();
+	void SetRoomCount(FVector INData);
 	FORCEINLINE int32 GetRoomCount() { return RoomCount; }
 
 private:
@@ -40,11 +42,12 @@ protected:
 	TSubclassOf<class AMMRoomBase> ThirdRoomData;
 
 	TSubclassOf<class UMM_Dungeon_UI> DungeongUIOrigin;
-
 	TObjectPtr<class UMM_Dungeon_UI> DungeongUI;
 
-	uint8 SpawnStartRoom : 2;
+	TSubclassOf<class AMMPortal> PortalOrigin;
 
+
+	uint8 SpawnStartRoom : 2;
 	int32 RoomCount;
 
 };
