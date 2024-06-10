@@ -16,7 +16,7 @@ public:
 	// Sets default values for this actor's properties
 	AMMMonsterSpawner();
 
-	TArray<TObjectPtr<class AMMMonsterBase>> MonsterSpawn(SpawnType INType, int INLevel, FVector INCenterLocation);
+	TArray<TObjectPtr<class AMMMonsterBase>> MonsterSpawn(ESpawnType INType, int INLevel, FVector INCenterLocation);
 
 protected:
 	// Called when the game starts or when spawned

@@ -3,10 +3,10 @@
 
 #include "Monster/MMMonsterSpawnType.h"
 
-MMMonsterSpawnType::MMMonsterSpawnType()
-{
-}
-
-MMMonsterSpawnType::~MMMonsterSpawnType()
-{
-}
+//MMMonsterSpawnType::MMMonsterSpawnType()
+//{
+//}
+//
+//MMMonsterSpawnType::~MMMonsterSpawnType()
+//{
+//}

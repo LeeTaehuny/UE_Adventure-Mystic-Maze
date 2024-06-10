@@ -342,3 +342,8 @@ void AMMGoblinWarrior::Monsterdie()
 
 	this->Destroy();
 }
+
+void AMMGoblinWarrior::MonsterHitAnim()
+{
+	MontageAutoPlay(HitMontage, Hit2Montage);
+}

@@ -85,6 +85,8 @@ private:
 	// IMMMonsterDieInterface : 몬스터가 죽었을때 작동하는 함수
 	virtual void Monsterdie() override;
 
+	virtual void MonsterHitAnim() override;
+
 private:
 	
 

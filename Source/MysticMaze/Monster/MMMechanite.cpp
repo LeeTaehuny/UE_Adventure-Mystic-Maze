@@ -346,3 +346,8 @@ void AMMMechanite::Monsterdie()
 	this->Destroy();
 }
 
+void AMMMechanite::MonsterHitAnim()
+{
+	GetMesh()->GetAnimInstance()->Montage_Play(HitMontage);
+}
+

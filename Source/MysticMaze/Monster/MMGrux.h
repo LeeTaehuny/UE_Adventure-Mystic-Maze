@@ -111,6 +111,9 @@ protected: // 그룩스의 애니메이션 몽타주 데이터를 저장하기 �
 	virtual void AngryNormalATKLeft() override;
 	virtual void AngryNormalATKRight() override;
 
+
+	virtual void MonsterHitAnim() override;
+
 protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AnimBP")

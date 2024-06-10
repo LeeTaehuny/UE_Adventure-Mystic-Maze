@@ -25,7 +25,7 @@ AMMMonsterSpawner::AMMMonsterSpawner()
 	
 }
 
-TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnType INType, int INLevel, FVector INCenterLocation)
+TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(ESpawnType INType, int INLevel, FVector INCenterLocation)
 {
 	TArray<TObjectPtr<class AMMMonsterBase>> SpawnMonsters;
 
@@ -45,7 +45,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 	switch (INType)
 	{
 		// ÀÌ ¹ØÀ¸·Î´Â 1°èÃþ //
-	case SpawnType::BugswarmOnly:
+	case ESpawnType::BugswarmOnly:
 		for (int i = 0; i < 8; i++)
 		{
 			MonsterBugSwarm = world->SpawnActorDeferred<AMMBugSwarm>(BugSwarmData, FTransform(FVector()));
@@ -70,7 +70,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 		}
 		break;
 		 
-	case SpawnType::MechaniteOnly:
+	case ESpawnType::MechaniteOnly:
 		for (int i = 0; i < 5; i++)
 		{
 			MonsterMechanite = world->SpawnActorDeferred<AMMMechanite>(MechaniteData, FTransform(FVector()));
@@ -95,7 +95,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 		}
 		break;
 
-	case SpawnType::GruxOnly:
+	case ESpawnType::GruxOnly:
 		for (int i = 0; i < 1; i++)
 		{
 			MonsterGrux = world->SpawnActorDeferred<AMMGrux>(GruxData, FTransform(FVector()));
@@ -120,7 +120,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 		}
 		break;
 
-	case SpawnType::BugswarmAndMechanite:
+	case ESpawnType::BugswarmAndMechanite:
 
 		for (int i = 0; i < 4; i++)
 		{
@@ -168,7 +168,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 		}
 		break;
 
-	case SpawnType::BugswarmAndGrux:
+	case ESpawnType::BugswarmAndGrux:
 
 		for (int i = 0; i < 2; i++)
 		{
@@ -215,7 +215,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 		}
 		break;
 
-	case SpawnType::MechaniteAndGrux:
+	case ESpawnType::MechaniteAndGrux:
 
 		for (int i = 0; i < 2; i++)
 		{
@@ -263,7 +263,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 		}
 		break;
 
-	case SpawnType::StrongGrux:
+	case ESpawnType::StrongGrux:
 		for (int i = 0; i < 2; i++)
 		{
 			MonsterGrux = world->SpawnActorDeferred<AMMGrux>(GruxData, FTransform(FVector()));
@@ -290,7 +290,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 		// ÀÌ À§·Î´Â 1°èÃþ //
 
 		// ÀÌ ¹ØÀ¸·Î´Â 2°èÃþ //
-	case SpawnType::GoblinWarriorOnly:
+	case ESpawnType::GoblinWarriorOnly:
 
 		MonsterGoblinCommander = world->SpawnActor<AMMGoblinCommander>(GoblinCommanderData);
 
@@ -318,7 +318,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 		}
 		break;
 
-	case SpawnType::GoblinWizardOnly:
+	case ESpawnType::GoblinWizardOnly:
 
 		MonsterGoblinCommander = world->SpawnActor<AMMGoblinCommander>(GoblinCommanderData);
 
@@ -346,7 +346,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 		}
 		break;
 
-	case SpawnType::GoblinWWHalf:
+	case ESpawnType::GoblinWWHalf:
 
 		MonsterGoblinCommander = world->SpawnActor<AMMGoblinCommander>(GoblinCommanderData);
 
@@ -399,7 +399,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 		
 		break;
 
-	case SpawnType::Warrior23__Wizard13:
+	case ESpawnType::Warrior23__Wizard13:
 
 		MonsterGoblinCommander = world->SpawnActor<AMMGoblinCommander>(GoblinCommanderData);
 
@@ -451,7 +451,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(SpawnTy
 		}
 		break;
 
-	case SpawnType::Warrior13__Wizard23:
+	case ESpawnType::Warrior13__Wizard23:
 
 		MonsterGoblinCommander = world->SpawnActor<AMMGoblinCommander>(GoblinCommanderData);
 

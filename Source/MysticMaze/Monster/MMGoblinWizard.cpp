@@ -322,3 +322,8 @@ bool AMMGoblinWizard::GetMontagePlaying()
 {
 	return GetMesh()->GetAnimInstance()->Montage_IsPlaying(BodyNormalATK);
 }
+
+void AMMGoblinWizard::MonsterHitAnim()
+{
+	MontageAutoPlay(HitMontage, Hit2Montage);
+}
