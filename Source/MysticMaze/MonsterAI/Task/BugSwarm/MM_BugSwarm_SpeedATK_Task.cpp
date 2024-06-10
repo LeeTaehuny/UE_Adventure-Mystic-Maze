@@ -29,7 +29,14 @@ EBTNodeResult::Type UMM_BugSwarm_SpeedATK_Task::ExecuteTask(UBehaviorTreeCompone
 	MyController = OwnerComp.GetAIOwner();
 
 	BugSwarmCapusulData = OwnerComp.GetAIOwner()->GetCharacter()->GetCapsuleComponent();
-	
+
+	IMMMugSpeedATKInterface* Monster = Cast<IMMMugSpeedATKInterface>(OwnerComp.GetAIOwner()->GetPawn());
+	if (Monster)
+	{
+		Monster->SetcurTime(0.0f);
+	}
+
+
 	{
 		// 플레이어이의 데이터
 		APawn* MyData = Cast<APawn>(OwnerComp.GetAIOwner()->GetBlackboardComponent()->GetValueAsObject(BlackboardKey.SelectedKeyName));
@@ -87,7 +94,7 @@ EBTNodeResult::Type UMM_BugSwarm_SpeedATK_Task::ExecuteTask(UBehaviorTreeCompone
 					HitLocation = End;
 				}
 
-				IMMMugSpeedATKInterface* Monster = Cast<IMMMugSpeedATKInterface>(OwnerComp.GetAIOwner()->GetPawn());
+				//IMMMugSpeedATKInterface* Monster = Cast<IMMMugSpeedATKInterface>(OwnerComp.GetAIOwner()->GetPawn());
 				if (Monster)
 				{
 					Monster->ATKOn();
@@ -117,12 +124,41 @@ void UMM_BugSwarm_SpeedATK_Task::TickTask(UBehaviorTreeComponent& OwnerComp, uin
 	
 	FPathFollowingRequestResult MoveResult = MyController->MoveTo(MoveRequest);
 
+	IMMMugSpeedATKInterface* Monster = Cast<IMMMugSpeedATKInterface>(OwnerComp.GetAIOwner()->GetPawn());
+	if (Monster)
+	{
+		float curTime = Monster->GetcurTime();
+		curTime += DeltaSeconds;
+		Monster->SetcurTime(DeltaSeconds);
+
+		if (Monster->GetcurTime() >= Monster->GetMaxTime())
+		{
+			Monster->SetcurTime(0.0f);
+			OwnerComp.GetAIOwner()->GetBlackboardComponent()->SetValueAsBool("bSpeedAttack", false);
+			OwnerComp.GetAIOwner()->GetBlackboardComponent()->SetValueAsBool("bRehabilitation", false);
+
+			// 공격이 종료된 것이 리더일 경우 바로 재탐색이 가능하도록 설정
+			if (OwnerComp.GetAIOwner()->GetBlackboardComponent()->GetValueAsBool("LeaderItMe"))
+			{
+				OwnerComp.GetAIOwner()->GetBlackboardComponent()->SetValueAsBool("bRehabilitation", true);
+			}
+
+			if (Monster)
+			{
+				Monster->ATKOff();
+			}
+
+			// 노드를 바로 끝내기 위한 실패 반환
+			FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+		}
+	}
+
 	// move to 함수의 반환 값에 따라 종료를 결정
 	// 완료 되었을 경우 공격을 종료
 	if (MoveResult.Code == EPathFollowingRequestResult::AlreadyAtGoal)
 	{
 		OwnerComp.GetAIOwner()->GetBlackboardComponent()->SetValueAsBool("bSpeedAttack", false);
-			OwnerComp.GetAIOwner()->GetBlackboardComponent()->SetValueAsBool("bRehabilitation", false);
+		OwnerComp.GetAIOwner()->GetBlackboardComponent()->SetValueAsBool("bRehabilitation", false);
 		
 		// 공격이 종료된 것이 리더일 경우 바로 재탐색이 가능하도록 설정
 		if (OwnerComp.GetAIOwner()->GetBlackboardComponent()->GetValueAsBool("LeaderItMe"))
@@ -130,7 +166,6 @@ void UMM_BugSwarm_SpeedATK_Task::TickTask(UBehaviorTreeComponent& OwnerComp, uin
 			OwnerComp.GetAIOwner()->GetBlackboardComponent()->SetValueAsBool("bRehabilitation", true);
 		}
 
-		IMMMugSpeedATKInterface* Monster = Cast<IMMMugSpeedATKInterface>(OwnerComp.GetAIOwner()->GetPawn());
 		if (Monster)
 		{
 			Monster->ATKOff();

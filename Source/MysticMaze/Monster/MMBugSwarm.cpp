@@ -51,7 +51,8 @@ void AMMBugSwarm::BeginPlay()
 {
 	Super::BeginPlay();
 
-	TickTime = 0.0f;
+	ATKing_Timer = 0.0f;
+	MAX_ATKing_Timer = 5.0f;
 
 	ATK_Collision->OnComponentBeginOverlap.AddDynamic(this, &AMMMonsterBase::ATKBeginOverlap);
 	ATK_Collision->OnComponentEndOverlap.AddDynamic(this, &AMMMonsterBase::ATKEndOverlap);
