@@ -6,6 +6,8 @@
 #include "Components/SphereComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Monster/MMGoblinWizard.h"
+#include "Interface/MMStatusInterface.h"
 
 AMMFireBall::AMMFireBall()
 {
@@ -62,6 +64,24 @@ void AMMFireBall::FireBallBeginOverlap(UPrimitiveComponent* HitComp, AActor* Oth
 		//	100.0f, GetController(),
 		//	this,
 		//	UDamageType::StaticClass());
+
+		AMMGoblinWizard* Wizard = Cast<AMMGoblinWizard>(Owner);
+		if (Wizard)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Wizard"));
+			IMMStatusInterface* Damage = Cast<IMMStatusInterface>(Wizard);
+			if (Damage)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Stat"));
+
+				UGameplayStatics::ApplyDamage(Target,
+					Damage->GetStatComponent()->GetAttackDamage(), Wizard->GetController(),
+					this,
+					UDamageType::StaticClass());
+			}
+		}
+
+		
 
 		FTransform Transform;
 		Transform.SetLocation(SweepResult.ImpactPoint);

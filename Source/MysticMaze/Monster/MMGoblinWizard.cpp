@@ -295,6 +295,7 @@ void AMMGoblinWizard::StartATK()
 	if (Vall)
 	{
 		Vall->SetDirectionLocation(this->GetActorLocation());
+		Vall->SetOwner(this);
 	}
 }
 

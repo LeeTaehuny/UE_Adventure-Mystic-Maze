@@ -11,6 +11,7 @@
 #include "Interface/MMWizardNormalATKInterface.h"				// 고블린이 공격을 하기 위한 인터페이스
 #include "Interface/MMWizardATKMontageInterface.h"				// 마법사가 공격 모션을 재생하기 위한 인터페이스
 #include "Interface/MMWizardDealerServiceInterface.h"			// 마법사의 딜러 서비스 노드에 값을 전달하기 위한 인터페이스
+#include "Interface/MMStatusInterface.h"						// 스텟 컴포넌트를 반환하기 위한 인터페이스
 
 #include "Monster/Magic/MMFireBall.h"
 
@@ -29,7 +30,8 @@ class MYSTICMAZE_API AMMGoblinWizard : public AMMMonsterBase,
 	public IMMMonsterDieInterface,
 	public IMMWizardNormalATKInterface,
 	public IMMWizardATKMontageInterface,
-	public IMMWizardDealerServiceInterface
+	public IMMWizardDealerServiceInterface,
+	public IMMStatusInterface
 {
 	GENERATED_BODY()
 
@@ -78,6 +80,9 @@ protected:
 	FORCEINLINE virtual void SetMInSecondATK(float INData) override { NormalAtK_MinSecond = INData; };
 	FORCEINLINE virtual bool GetNormalATK() override { return NormalATKSign; }
 	FORCEINLINE virtual void SetNormalATK(bool INData) override { NormalATKSign = INData; }
+
+	// IMMStatusInterface : 마법사의 스텟 컴포넌트를 반환하기 위한 인터페이스
+	FORCEINLINE virtual class UMMStatComponent* GetStatComponent() override { return Stat; }
 
 protected:
 

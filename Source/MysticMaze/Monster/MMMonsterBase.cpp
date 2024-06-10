@@ -11,6 +11,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Monster/Monster_DamageText/MM_MonsterDamageText.h"
 
+#include "UI/MMWidgetComponent.h"
+#include "UI/MMMonsterHPBar.h"
+
 AMMMonsterBase::AMMMonsterBase()
 {
 	ATK_Mode = false;
@@ -18,6 +21,23 @@ AMMMonsterBase::AMMMonsterBase()
 	HP_Percent = 1.0f;
 
 	LocationData = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Save Location"));
+
+	HpBar = CreateDefaultSubobject<UMMWidgetComponent>(TEXT("Monster HP"));
+	// HpBar의 위치를 지정합니다. (캐릭터 머리 위)
+	HpBar->SetupAttachment(GetMesh());
+	HpBar->SetRelativeLocation(FVector(0.0f, 0.0f, 250.0f));
+	// HpBar에 클래스 정보 저장하기
+	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/MysticMaze/UI/WBP_MonsterHPBar.WBP_MonsterHPBar_C'"));
+	if (HpBarWidgetRef.Class)
+	{
+		HpBar->SetWidgetClass(HpBarWidgetRef.Class);
+		// 위젯 형태 2D로 지정(Screen)
+		HpBar->SetWidgetSpace(EWidgetSpace::Screen);
+		// 위젯 크기 지정
+		HpBar->SetDrawSize(FVector2D(150.0f, 15.0f));
+		// 위젯 충돌 제거
+		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
 }
 
 float AMMMonsterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -139,5 +159,16 @@ void AMMMonsterBase::Hit()
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("hit Anim Not"));
+	}
+}
+
+void AMMMonsterBase::SetupCharacterWidget(UMMCustomWidget* InUserWidget)
+{
+	UMMMonsterHPBar* HP = Cast<UMMMonsterHPBar>(InUserWidget);
+	if (HP)
+	{
+		Stat->OnHpChanged.AddUObject(HP, &UMMMonsterHPBar::UpdateHPBar);
+
+		UE_LOG(LogTemp, Warning, TEXT("Start"));
 	}
 }
