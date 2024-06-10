@@ -20,7 +20,7 @@
 AMMMonsterFieldSpawner::AMMMonsterFieldSpawner()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 	beginerMonsterSpawnOn = false;
 	IntermediateMonsterSpawnOn = false;
 	ExpertMonsterSpawnOn = false;
@@ -114,6 +114,21 @@ void AMMMonsterFieldSpawner::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	TArray<AMMMonsterArea*> TempMonsterData = MonsterArea;
+	TempMonsterData.RemoveAll([](AMMMonsterArea* Monster)
+		{
+			return Monster == nullptr || Monster->IsPendingKill();
+		});
+	MonsterArea = TempMonsterData;
+
+	for (int i = 0; i < MonsterArea.Num(); i++)
+	{
+		if (MonsterArea[i]->IfMonsterNull(DeltaTime))
+		{
+			MonsterArea[i]->Destroy();
+			MonsterArea[i] = nullptr; 
+		}
+	}
 }
 
 TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterFieldSpawner::BeginerMonsterSpawn(int INLevel, FVector INCenterLocation)
@@ -359,17 +374,23 @@ void AMMMonsterFieldSpawner::WastBeginOverlap(UPrimitiveComponent* HitComp, AAct
 		beginerMonsterSpawnOn = false;
 		IntermediateMonsterSpawnOn = false;
 		ExpertMonsterSpawnOn = false;
-		UE_LOG(LogTemp, Display, TEXT("On : %d"), SpawnMonster.Num());
-		for (int i = 0; i < SpawnMonster.Num(); i++)
-		{
-			SpawnMonster[i]->Destroy();
-			SpawnMonster[i] = NULL;
-		}
 
-		SpawnMonster.RemoveAll([](AMMMonsterBase* Monster)
+		TArray<AMMMonsterBase*> TempMonsterData = SpawnMonster;
+		TempMonsterData.RemoveAll([](AMMMonsterBase* Monster)
 			{
 				return Monster == nullptr || Monster->IsPendingKill();
 			});
+		SpawnMonster = TempMonsterData;
+
+		for (int i = 0; i < SpawnMonster.Num(); i++)
+		{
+			SpawnMonster[i]->Destroy();
+		}
+		TempMonsterData.RemoveAll([](AMMMonsterBase* Monster)
+			{
+				return Monster == nullptr || Monster->IsPendingKill();
+			});
+		SpawnMonster = TempMonsterData;
 	}
 	else
 	{
@@ -424,6 +445,10 @@ void AMMMonsterFieldSpawner::WastBeginOverlap(UPrimitiveComponent* HitComp, AAct
 			Num4MonsterArea->SetCheckLocation(FVector(14100.0, -6920.0, -440.0));
 		}
 
+		MonsterArea.Add(Num1MonsterArea);
+		MonsterArea.Add(Num2MonsterArea);
+		MonsterArea.Add(Num3MonsterArea);
+		MonsterArea.Add(Num4MonsterArea);
 	}
 }
 void AMMMonsterFieldSpawner::WastEndOverlap(UPrimitiveComponent* HitComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
@@ -439,17 +464,25 @@ void AMMMonsterFieldSpawner::EastBeginOverlap(UPrimitiveComponent* HitComp, AAct
 		beginerMonsterSpawnOn = false;
 		IntermediateMonsterSpawnOn = false;
 		ExpertMonsterSpawnOn = false;
-		UE_LOG(LogTemp, Display, TEXT("On : %d"), SpawnMonster.Num());
-		for (int i = 0; i < SpawnMonster.Num(); i++)
-		{
-			SpawnMonster[i]->Destroy();
-			SpawnMonster[i] = NULL;
-		}
 
-		SpawnMonster.RemoveAll([](AMMMonsterBase* Monster)
+		TArray<AMMMonsterBase*> TempMonsterData = SpawnMonster;
+		TempMonsterData.RemoveAll([](AMMMonsterBase* Monster)
 			{
 				return Monster == nullptr || Monster->IsPendingKill();
 			});
+		SpawnMonster = TempMonsterData;
+
+		for (int i = 0; i < SpawnMonster.Num(); i++)
+		{
+			SpawnMonster[i]->Destroy();
+		}
+		TempMonsterData.RemoveAll([](AMMMonsterBase* Monster)
+			{
+				return Monster == nullptr || Monster->IsPendingKill();
+			});
+		SpawnMonster = TempMonsterData;
+
+		
 	}
 	else
 	{
@@ -463,6 +496,11 @@ void AMMMonsterFieldSpawner::EastBeginOverlap(UPrimitiveComponent* HitComp, AAct
 			PlLevel = PlayerData->GetStatComponent()->GetCurrentLevel();
 
 			PlLevel += 2;
+
+			if (PlLevel >= 50)
+			{
+				PlLevel = 50;
+			}
 		}
 
 		TArray<TObjectPtr<class AMMMonsterBase>> SpawnMonsterData;
@@ -506,6 +544,10 @@ void AMMMonsterFieldSpawner::EastBeginOverlap(UPrimitiveComponent* HitComp, AAct
 			Num4MonsterArea->SetCheckLocation(FVector(-10820.0, -6210.0, -440.0));
 		}
 
+		MonsterArea.Add(Num1MonsterArea);
+		MonsterArea.Add(Num2MonsterArea);
+		MonsterArea.Add(Num3MonsterArea);
+		MonsterArea.Add(Num4MonsterArea);
 	}
 }
 void AMMMonsterFieldSpawner::EastEndOverlap(UPrimitiveComponent* HitComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
@@ -521,17 +563,23 @@ void AMMMonsterFieldSpawner::SouthBeginOverlap(UPrimitiveComponent* HitComp, AAc
 		beginerMonsterSpawnOn = false;
 		IntermediateMonsterSpawnOn = false;
 		ExpertMonsterSpawnOn = false;
-		UE_LOG(LogTemp, Display, TEXT("On : %d"), SpawnMonster.Num());
-		for (int i = 0; i < SpawnMonster.Num(); i++)
-		{
-			SpawnMonster[i]->Destroy();
-			SpawnMonster[i] = NULL;
-		}
 
-		SpawnMonster.RemoveAll([](AMMMonsterBase* Monster)
+		TArray<AMMMonsterBase*> TempMonsterData = SpawnMonster;
+		TempMonsterData.RemoveAll([](AMMMonsterBase* Monster)
 			{
 				return Monster == nullptr || Monster->IsPendingKill();
 			});
+		SpawnMonster = TempMonsterData;
+
+		for (int i = 0; i < SpawnMonster.Num(); i++)
+		{
+			SpawnMonster[i]->Destroy();
+		}
+		TempMonsterData.RemoveAll([](AMMMonsterBase* Monster)
+			{
+				return Monster == nullptr || Monster->IsPendingKill();
+			});
+		SpawnMonster = TempMonsterData;
 	}
 	else
 	{
@@ -545,6 +593,11 @@ void AMMMonsterFieldSpawner::SouthBeginOverlap(UPrimitiveComponent* HitComp, AAc
 		{
 			PlLevel = PlayerData->GetStatComponent()->GetCurrentLevel();
 			PlLevel += 1;
+
+			if (PlLevel >= 50)
+			{
+				PlLevel = 50;
+			}
 		}
 
 		TArray<TObjectPtr<class AMMMonsterBase>> SpawnMonsterData;
@@ -584,6 +637,10 @@ void AMMMonsterFieldSpawner::SouthBeginOverlap(UPrimitiveComponent* HitComp, AAc
 			Num4MonsterArea->SetCheckLocation(FVector(11820.0, -10360.0, -440.0));
 		}
 
+		MonsterArea.Add(Num1MonsterArea);
+		MonsterArea.Add(Num2MonsterArea);
+		MonsterArea.Add(Num3MonsterArea);
+		MonsterArea.Add(Num4MonsterArea);
 	}
 }
 void AMMMonsterFieldSpawner::SouthEndOverlap(UPrimitiveComponent* HitComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)

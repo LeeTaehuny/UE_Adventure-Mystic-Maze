@@ -9,7 +9,7 @@
 AMMMonsterArea::AMMMonsterArea()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	// PrimaryActorTick.bCanEverTick = true;
+	//PrimaryActorTick.bCanEverTick = true;
 
 }
 
@@ -24,6 +24,13 @@ bool AMMMonsterArea::IfMonsterNull(float DeltaTime)
 	player_Serch_timer += DeltaTime;
 	if (player_Serch_timer >= 0.5f)
 	{
+		// 몬스터 배열에 아무도 없으면 해당 클래스 삭제
+		if (MonsterDAta.Num() == 0)
+		{
+			//this->Destroy();
+			return true;
+		}
+
 		player_Serch_timer = 0;
 		//MonsterDAta.RemoveAll([](AMMMonsterBase* Monster)
 		//	{
@@ -35,15 +42,7 @@ bool AMMMonsterArea::IfMonsterNull(float DeltaTime)
 			{
 				return Monster == nullptr || Monster->IsPendingKill();
 			});
-
 		MonsterDAta = TempMonsterData;
-
-		// 몬스터 배열에 아무도 없으면 해당 클래스 삭제
-		if (MonsterDAta.Num() == 0)
-		{
-			//this->Destroy();
-			return true;
-		}
 
 		float Distance = FVector::Distance(Player->GetActorLocation(), CheckLocation);
 		if (Distance >= 5600)
@@ -85,6 +84,6 @@ void AMMMonsterArea::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// IfMonsterNull(DeltaTime);
+	//IfMonsterNull(DeltaTime);
 }
 

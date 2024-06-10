@@ -115,13 +115,19 @@ void AMMGoblinCommander::GoblinBattleAlgorithm(float DeltaTime)
 			{
 				Count++;
 
-				FVector Direction = TargetPlayer->GetActorLocation() - WizardDatas[Number]->GetActorLocation();
-				Direction = Direction.GetSafeNormal();
-				FVector Protect = WizardDatas[Number]->GetActorLocation() + (Direction * 300);
+				if (WizardDatas.Num() != 0)
+				{
+					FVector Direction = TargetPlayer->GetActorLocation() - WizardDatas[Number]->GetActorLocation();
+					Direction = Direction.GetSafeNormal();
+					FVector Protect = WizardDatas[Number]->GetActorLocation() + (Direction * 300);
 
-				WarriorController->GetBlackboardComponent()->SetValueAsVector("ProtectLocation", Protect);
-
-				UE_LOG(LogTemp, Display, TEXT("X : %f, Y : %f, Z : %f"), Protect.X, Protect.Y, Protect.Z);
+					WarriorController->GetBlackboardComponent()->SetValueAsVector("ProtectLocation", Protect);
+				}
+				else
+				{
+					WarriorController->GetBlackboardComponent()->SetValueAsBool("Attacker", true);
+					WarriorController->GetBlackboardComponent()->SetValueAsBool("Protector", false);
+				}
 			}
 			else
 			{

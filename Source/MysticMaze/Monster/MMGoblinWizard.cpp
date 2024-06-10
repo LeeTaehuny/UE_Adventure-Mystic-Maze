@@ -157,6 +157,16 @@ void AMMGoblinWizard::BeginPlay()
 void AMMGoblinWizard::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (bDie)
+	{
+		DieTimer += DeltaTime;
+		if (DieTimer >= 1.5f)
+		{
+			DieTimer = 0;
+			Monsterdie();
+		}
+	}
 }
 
 void AMMGoblinWizard::MonsterDieMontage()

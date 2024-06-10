@@ -350,7 +350,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(ESpawnT
 
 		MonsterGoblinCommander = world->SpawnActor<AMMGoblinCommander>(GoblinCommanderData);
 
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			MonsterGobinWizard = world->SpawnActorDeferred<AMMGoblinWizard>(GoblinWizardData, FTransform(FVector()));
 			if (MonsterGobinWizard)
@@ -372,7 +372,7 @@ TArray<TObjectPtr<class AMMMonsterBase>> AMMMonsterSpawner::MonsterSpawn(ESpawnT
 			SpawnMonsters.Add(MonsterGobinWizard);
 			MonsterGoblinCommander->SerchGoblin(MonsterGobinWizard);
 		}
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < 6; i++)
 		{
 			MonsterGobinWarrior = world->SpawnActorDeferred<AMMGoblinWarrior>(GoblinWarriorData, FTransform(FVector()));
 			if (MonsterGobinWarrior)

@@ -82,4 +82,6 @@ protected:
 	uint8 ExpertMonsterSpawnOn : 1;
 	TArray<TObjectPtr<class AMMMonsterBase>> SpawnMonster;
 
+	TArray<TObjectPtr<class AMMMonsterArea>> MonsterArea;
+
 };

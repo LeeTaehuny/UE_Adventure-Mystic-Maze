@@ -134,4 +134,6 @@ protected:
 	float NormalAtK_MaxSecond = 7.0f;
 
 	uint8 NormalATKSign : 1;
+
+	float DieTimer = 0.0f;
 };

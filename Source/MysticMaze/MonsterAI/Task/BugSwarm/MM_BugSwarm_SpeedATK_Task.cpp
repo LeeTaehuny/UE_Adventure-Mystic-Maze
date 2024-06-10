@@ -124,6 +124,11 @@ void UMM_BugSwarm_SpeedATK_Task::TickTask(UBehaviorTreeComponent& OwnerComp, uin
 	
 	FPathFollowingRequestResult MoveResult = MyController->MoveTo(MoveRequest);
 
+	if (!OwnerComp.GetAIOwner()->GetPawn())
+	{
+		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+	}
+
 	IMMMugSpeedATKInterface* Monster = Cast<IMMMugSpeedATKInterface>(OwnerComp.GetAIOwner()->GetPawn());
 	if (Monster)
 	{
