@@ -419,11 +419,11 @@ float AMMPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dam
 	}
 
 	// 스킬 사용 중이라면?
-	if (IsValid(Skill->GetUsingSkill()))
-	{
-		// 스킬 캔슬하기
-		Skill->GetUsingSkill()->Cancel();
-	}
+	//if (IsValid(Skill->GetUsingSkill()))
+	//{
+	//	// 스킬 캔슬하기
+	//	Skill->GetUsingSkill()->Cancel();
+	//}
 
 	// 데미지 적용하기
 	Stat->ApplyDamage(ActualDamage);
@@ -786,6 +786,8 @@ void AMMPlayerCharacter::BasicLook(const FInputActionValue& Value)
 
 void AMMPlayerCharacter::BasicAttack()
 {
+	// 스킬 사용중에는 반환
+	if (Skill->GetUsingSkill()) return;
 	// 구르기 상태일 때 공격 불가
 	if (bIsRoll) return;
 	// 무기 스왑중에는 공격 불가
@@ -984,7 +986,7 @@ void AMMPlayerCharacter::Hit()
 		ConvertRiding();
 	}
 
-	if (!bIsGuard)
+	if (!bIsGuard && !Skill->GetUsingSkill())
 	{
 		// Hit 몽타주 재생
 		GetMesh()->GetAnimInstance()->Montage_Play(HitMontage);
@@ -1012,6 +1014,7 @@ void AMMPlayerCharacter::Death()
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 
 	// 리스폰 연동
+	RespawnTimer.Invalidate();
 	GetWorld()->GetTimerManager().SetTimer(RespawnTimer, this, &AMMPlayerCharacter::Respawn, 3.0f, false);
 }
 
@@ -1114,6 +1117,8 @@ void AMMPlayerCharacter::DrawArrow()
 	if (bIsChange) return;
 	// 무기를 장착하지 않은 경우 반환
 	if (!bIsEquip) return;
+	// 스킬 사용중이라면 반환
+	if (Skill->GetUsingSkill()) return;
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (!AnimInstance) return;
