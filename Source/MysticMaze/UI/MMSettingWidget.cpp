@@ -45,10 +45,13 @@ void UMMSettingWidget::ExitGame()
 		SavePlayer->Save();
 	}
 
-	// 게임 종료하기
+	// 세이브 파일 이름 초기화
 	UMMGameInstance* GameInstance = Cast<UMMGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	if (GameInstance)
 	{
-		GameInstance->Exit();
+		GameInstance->InitSaveFileName();
 	}
+
+	// 시작 화면으로 이동하기
+	UGameplayStatics::OpenLevel(GetWorld(), TEXT("StartLevel"));
 }

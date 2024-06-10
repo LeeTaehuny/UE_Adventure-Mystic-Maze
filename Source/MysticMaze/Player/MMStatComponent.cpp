@@ -36,7 +36,6 @@ void UMMStatComponent::Init()
 		// 현재 체력 초기화
 		SetHp(MaxHp);
 		SetMp(MaxMp);
-		SetExp(CurrentExp);
 	}
 }
 
@@ -125,13 +124,12 @@ void UMMStatComponent::SetExp(float NewExp)
 			UMMGameInstance* GameInstance = Cast<UMMGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 			if (!GameInstance) return;
 			
-			if (GameInstance->GetMaxLevel() == CurrentLevel)
-				return;
-
 			// 레벨 증가
 			CurrentLevel++;
 			// 스탯 포인트 증가
 			AvailableStatPoint += AdditiveStatPoint;
+			if (GameInstance->GetMaxLevel() == CurrentLevel)
+				return;			
 			// 현재 경험치 감소
 			CurrentExp -= MaxExp;
 			// 최대 스탯 레벨에 맞춰 지정

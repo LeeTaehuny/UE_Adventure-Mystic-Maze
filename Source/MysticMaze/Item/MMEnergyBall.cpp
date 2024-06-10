@@ -38,6 +38,9 @@ void AMMEnergyBall::BeginPlay()
 	
 	// Projectile Movement Component 비활성화
 	MovementComponent->SetActive(false);
+
+	// 3초 후 자동 삭제
+	SetLifeSpan(5.0f);
 }
 
 void AMMEnergyBall::PostInitializeComponents()
@@ -68,9 +71,6 @@ void AMMEnergyBall::Fire(FVector TargetLocation)
 	// 방향 지정 및 Projectile Movement Component 활성화
 	MovementComponent->Velocity = LaunchDirection * MovementComponent->InitialSpeed;
 	MovementComponent->Activate();
-
-	// 3초 후 자동 삭제
-	SetLifeSpan(3.0f);
 }
 
 void AMMEnergyBall::Fire()
