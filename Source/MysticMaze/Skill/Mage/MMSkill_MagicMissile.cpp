@@ -12,6 +12,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Character.h"
+#include "Sound/SoundWave.h"
+#include "Kismet/GameplayStatics.h"
 
 UMMSkill_MagicMissile::UMMSkill_MagicMissile()
 {
@@ -25,6 +27,12 @@ UMMSkill_MagicMissile::UMMSkill_MagicMissile()
 	if (EnergyBallRef.Succeeded())
 	{
 		EnergyBallClass = EnergyBallRef.Class;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundWave> SoundWaveAsset(TEXT("/Script/Engine.SoundWave'/Game/MysticMaze/Player/Animations/Skill/Mage/MagicMissile.MagicMissile'"));
+	if (SoundWaveAsset.Succeeded())
+	{
+		EffectSound = SoundWaveAsset.Object;
 	}
 
 	EnergyBallCount = 0;
@@ -168,6 +176,8 @@ void UMMSkill_MagicMissile::SkillEnd(UAnimMontage* Montage, bool IsEnded)
 
 void UMMSkill_MagicMissile::FireEnergyBall()
 {
+
+
 	if (EnergyBallCount < 3)
 	{
 		if (EnergyBalls.IsValidIndex(EnergyBallCount))
@@ -175,6 +185,11 @@ void UMMSkill_MagicMissile::FireEnergyBall()
 			EnergyBalls[EnergyBallCount]->Fire();
 			EnergyBalls[EnergyBallCount]->SetLifeSpan(2.0f);
 			EnergyBallCount++;
+
+			if (EffectSound)
+			{
+				UGameplayStatics::SpawnSoundAtLocation(GetWorld(), EffectSound, Owner->GetActorLocation());
+			}
 		}
 	}
 	else

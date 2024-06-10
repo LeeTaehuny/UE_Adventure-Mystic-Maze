@@ -38,4 +38,7 @@ private:
 	FTimerHandle EnergyBallTimer;
 	int32 EnergyBallCount;
 	void FireEnergyBall();
+
+	UPROPERTY(VisibleAnywhere, Category = "Sound")
+	TObjectPtr<class USoundWave> EffectSound;
 };
