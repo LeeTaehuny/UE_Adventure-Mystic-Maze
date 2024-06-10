@@ -3,6 +3,7 @@
 
 #include "Dungeon/MMPortal.h"
 #include "Player/MMPlayerController.h"
+#include "Interface/MMSaveInterface.h"
 #include "Collision/MMCollision.h"
 #include "UI/MMHUDWidget.h"
 
@@ -93,5 +94,10 @@ void AMMPortal::Interaction(ACharacter* PlayerCharacter)
 
 void AMMPortal::OpenLevel()
 {
-	UGameplayStatics::OpenLevel(GetWorld(), OpenLevelName);
+	IMMSaveInterface* SavePlayer = Cast<IMMSaveInterface>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	if (SavePlayer)
+	{
+		SavePlayer->Save();
+		UGameplayStatics::OpenLevel(GetWorld(), OpenLevelName);
+	}
 }

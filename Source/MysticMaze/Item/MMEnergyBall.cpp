@@ -73,8 +73,10 @@ void AMMEnergyBall::Fire(FVector TargetLocation)
 
 void AMMEnergyBall::Fire()
 {
+	if (!Owner) return;
+
 	// 타겟이 있는 경우 타겟으로 유도 발사
-	if (Target)
+	if (Target && Target->GetRootComponent())
 	{
 		MovementComponent->bIsHomingProjectile = true;
 		MovementComponent->HomingAccelerationMagnitude = 3000.0f;
