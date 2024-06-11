@@ -55,7 +55,7 @@ EBTNodeResult::Type UMM_BugSwarm_SpeedATK_Task::ExecuteTask(UBehaviorTreeCompone
 				AMMBugSwarmAIController* MyLeaderController = Cast<AMMBugSwarmAIController>(MyLeader->GetController());
 
 				// 레이 트레이스를 준비하기 위한 밑작업
-			// 플레이어의 위치에 시작점을 설정
+				// 플레이어의 위치에 시작점을 설정
 				FVector Start = MyData->GetActorLocation();
 
 				// 플레이어의 위치와 버그스웜의 위치를 통해 방향 정보를 얻음
