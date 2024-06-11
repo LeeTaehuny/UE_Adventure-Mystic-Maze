@@ -94,13 +94,6 @@ void UMMSkill_ComboSlash::SkillAttack()
 				}
 			}
 		}
-
-		// Capsule 모양의 디버깅 체크
-		FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
-		float CapsuleHalfHeight = AttackRange * 0.5f;
-		FColor DrawColor = bHasHit ? FColor::Green : FColor::Red;
-
-		DrawDebugCapsule(GetWorld(), CapsuleOrigin, CapsuleHalfHeight, AttackRadius, FRotationMatrix::MakeFromZ(PlayerCharacter->GetActorForwardVector()).ToQuat(), DrawColor, false, 3.0f);
 	}
 }
 

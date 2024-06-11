@@ -511,6 +511,7 @@ void AMMPlayerCharacter::RollStart()
 	if (bIsRoll) return;
 	if (bIsAttacking) return;
 	if (bIsHold) return;
+	if (Skill->GetUsingSkill()) return;
 
 	// 애님 인스턴스 가져오기
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
