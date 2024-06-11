@@ -1445,7 +1445,7 @@ void AMMPlayerCharacter::UseQuickSlot(int32 InNum)
 void AMMPlayerCharacter::Cheat()
 {
 	// 경험치 증가
-	Stat->SetExp(100.0f);
+	Stat->SetExp(1000.0f);
 
 	// 골드 증가
 	Inventory->AddGold(100);

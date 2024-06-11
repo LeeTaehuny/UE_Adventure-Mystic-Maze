@@ -115,10 +115,22 @@ void UMMStatComponent::SetMp(float NewMp)
 
 void UMMStatComponent::SetExp(float NewExp)
 {
+	if (CurrentLevel == 50) return;
 	CurrentExp += NewExp;
 
 	if (MaxExp && CurrentExp >= MaxExp)
 	{
+		if (CurrentLevel == 49)
+		{
+			CurrentLevel++;
+			CurrentExp = MaxExp;
+			// 변경 이벤트 발생
+			OnLevelUp.Broadcast();
+			OnExpChanged.Broadcast(CurrentExp, MaxExp);
+			UpdateDetailStatus();
+			return;
+		}
+
 		while (CurrentExp >= MaxExp)
 		{
 			UMMGameInstance* GameInstance = Cast<UMMGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
@@ -128,8 +140,6 @@ void UMMStatComponent::SetExp(float NewExp)
 			CurrentLevel++;
 			// 스탯 포인트 증가
 			AvailableStatPoint += AdditiveStatPoint;
-			if (GameInstance->GetMaxLevel() == CurrentLevel)
-				return;			
 			// 현재 경험치 감소
 			CurrentExp -= MaxExp;
 			// 최대 스탯 레벨에 맞춰 지정
