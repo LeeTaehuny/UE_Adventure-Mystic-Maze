@@ -26,7 +26,6 @@ EBTNodeResult::Type UMM_BugSwarm_SpeedATK_Task::ExecuteTask(UBehaviorTreeCompone
 	bNotifyTick = true;
 	FAIMoveRequest MoveRequest;
 	FHitResult HitResult;
-	MyController = OwnerComp.GetAIOwner();
 
 	BugSwarmCapusulData = OwnerComp.GetAIOwner()->GetCharacter()->GetCapsuleComponent();
 
@@ -122,7 +121,7 @@ void UMM_BugSwarm_SpeedATK_Task::TickTask(UBehaviorTreeComponent& OwnerComp, uin
 	MoveRequest.SetReachTestIncludesGoalRadius(true);
 	MoveRequest.SetCanStrafe(true);
 	
-	FPathFollowingRequestResult MoveResult = MyController->MoveTo(MoveRequest);
+	FPathFollowingRequestResult MoveResult = OwnerComp.GetAIOwner()->MoveTo(MoveRequest);
 
 	if (!OwnerComp.GetAIOwner()->GetPawn())
 	{

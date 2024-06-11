@@ -29,7 +29,7 @@ private:
 
 	FVector HitLocation;
 
-	AAIController* MyController;
+	//AAIController* MyController;
 	UCapsuleComponent* BugSwarmCapusulData;
 
 	

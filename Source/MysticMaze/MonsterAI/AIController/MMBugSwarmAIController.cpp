@@ -55,4 +55,14 @@ void AMMBugSwarmAIController::Tick(float DeltaTime)
 		Blackboard->SetValueAsBool("Spawn", BugSwarm->GetSpawn());
 		Blackboard->SetValueAsBool("ATK_Mode", BugSwarm->GetATKMode());
 	}
+
+	if (Soldiers.Num() != 0)
+	{
+		TArray<AMMBugSwarmAIController*> TempMonsterData = Soldiers;
+		TempMonsterData.RemoveAll([](AMMBugSwarmAIController* Monster)
+			{
+				return Monster == nullptr || Monster->IsPendingKill();
+			});
+		Soldiers = TempMonsterData;
+	}
 }
