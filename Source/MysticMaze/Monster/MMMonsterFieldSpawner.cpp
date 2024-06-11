@@ -114,12 +114,19 @@ void AMMMonsterFieldSpawner::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	TArray<AMMMonsterArea*> TempMonsterData = MonsterArea;
-	TempMonsterData.RemoveAll([](AMMMonsterArea* Monster)
+	TArray<AMMMonsterBase*> TempMonsterData = SpawnMonster;
+	TempMonsterData.RemoveAll([](AMMMonsterBase* Monster)
 		{
 			return Monster == nullptr || Monster->IsPendingKill();
 		});
-	MonsterArea = TempMonsterData;
+	SpawnMonster = TempMonsterData;
+
+	TArray<AMMMonsterArea*> TempAreaData = MonsterArea;
+	TempAreaData.RemoveAll([](AMMMonsterArea* Monster)
+		{
+			return Monster == nullptr || Monster->IsPendingKill();
+		});
+	MonsterArea = TempAreaData;
 
 	for (int i = 0; i < MonsterArea.Num(); i++)
 	{
@@ -375,22 +382,13 @@ void AMMMonsterFieldSpawner::WastBeginOverlap(UPrimitiveComponent* HitComp, AAct
 		IntermediateMonsterSpawnOn = false;
 		ExpertMonsterSpawnOn = false;
 
-		TArray<AMMMonsterBase*> TempMonsterData = SpawnMonster;
-		TempMonsterData.RemoveAll([](AMMMonsterBase* Monster)
-			{
-				return Monster == nullptr || Monster->IsPendingKill();
-			});
-		SpawnMonster = TempMonsterData;
-
 		for (int i = 0; i < SpawnMonster.Num(); i++)
 		{
-			SpawnMonster[i]->Destroy();
-		}
-		TempMonsterData.RemoveAll([](AMMMonsterBase* Monster)
+			if (SpawnMonster[i])
 			{
-				return Monster == nullptr || Monster->IsPendingKill();
-			});
-		SpawnMonster = TempMonsterData;
+				SpawnMonster[i]->Destroy();
+			}
+		}
 	}
 	else
 	{
@@ -465,24 +463,13 @@ void AMMMonsterFieldSpawner::EastBeginOverlap(UPrimitiveComponent* HitComp, AAct
 		IntermediateMonsterSpawnOn = false;
 		ExpertMonsterSpawnOn = false;
 
-		TArray<AMMMonsterBase*> TempMonsterData = SpawnMonster;
-		TempMonsterData.RemoveAll([](AMMMonsterBase* Monster)
-			{
-				return Monster == nullptr || Monster->IsPendingKill();
-			});
-		SpawnMonster = TempMonsterData;
-
 		for (int i = 0; i < SpawnMonster.Num(); i++)
 		{
-			SpawnMonster[i]->Destroy();
-		}
-		TempMonsterData.RemoveAll([](AMMMonsterBase* Monster)
+			if (IsValid(SpawnMonster[i]))
 			{
-				return Monster == nullptr || Monster->IsPendingKill();
-			});
-		SpawnMonster = TempMonsterData;
-
-		
+				SpawnMonster[i]->Destroy();
+			}
+		}
 	}
 	else
 	{
@@ -563,23 +550,13 @@ void AMMMonsterFieldSpawner::SouthBeginOverlap(UPrimitiveComponent* HitComp, AAc
 		beginerMonsterSpawnOn = false;
 		IntermediateMonsterSpawnOn = false;
 		ExpertMonsterSpawnOn = false;
-
-		TArray<AMMMonsterBase*> TempMonsterData = SpawnMonster;
-		TempMonsterData.RemoveAll([](AMMMonsterBase* Monster)
-			{
-				return Monster == nullptr || Monster->IsPendingKill();
-			});
-		SpawnMonster = TempMonsterData;
-
 		for (int i = 0; i < SpawnMonster.Num(); i++)
 		{
-			SpawnMonster[i]->Destroy();
-		}
-		TempMonsterData.RemoveAll([](AMMMonsterBase* Monster)
+			if (SpawnMonster[i])
 			{
-				return Monster == nullptr || Monster->IsPendingKill();
-			});
-		SpawnMonster = TempMonsterData;
+				SpawnMonster[i]->Destroy();
+			}
+		}
 	}
 	else
 	{

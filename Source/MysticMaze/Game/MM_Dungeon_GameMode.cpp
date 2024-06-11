@@ -114,7 +114,7 @@ void AMM_Dungeon_GameMode::SetRoomCount(FVector INData)
 		{
 			int32 FloorData = GameInstanceData->GetCurrentFloor();
 			FloorData++;
-			if (FloorData < 3)
+			if (FloorData <= 3)
 			{
 				AMMPortal* RoomPortal = GetWorld()->SpawnActor<AMMPortal>(PortalOrigin, Transform);
 			}

@@ -139,12 +139,12 @@ void AMMBugSwarm::ATKChecking()
 void AMMBugSwarm::ATKOn()
 {
 	ATK_Collision->SetCollisionProfileName(TEXT("MMLongATK"));
-	GetCapsuleComponent()->SetCollisionProfileName(TEXT("MMTrigger"));
+	//GetCapsuleComponent()->SetCollisionProfileName(TEXT("MMTrigger"));
 }
 void AMMBugSwarm::ATKOff()
 {
 	ATK_Collision->SetCollisionProfileName(TEXT("NoCollision"));
-	GetCapsuleComponent()->SetCollisionProfileName(TEXT("MMCapsule"));
+	//GetCapsuleComponent()->SetCollisionProfileName(TEXT("MMCapsule"));
 }
 
 void AMMBugSwarm::Monsterdie()
