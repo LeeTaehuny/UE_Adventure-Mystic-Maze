@@ -196,7 +196,7 @@ void AMMRoom_Class_A::EastBeginOverlap(UPrimitiveComponent* HitComp, AActor* Oth
 		bDoorRock = false;
 	}
 
-	if (!bEast_Blocking || bEast_Blocking)
+	if (!bFirstContact || bEast_Blocking)
 	{
 		bEast_Switch = true;
 		return;
