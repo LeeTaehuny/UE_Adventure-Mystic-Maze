@@ -21,6 +21,7 @@ public:
 	// 버그스웜 행동
 	// 리더가 버그스웜들을 정렬시키며 공격 명령을 내림
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
 private:
 	float TimerTicktok = 0;

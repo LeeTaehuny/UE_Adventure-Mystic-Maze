@@ -172,7 +172,5 @@ void AMMMonsterBase::SetupCharacterWidget(UMMCustomWidget* InUserWidget)
 	if (HP)
 	{
 		Stat->OnHpChanged.AddUObject(HP, &UMMMonsterHPBar::UpdateHPBar);
-
-		UE_LOG(LogTemp, Warning, TEXT("Start"));
 	}
 }

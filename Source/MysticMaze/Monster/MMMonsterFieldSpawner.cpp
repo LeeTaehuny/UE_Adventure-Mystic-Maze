@@ -410,7 +410,7 @@ void AMMMonsterFieldSpawner::WastBeginOverlap(UPrimitiveComponent* HitComp, AAct
 			SpawnMonster.Add(SpawnMonsterData[i]);
 
 			Num1MonsterArea->AddMonsterData(SpawnMonsterData[i]);
-			Num1MonsterArea->SetCheckLocation(FVector(-13060.0f, 2060.0f, -440.0f));
+			Num1MonsterArea->SetCheckLocation(FVector(13060.0f, 2060.0f, -440.0f));
 		}
 
 		SpawnMonsterData = BeginerMonsterSpawn(PlLevel, FVector(11200.0, 10880.0, -440.0));
@@ -584,7 +584,7 @@ void AMMMonsterFieldSpawner::SouthBeginOverlap(UPrimitiveComponent* HitComp, AAc
 		{
 			SpawnMonster.Add(SpawnMonsterData[i]);
 			Num1MonsterArea->AddMonsterData(SpawnMonsterData[i]);
-			Num1MonsterArea->SetCheckLocation(FVector(4090.0, -8200.0, -440.0));
+			Num1MonsterArea->SetCheckLocation(FVector(-4090.0, -8200.0, -440.0));
 		}
 
 		SpawnMonsterData = IntermediateMonsterSpawn(PlLevel, FVector(710.0, -10510.0, -440.0));
