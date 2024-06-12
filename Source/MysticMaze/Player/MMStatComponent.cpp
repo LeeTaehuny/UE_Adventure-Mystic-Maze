@@ -77,6 +77,12 @@ void UMMStatComponent::InitPlayerStatus()
 	{
 		BaseStat = GameMode->GetPlayerStat(CurrentLevel);
 		MaxExp = BaseStat.EXP;
+
+		if (MaxExp == -1)
+		{
+			CurrentExp = 1;
+			MaxExp = 1;
+		}
 	}
 
 	OnClassChanged.Broadcast();
