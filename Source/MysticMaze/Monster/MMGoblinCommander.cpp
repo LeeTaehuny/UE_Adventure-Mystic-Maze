@@ -50,7 +50,15 @@ void AMMGoblinCommander::GoblinBattleAlgorithm(float DeltaTime)
 		// 만약 전사가 2마리 이하일 경우 마법사들을 보호하지 않음
 		if (WarriorDatas.Num() <= 2)
 		{
-
+			for (int i = 0; i < WarriorDatas.Num(); i++)
+			{
+				AAIController* WarriorController = Cast<AAIController>(WarriorDatas[i]->GetController());
+				if (WarriorController)
+				{
+					WarriorController->GetBlackboardComponent()->SetValueAsBool("Attacker", true);
+					WarriorController->GetBlackboardComponent()->SetValueAsBool("Protector", false);
+				}
+			}
 		}
 		else if (WarriorDatas.Num() < 4)
 		{
@@ -86,6 +94,18 @@ void AMMGoblinCommander::GoblinBattleAlgorithm(float DeltaTime)
 			{
 				WizardController->GetBlackboardComponent()->SetValueAsBool("Dealer", true);
 				WizardController->GetBlackboardComponent()->SetValueAsBool("Support", false);
+			}
+		}
+	}
+	else
+	{
+		for (int i = 0; i < WarriorDatas.Num(); i++)
+		{
+			AAIController* WarriorController = Cast<AAIController>(WarriorDatas[i]->GetController());
+			if (WarriorController)
+			{
+				WarriorController->GetBlackboardComponent()->SetValueAsBool("Attacker", true);
+				WarriorController->GetBlackboardComponent()->SetValueAsBool("Protector", false);
 			}
 		}
 	}
