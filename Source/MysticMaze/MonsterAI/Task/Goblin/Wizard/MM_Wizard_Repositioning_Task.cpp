@@ -30,10 +30,19 @@ EBTNodeResult::Type UMM_Wizard_Repositioning_Task::ExecuteTask(UBehaviorTreeComp
     FVector Direction = OwnerComp.GetAIOwner()->GetPawn()->GetActorLocation() - PlayerData->GetActorLocation();
     Direction = Direction.GetSafeNormal();
 
-    Repositioning_Location = OwnerComp.GetAIOwner()->GetPawn()->GetActorLocation() + (Direction * 500);
+    float TargetDistance = FVector::Distance(OwnerComp.GetAIOwner()->GetPawn()->GetActorLocation(), PlayerData->GetActorLocation());
+    if (TargetDistance >= 500)
+    {
+        return EBTNodeResult::Failed;
+    }
+    else
+    {
+        Repositioning_Location = OwnerComp.GetAIOwner()->GetPawn()->GetActorLocation()
+            + (Direction * 1000);
 
-    bNotifyTick = true;
-	return EBTNodeResult::InProgress;
+        bNotifyTick = true;
+        return EBTNodeResult::InProgress;
+    }
 }
 
 void UMM_Wizard_Repositioning_Task::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
