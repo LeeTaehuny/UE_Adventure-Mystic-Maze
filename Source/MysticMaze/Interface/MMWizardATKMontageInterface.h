@@ -26,4 +26,6 @@ public:
 	virtual void SetNormalATK(bool INData) = 0;
 	virtual bool GetMontagePlaying() = 0;
 
+	virtual void StopMove() = 0;
+
 };

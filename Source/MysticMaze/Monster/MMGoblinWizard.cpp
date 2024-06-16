@@ -5,6 +5,7 @@
 
 #include "MonsterAI/AIController/MMGoblinWizardAIController.h"
 
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Collision/MMCollision.h"
 #include "Monster/Magic/MMFireBall.h"
@@ -331,6 +332,11 @@ void AMMGoblinWizard::StartATKMonatage(int INData)
 bool AMMGoblinWizard::GetMontagePlaying()
 {
 	return GetMesh()->GetAnimInstance()->Montage_IsPlaying(BodyNormalATK);
+}
+
+void AMMGoblinWizard::StopMove()
+{
+	GetCharacterMovement()->StopMovementImmediately();
 }
 
 void AMMGoblinWizard::MonsterHitAnim()

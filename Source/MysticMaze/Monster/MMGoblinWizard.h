@@ -80,6 +80,7 @@ protected:
 	FORCEINLINE virtual void SetMInSecondATK(float INData) override { NormalAtK_MinSecond = INData; };
 	FORCEINLINE virtual bool GetNormalATK() override { return NormalATKSign; }
 	FORCEINLINE virtual void SetNormalATK(bool INData) override { NormalATKSign = INData; }
+	FORCEINLINE virtual void StopMove() override;
 
 	// IMMStatusInterface : 마법사의 스텟 컴포넌트를 반환하기 위한 인터페이스
 	FORCEINLINE virtual class UMMStatComponent* GetStatComponent() override { return Stat; }

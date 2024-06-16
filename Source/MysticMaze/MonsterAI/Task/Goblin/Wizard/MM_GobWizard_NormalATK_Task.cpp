@@ -54,6 +54,7 @@ void UMM_GobWizard_NormalATK_Task::TickTask(UBehaviorTreeComponent& OwnerComp, u
         {
             FRotator NewRotation = UKismetMathLibrary::FindLookAtRotation(OwnerComp.GetAIOwner()->GetPawn()->GetActorLocation(), PlayerData->GetActorLocation());
             OwnerComp.GetAIOwner()->GetPawn()->SetActorRotation(NewRotation);
+            GoblinWizard->StopMove();
         }
         else
         {
