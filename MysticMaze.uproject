@@ -9,7 +9,10 @@
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
-				"Engine"
+				"Engine",
+				"AIModule",
+				"CoreUObject",
+				"UMG"
 			]
 		}
 	],
@@ -28,6 +31,10 @@
 			"SupportedTargetPlatforms": [
 				"Win64"
 			]
+		},
+		{
+			"Name": "Water",
+			"Enabled": true
 		}
 	]
 }

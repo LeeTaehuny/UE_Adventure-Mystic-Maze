@@ -73,4 +73,24 @@ Plugins/*/Intermediate/*
 # Cache files for the editor to use
 DerivedDataCache/*
 
-Content/*
+# Content Assets
+*Content/Pirate
+*Content/QuadrapedCreatures
+*Content/Megascans
+*Content/MSPresets
+*Content/Mutant
+*Content/Arrows
+*Content/InfinityBladeWeapons
+*Content/ThirdPerson
+*Content/FXVarietyPack
+*Content/BugSwarm
+*Content/ParagonMinions
+*Content/Mechanite
+*Content/ParagonGrux
+*Content/ParagonGreystone
+*Content/Niagara
+*Content/Goblin
+*Content/Demo
+
+*Content/FantasyBundle
+*Content/BlinkAndDashVFX
